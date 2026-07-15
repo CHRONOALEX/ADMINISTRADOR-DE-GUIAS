@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GUIAS RK- ADMIN & CUADRATURA V0.3</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20x%3D%222%22%20y%3D%2224%22%20width%3D%2234%22%20height%3D%2220%22%20rx%3D%222%22%20fill%3D%22%23d81f2a%22/%3E%3Cpath%20d%3D%22M36%2030%20h13%20l9%209%20v5%20h-22%20z%22%20fill%3D%22%23d81f2a%22/%3E%3Crect%20x%3D%2243%22%20y%3D%2233%22%20width%3D%228%22%20height%3D%226%22%20rx%3D%221%22%20fill%3D%22%23bfe3ff%22/%3E%3Crect%20x%3D%222%22%20y%3D%2220%22%20width%3D%2234%22%20height%3D%225%22%20fill%3D%22%238f151d%22/%3E%3Crect%20x%3D%222%22%20y%3D%2242%22%20width%3D%2252%22%20height%3D%222%22%20fill%3D%22%231a1a1a%22%20opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%2214%22%20cy%3D%2246%22%20r%3D%226%22%20fill%3D%22%23111%22/%3E%3Ccircle%20cx%3D%2214%22%20cy%3D%2246%22%20r%3D%222.3%22%20fill%3D%22%23999%22/%3E%3Ccircle%20cx%3D%2246%22%20cy%3D%2246%22%20r%3D%226%22%20fill%3D%22%23111%22/%3E%3Ccircle%20cx%3D%2246%22%20cy%3D%2246%22%20r%3D%222.3%22%20fill%3D%22%23999%22/%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght=300;400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
@@ -28,7 +29,12 @@
         --bad: #ef4444;
         --glow: rgba(155, 34, 34, 0.15);
     }
-    * { box-sizing: border-box; outline: none; }
+    * { box-sizing: border-box; outline: none; scrollbar-width: thin; scrollbar-color: var(--carbon-border) var(--carbon-dark); }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: var(--carbon-dark); }
+    ::-webkit-scrollbar-thumb { background: var(--carbon-border); border-radius: 10px; border: 2px solid var(--carbon-dark); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+    ::-webkit-scrollbar-corner { background: var(--carbon-dark); }
     body {
         font-family: 'Lexend', sans-serif;
         margin: 0;
@@ -57,37 +63,6 @@
 
     #app-root { display: none; flex-direction: column; padding: 16px; gap: 16px; max-width: 1200px; margin: 0 auto; }
 
-    /* ---- Tabs Navigation ---- */
-    .tabs-nav {
-        display: flex;
-        gap: 8px;
-        border-bottom: 2px solid var(--carbon-border);
-        padding-bottom: 8px;
-        margin-bottom: 8px;
-    }
-    .tab-btn {
-        background: var(--carbon-light);
-        color: var(--text-dim);
-        border: 1px solid var(--carbon-border);
-        border-bottom: none;
-        border-radius: 8px 8px 0 0;
-        padding: 10px 20px;
-        font-family: 'Lexend', sans-serif;
-        font-weight: 600;
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    .tab-btn:hover {
-        background: var(--carbon-border);
-        color: var(--white);
-    }
-    .tab-btn.active {
-        background: var(--primary);
-        color: var(--white);
-        border-color: var(--primary);
-        box-shadow: 0 -2px 10px var(--glow);
-    }
     .tab-content {
         display: none;
         flex-direction: column;
@@ -97,47 +72,69 @@
         display: flex;
     }
 
-    /* ---- Buscador Universal ---- */
-    #search-container {
-        position: relative;
-        margin-bottom: 4px;
+    /* ---- Barra superior unificada (Top Nav) ---- */
+    #top-nav {
+        display: flex; align-items: center; gap: 16px;
+        background: linear-gradient(135deg, #7a1919 0%, var(--primary) 55%, #8f1f1f 100%);
+        border: 1px solid #5c1414;
+        border-radius: 14px;
+        padding: 10px 14px;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+        position: sticky; top: 8px; z-index: 200;
     }
-    #search-universal {
-        width: 100%;
-        background: var(--carbon-light);
-        color: var(--white);
-        border: 2px solid var(--carbon-border);
-        border-radius: 10px;
-        padding: 14px 16px 14px 46px;
-        font-family: 'Lexend', sans-serif;
-        font-size: 0.95rem;
-        transition: all 0.2s ease;
+    .top-nav-tabs { display: flex; gap: 8px; flex: 0 0 auto; }
+    .nav-tab-btn {
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+        background: rgba(0,0,0,0.18); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.75);
+        border-radius: 10px; padding: 8px 14px; cursor: pointer; font-family: 'Lexend', sans-serif;
+        font-size: 0.62rem; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; line-height: 1.25;
+        transition: all 0.2s ease; min-width: 78px;
     }
-    #search-universal:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px var(--glow);
+    .nav-tab-btn i { font-size: 1.05rem; color: var(--accent); }
+    .nav-tab-btn:hover { background: rgba(0,0,0,0.3); color: var(--white); transform: translateY(-1px); }
+    .nav-tab-btn.active {
+        background: var(--white); color: var(--primary); border-color: var(--white);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.35);
     }
-    .search-icon {
-        position: absolute;
-        left: 16px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-dim);
-        font-size: 1.1rem;
-        pointer-events: none;
+    .nav-tab-btn.active i { color: var(--primary); }
+
+    .top-nav-search { flex: 1 1 auto; min-width: 0; position: relative; }
+    .nav-search-group { display: none; align-items: center; gap: 8px; }
+    .nav-search-group.active { display: flex; }
+    .nav-search-group .search-icon { position: static; transform: none; color: rgba(255,255,255,0.6); font-size: 0.9rem; }
+    .nav-search-group input[type="text"] {
+        flex: 1; min-width: 0; background: rgba(0,0,0,0.28); color: var(--white);
+        border: 1px solid rgba(255,255,255,0.15); border-radius: 9px; padding: 10px 14px;
+        font-family: 'Lexend', sans-serif; font-size: 0.85rem; transition: all 0.2s;
+    }
+    .nav-search-group input[type="text"]::placeholder { color: rgba(255,255,255,0.5); }
+    .nav-search-group input[type="text"]:focus { background: rgba(0,0,0,0.4); border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,193,7,0.15); }
+    .nav-search-group select {
+        background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.15); color: var(--white);
+        border-radius: 9px; padding: 10px 10px; font-family: 'Lexend', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer;
     }
 
-    #user-bar {
-        display: flex; align-items: center; justify-content: space-between;
-        background: var(--carbon-light); padding: 10px 16px; font-size: 0.75rem; color: var(--text-dim);
-        border-radius: 10px; border: 1px solid var(--carbon-border);
+    .top-nav-user {
+        display: flex; align-items: center; gap: 8px; flex: 0 0 auto;
+        background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 20px; padding: 5px 6px 5px 12px;
     }
-    #user-bar #btn-logout {
-        background: transparent; border: 1px solid var(--carbon-border);
-        color: var(--text-dim); border-radius: 6px; padding: 6px 12px;
-        font-size: 0.75rem; font-family: 'Lexend', sans-serif; cursor: pointer; transition: all 0.2s;
+    .top-nav-user #user-email {
+        font-size: 0.65rem; color: rgba(255,255,255,0.75); font-weight: 500;
+        max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
-    #user-bar #btn-logout:hover { background: var(--bad); color: var(--white); border-color: var(--bad); }
+    .top-nav-user #btn-logout {
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.85);
+        width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-size: 0.7rem; transition: all 0.2s;
+    }
+    .top-nav-user #btn-logout:hover { background: var(--bad); border-color: var(--bad); color: var(--white); }
+
+    @media (max-width: 760px) {
+        #top-nav { flex-wrap: wrap; position: static; }
+        .top-nav-search { order: 3; flex: 1 1 100%; }
+        .top-nav-user #user-email { display: none; }
+    }
 
     h1.page-title { font-size: 1.2rem; margin: 4px 0; color: var(--white); font-weight: 600; letter-spacing: 0.5px; }
 
@@ -253,6 +250,14 @@
     .empty-msg { text-align: center; padding: 30px 20px; color: var(--text-dim); font-size: 0.9rem; }
     .form-row { display: flex; flex-wrap: wrap; gap: 10px; }
     .form-row > * { flex: 1; min-width: 140px; }
+    .form-row input, .form-row select {
+        background: #000; color: var(--white); border: 1px solid var(--carbon-border);
+        border-radius: 8px; padding: 10px 12px; font-family: 'Lexend', sans-serif; font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+    .form-row input:focus, .form-row select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--glow); }
+    .form-row select { cursor: pointer; }
+    .form-row .btn-primary { flex: 0 0 auto; min-width: 150px; }
 
     /* ---- Mini calendario (mover fecha) ---- */
     .mini-calendar-popup {
@@ -321,25 +326,42 @@
 
     <div id="app-root">
 
-        <div id="user-bar">
-            <span id="user-email"></span>
-            <button id="btn-logout" onclick="logout()">CERRAR SESIÓN</button>
-        </div>
+        <!-- ================= BARRA SUPERIOR UNIFICADA ================= -->
+        <div id="top-nav">
+            <div class="top-nav-tabs">
+                <button class="nav-tab-btn active" onclick="switchTab('admin-tab', this)" title="Administrador de Guías">
+                    <i class="fas fa-boxes-stacked"></i>
+                    <span>Admin.<br>Guías</span>
+                </button>
+                <button class="nav-tab-btn" onclick="switchTab('cuadratura-tab', this)" title="Cuadratura Redpack">
+                    <i class="fas fa-scale-balanced"></i>
+                    <span>Cuadratura<br>Redpack</span>
+                </button>
+            </div>
 
-        <!-- Navegación de Pestañas -->
-        <div class="tabs-nav">
-            <button class="tab-btn active" onclick="switchTab('admin-tab', this)">Administrador de Guías</button>
-            <button class="tab-btn" onclick="switchTab('cuadratura-tab', this)">Cuadratura Redpack</button>
+            <div class="top-nav-search">
+                <div id="search-wrap-admin" class="nav-search-group active">
+                    <span class="search-icon"><i class="fas fa-magnifying-glass"></i></span>
+                    <input type="text" id="search-universal" placeholder="Buscador rápido universal (Escribe una guía y presiona enter o espera...)" oninput="render()">
+                </div>
+                <div id="search-wrap-cuadratura" class="nav-search-group">
+                    <span class="search-icon"><i class="fas fa-magnifying-glass"></i></span>
+                    <input type="text" id="smart-search" placeholder="Buscar guía, chofer o viaje..." oninput="smartFilter()">
+                    <select id="filter-proveedor" onchange="smartFilter()">
+                        <option value="ROMBO" selected>ROMBO</option>
+                        <option value="QP">QP</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="top-nav-user">
+                <span id="user-email"></span>
+                <button id="btn-logout" onclick="logout()" title="Cerrar sesión"><i class="fas fa-right-from-bracket"></i></button>
+            </div>
         </div>
 
         <!-- ================= PESTAÑA 1: ADMINISTRADOR DE GUIAS ================= -->
         <div id="admin-tab" class="tab-content active">
-            
-            <!-- Buscador Universal Superior Admin -->
-            <div id="search-container">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="search-universal" placeholder="Buscador rápido universal (Escribe una guía y presiona enter o espera...)" oninput="render()">
-            </div>
 
             <h1 class="page-title">Panel de administración de guías</h1>
 
@@ -478,18 +500,6 @@
                     <button id="btn-process" class="btn-primary" onclick="processAllData()" style="padding: 8px 14px; font-size:0.75rem;">
                         PROCESAR <i id="btn-loader" class="fas fa-circle-notch loading-spinner" style="display:none; margin-left:6px;"></i>
                     </button>
-                </div>
-
-                <div class="c-flex-center" style="flex: 1; justify-content: flex-end; max-width: 500px;">
-                    <div style="position: relative; flex: 1;">
-                        <input type="text" id="smart-search" placeholder="Buscar guía, chofer o viaje..." oninput="smartFilter()" 
-                               style="width:100%; background:#000; border:1px solid var(--carbon-border); border-radius:8px; padding: 8px 12px 8px 32px; color:#fff; font-family:'Lexend'; font-size:0.8rem;">
-                        <i class="fas fa-search" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--text-dim); font-size:0.8rem;"></i>
-                    </div>
-                    <select id="filter-proveedor" onchange="smartFilter()" style="background:#000; border:1px solid var(--carbon-border); border-radius:8px; padding:8px; color:#fff; font-family:'Lexend'; font-size:0.8rem; font-weight:700;">
-                        <option value="ROMBO" selected>ROMBO</option>
-                        <option value="QP">QP</option>
-                    </select>
                 </div>
 
                 <div id="info-display" style="display:none;" class="c-flex-center">
@@ -678,10 +688,15 @@
     // ============ CONTROL DE PESTAÑAS ============
     function switchTab(tabId, btn) {
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
         
         document.getElementById(tabId).classList.add('active');
         btn.classList.add('active');
+
+        // Activar solo la barra de búsqueda de la pestaña visible
+        document.querySelectorAll('.nav-search-group').forEach(g => g.classList.remove('active'));
+        const searchId = tabId === 'admin-tab' ? 'search-wrap-admin' : 'search-wrap-cuadratura';
+        document.getElementById(searchId).classList.add('active');
         
         // Ajustar tamaño del chart en caso de renderizarse oculto
         if (tabId === 'cuadratura-tab' && chartInstance) {

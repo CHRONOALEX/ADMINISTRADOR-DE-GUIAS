@@ -3,11 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GUIAS RPK- ADMIN V0.2</title>
-<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
+<title>GUIAS RK- ADMIN & CUADRATURA V0.3</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght=300;400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <style>
     :root {
         --primary: #9b2222;
@@ -33,6 +36,7 @@
         color: var(--text-main);
         min-height: 100vh;
         background-image: radial-gradient(circle at top right, #1f1212 0%, var(--carbon-dark) 60%);
+        font-size: 13px;
     }
     #login-screen {
         display: flex; position: fixed; inset: 0; background: var(--carbon-dark);
@@ -52,6 +56,46 @@
     #login-status { font-size: 0.8rem; color: var(--accent); min-height: 1.2em; }
 
     #app-root { display: none; flex-direction: column; padding: 16px; gap: 16px; max-width: 1200px; margin: 0 auto; }
+
+    /* ---- Tabs Navigation ---- */
+    .tabs-nav {
+        display: flex;
+        gap: 8px;
+        border-bottom: 2px solid var(--carbon-border);
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+    }
+    .tab-btn {
+        background: var(--carbon-light);
+        color: var(--text-dim);
+        border: 1px solid var(--carbon-border);
+        border-bottom: none;
+        border-radius: 8px 8px 0 0;
+        padding: 10px 20px;
+        font-family: 'Lexend', sans-serif;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .tab-btn:hover {
+        background: var(--carbon-border);
+        color: var(--white);
+    }
+    .tab-btn.active {
+        background: var(--primary);
+        color: var(--white);
+        border-color: var(--primary);
+        box-shadow: 0 -2px 10px var(--glow);
+    }
+    .tab-content {
+        display: none;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .tab-content.active {
+        display: flex;
+    }
 
     /* ---- Buscador Universal ---- */
     #search-container {
@@ -209,12 +253,29 @@
     .empty-msg { text-align: center; padding: 30px 20px; color: var(--text-dim); font-size: 0.9rem; }
     .form-row { display: flex; flex-wrap: wrap; gap: 10px; }
     .form-row > * { flex: 1; min-width: 140px; }
+
+    /* ---- ESTILOS EXCLUSIVOS CUADRATURA ---- */
+    .loading-spinner { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    th.sortable { cursor: pointer; transition: all 0.2s; position: relative; }
+    th.sortable:hover { background-color: var(--carbon-border); color: white; }
+    .card-stats { min-height: 90px; }
+    .cuadratura-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    @media (min-width: 1024px) {
+        .cuadratura-grid {
+            grid-template-columns: 1fr 3fr;
+        }
+    }
 </style>
 </head>
 <body>
 
     <div id="login-screen">
-        <h1>SCANNER V4 - ADMIN</h1>
+        <h1>Guias RK - ADMIN</h1>
         <p>Inicia sesión con tu cuenta de Google para administrar las guías</p>
         <button id="btn-google-login" onclick="signInWithGoogle()">
             <svg width="18" height="18" viewBox="0 0 18 18" style="margin-right:2px;"><path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.25h2.91c1.7-1.56 2.68-3.86 2.68-6.58z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.22l-2.91-2.25c-.8.54-1.83.86-3.05.86-2.35 0-4.34-1.58-5.05-3.71H1.02V13c1.48 2.94 4.53 4.96 8.02 4.96z"/><path fill="#FBBC05" d="M3.95 10.68c-.18-.54-.28-1.12-.28-1.72s.1-1.18.28-1.72V4.99H1.02A8.97 8.97 0 0 0 0 9c0 1.49.36 2.92 1.02 4.21l2.93-2.53z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.4A8.99 8.99 0 0 0 1.02 5l2.93 2.53c.71-2.13 2.7-3.71 5.05-3.71z"/></svg>
@@ -225,134 +286,329 @@
 
     <div id="app-root">
 
-        <!-- Buscador Universal Superior (Ignora fechas) -->
-        <div id="search-container">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="search-universal" placeholder="Buscador rápido universal (Escribe una guía y presiona enter o espera...)" oninput="render()">
-        </div>
-
         <div id="user-bar">
             <span id="user-email"></span>
             <button id="btn-logout" onclick="logout()">CERRAR SESIÓN</button>
         </div>
 
-        <h1 class="page-title">Panel de administración de guías</h1>
-
-        <div id="stats-panel" class="card">
-            <div class="stat-box stat-today"><div class="stat-num" id="stat-hoy">0</div><div class="stat-label">ESCANEADAS HOY</div></div>
-            <div class="stat-box"><div class="stat-num" id="stat-semana">0</div><div class="stat-label">ESCANEADAS ESTA SEMANA</div></div>
-            <div class="stat-box"><div class="stat-num" id="stat-tr2">0</div><div class="stat-label">NO EMBARCADO TR2</div></div>
-            <div class="stat-box"><div class="stat-num" id="stat-dev">0</div><div class="stat-label">DEVOLUCIÓN</div></div>
-            <div class="stat-box"><div class="stat-num" id="stat-rojos">0</div><div class="stat-label">PAQUETES ROJOS NM</div></div>
+        <!-- Navegación de Pestañas -->
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('admin-tab', this)">Administrador de Guías</button>
+            <button class="tab-btn" onclick="switchTab('cuadratura-tab', this)">Cuadratura Redpack</button>
         </div>
 
-        <div id="filter-bar" class="card">
-            <div class="filter-group">
-                <label style="font-size:0.75rem; color:var(--text-dim); font-weight: 600;">Fecha:</label>
-                <div class="date-control">
-                    <button class="date-nav-btn" onclick="stepDate(-1)">◀</button>
-                    <input type="date" id="filter-date" onchange="render()">
-                    <button class="date-nav-btn" onclick="stepDate(1)">▶</button>
+        <!-- ================= PESTAÑA 1: ADMINISTRADOR DE GUIAS ================= -->
+        <div id="admin-tab" class="tab-content active">
+            
+            <!-- Buscador Universal Superior Admin -->
+            <div id="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="search-universal" placeholder="Buscador rápido universal (Escribe una guía y presiona enter o espera...)" oninput="render()">
+            </div>
+
+            <h1 class="page-title">Panel de administración de guías</h1>
+
+            <div id="stats-panel" class="card">
+                <div class="stat-box stat-today"><div class="stat-num" id="stat-hoy">0</div><div class="stat-label">ESCANEADAS HOY</div></div>
+                <div class="stat-box"><div class="stat-num" id="stat-semana">0</div><div class="stat-label">ESCANEADAS ESTA SEMANA</div></div>
+                <div class="stat-box"><div class="stat-num" id="stat-tr2">0</div><div class="stat-label">NO EMBARCADO TR2</div></div>
+                <div class="stat-box"><div class="stat-num" id="stat-dev">0</div><div class="stat-label">DEVOLUCIÓN</div></div>
+                <div class="stat-box"><div class="stat-num" id="stat-rojos">0</div><div class="stat-label">PAQUETES ROJOS NM</div></div>
+            </div>
+
+            <div id="filter-bar" class="card">
+                <div class="filter-group">
+                    <label style="font-size:0.75rem; color:var(--text-dim); font-weight: 600;">Fecha:</label>
+                    <div class="date-control">
+                        <button class="date-nav-btn" onclick="stepDate(-1)">◀</button>
+                        <input type="date" id="filter-date" onchange="render()">
+                        <button class="date-nav-btn" onclick="stepDate(1)">▶</button>
+                    </div>
+                    <button class="btn-primary btn-secondary" onclick="clearDateFilter()">VER TODAS</button>
                 </div>
-                <button class="btn-primary btn-secondary" onclick="clearDateFilter()">VER TODAS</button>
+
+                <button class="btn-primary btn-inject" onclick="injectGuidesCopy()">⚡ INYECTAR GUÍAS (COPIAR)</button>
+
+                <div class="filter-group" style="margin-left:auto;">
+                    <label style="font-size:0.75rem; color:var(--text-dim); font-weight:600;">Orden:</label>
+                    <select id="sort-order" onchange="render()">
+                        <option value="desc">Más reciente primero</option>
+                        <option value="asc">Más antiguo primero</option>
+                    </select>
+                    <span id="total-count" style="font-size:0.75rem; color:var(--text-dim); font-weight:600; background: rgba(255,255,255,0.05); padding:6px 12px; border-radius:6px; border:1px solid var(--carbon-border);"></span>
+                </div>
             </div>
 
-            <button class="btn-primary btn-inject" onclick="injectGuidesCopy()">⚡ INYECTAR GUÍAS (COPIAR)</button>
+            <div id="bulk-bar" class="card">
+                <span class="bulk-count"><span id="bulk-count-num">0</span> seleccionadas</span>
 
-            <div class="filter-group" style="margin-left:auto;">
-                <label style="font-size:0.75rem; color:var(--text-dim); font-weight:600;">Orden:</label>
-                <select id="sort-order" onchange="render()">
-                    <option value="desc">Más reciente primero</option>
-                    <option value="asc">Más antiguo primero</option>
-                </select>
-                <span id="total-count" style="font-size:0.75rem; color:var(--text-dim); font-weight:600; background: rgba(255,255,255,0.05); padding:6px 12px; border-radius:6px; border:1px solid var(--carbon-border);"></span>
-            </div>
-        </div>
-
-        <div id="bulk-bar" class="card">
-            <span class="bulk-count"><span id="bulk-count-num">0</span> seleccionadas</span>
-
-            <select id="bulk-accion" onchange="onBulkAccionChange()">
-                <option value="__NOCHANGE__">Acción: no cambiar</option>
-                <option value="INYECCIÓN">INYECCIÓN</option>
-                <option value="DEVOLUCIÓN A ORIGEN">DEVOLUCIÓN A ORIGEN</option>
-            </select>
-
-            <select id="bulk-categoria">
-                <option value="__NOCHANGE__">Categoría: no cambiar</option>
-            </select>
-
-            <select id="bulk-prov">
-                <option value="__NOCHANGE__">Proveedor: no cambiar</option>
-                <option value="ROMBO">ROMBO</option>
-                <option value="QP">QP</option>
-                <option value="EMISSARY">EMISSARY</option>
-                <option value="OTRO">OTRO</option>
-            </select>
-
-            <select id="bulk-tipo">
-                <option value="__NOCHANGE__">Tipo: no cambiar</option>
-                <option value="NO EMBARCADO TR2">NO EMBARCADO TR2</option>
-                <option value="DEVOLUCIÓN">DEVOLUCIÓN</option>
-                <option value="PAQUETES ROJOS NM">PAQUETES ROJOS NM</option>
-            </select>
-
-            <div style="display: flex; align-items: center; gap: 6px;">
-                <label style="font-size:0.7rem; color:var(--accent); font-weight:600;">Mover fecha:</label>
-                <input type="date" id="bulk-date">
-            </div>
-
-            <button class="btn-primary" onclick="applyBulkEdit()">APLICAR</button>
-            <button class="btn-primary btn-danger" onclick="deleteBulk()">ELIMINAR</button>
-        </div>
-
-        <div class="card">
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 40px;"><input type="checkbox" id="check-all" onchange="toggleSelectAll(this)"></th>
-                            <th>GUÍA</th>
-                            <th>FECHA</th>
-                            <th>ACCIÓN</th>
-                            <th>CATEGORÍA</th>
-                            <th>PROVEEDOR</th>
-                            <th>TIPO</th>
-                            <th>OPERADOR</th>
-                            <th style="width: 80px; text-align: center;">ACCIONES</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body"></tbody>
-                </table>
-            </div>
-            <div id="empty-msg" class="empty-msg" style="display:none;">No hay guías para este filtro o búsqueda.</div>
-        </div>
-
-        <div class="card">
-            <div style="font-size:0.85rem; font-weight:600; color:var(--accent); margin-bottom:12px; letter-spacing: 0.5px;">AGREGAR GUÍA MANUALMENTE</div>
-            <div class="form-row">
-                <input type="text" id="new-guia" placeholder="Número de guía">
-                <select id="new-accion">
+                <select id="bulk-accion" onchange="onBulkAccionChange()">
+                    <option value="__NOCHANGE__">Acción: no cambiar</option>
                     <option value="INYECCIÓN">INYECCIÓN</option>
                     <option value="DEVOLUCIÓN A ORIGEN">DEVOLUCIÓN A ORIGEN</option>
                 </select>
-                <select id="new-categoria"></select>
-            </div>
-            <div class="form-row" style="margin-top:10px;">
-                <select id="new-prov">
+
+                <select id="bulk-categoria">
+                    <option value="__NOCHANGE__">Categoría: no cambiar</option>
+                </select>
+
+                <select id="bulk-prov">
+                    <option value="__NOCHANGE__">Proveedor: no cambiar</option>
                     <option value="ROMBO">ROMBO</option>
                     <option value="QP">QP</option>
                     <option value="EMISSARY">EMISSARY</option>
                     <option value="OTRO">OTRO</option>
                 </select>
-                <select id="new-tipo">
+
+                <select id="bulk-tipo">
+                    <option value="__NOCHANGE__">Tipo: no cambiar</option>
                     <option value="NO EMBARCADO TR2">NO EMBARCADO TR2</option>
                     <option value="DEVOLUCIÓN">DEVOLUCIÓN</option>
                     <option value="PAQUETES ROJOS NM">PAQUETES ROJOS NM</option>
                 </select>
-                <button class="btn-primary" onclick="addGuiaManual()">AGREGAR GUÍA</button>
+
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <label style="font-size:0.7rem; color:var(--accent); font-weight:600;">Mover fecha:</label>
+                    <input type="date" id="bulk-date">
+                </div>
+
+                <button class="btn-primary" onclick="applyBulkEdit()">APLICAR</button>
+                <button class="btn-primary btn-danger" onclick="deleteBulk()">ELIMINAR</button>
+            </div>
+
+            <div class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;"><input type="checkbox" id="check-all" onchange="toggleSelectAll(this)"></th>
+                                <th>GUÍA</th>
+                                <th>FECHA</th>
+                                <th>ACCIÓN</th>
+                                <th>CATEGORÍA</th>
+                                <th>PROVEEDOR</th>
+                                <th>TIPO</th>
+                                <th>OPERADOR</th>
+                                <th style="width: 80px; text-align: center;">ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+                <div id="empty-msg" class="empty-msg" style="display:none;">No hay guías para este filtro o búsqueda.</div>
+            </div>
+
+            <div class="card">
+                <div style="font-size:0.85rem; font-weight:600; color:var(--accent); margin-bottom:12px; letter-spacing: 0.5px;">AGREGAR GUÍA MANUALMENTE</div>
+                <div class="form-row">
+                    <input type="text" id="new-guia" placeholder="Número de guía">
+                    <select id="new-accion">
+                        <option value="INYECCIÓN">INYECCIÓN</option>
+                        <option value="DEVOLUCIÓN A ORIGEN">DEVOLUCIÓN A ORIGEN</option>
+                    </select>
+                    <select id="new-categoria"></select>
+                </div>
+                <div class="form-row" style="margin-top:10px;">
+                    <select id="new-prov">
+                        <option value="ROMBO">ROMBO</option>
+                        <option value="QP">QP</option>
+                        <option value="EMISSARY">EMISSARY</option>
+                        <option value="OTRO">OTRO</option>
+                    </select>
+                    <select id="new-tipo">
+                        <option value="NO EMBARCADO TR2">NO EMBARCADO TR2</option>
+                        <option value="DEVOLUCIÓN">DEVOLUCIÓN</option>
+                        <option value="PAQUETES ROJOS NM">PAQUETES ROJOS NM</option>
+                    </select>
+                    <button class="btn-primary" onclick="addGuiaManual()">AGREGAR GUÍA</button>
+                </div>
             </div>
         </div>
+
+        <!-- ================= PESTAÑA 2: CUADRATURA REDPACK ================= -->
+        <div id="cuadratura-tab" class="tab-content">
+            
+            <!-- Barra Superior Cuadratura -->
+            <div class="card flex flex-col md:flex-row items-center justify-between gap-3">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <div class="bg-red-600 p-2 rounded-lg">
+                            <i class="fas fa-truck-fast text-white text-base"></i>
+                        </div>
+                        <h1 class="text-sm font-extrabold tracking-tight whitespace-nowrap">CUADRATURA <span class="text-red-600">REDPACK</span></h1>
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <input type="file" id="fileViajes" class="hidden" accept=".xlsx, .xls">
+                        <label for="fileViajes" class="cursor-pointer bg-borderGray hover:bg-white hover:text-black text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition flex items-center" style="background: var(--carbon-border);">
+                            <i class="fas fa-file-excel mr-1.5"></i> SUBIR ARCHIVO
+                        </label>
+                        <button id="btn-process" onclick="processAllData()" class="btn-primary text-white px-3 py-1.5 rounded-lg text-[10px] font-black transition flex items-center">
+                            <span>PROCESAR</span>
+                            <i id="btn-loader" class="fas fa-circle-notch loading-spinner hidden ml-1.5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 flex-1 max-w-full md:max-w-md">
+                    <div class="relative flex-1" style="position: relative; width: 100%;">
+                        <input type="text" id="smart-search" 
+                            class="bg-carbon border border-borderGray text-white text-[11px] rounded-lg focus:ring-red-600 focus:border-red-600 block w-full p-2 pl-8 outline-none transition" 
+                            style="background: #000; border: 1px solid var(--carbon-border); width: 100%; border-radius: 8px; padding-left: 28px;"
+                            placeholder="Guía, Chofer o Viaje..."
+                            oninput="smartFilter()">
+                        <i class="fas fa-search text-gray-500 text-[10px]" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%);"></i>
+                    </div>
+                    
+                    <div class="relative w-28">
+                        <select id="filter-proveedor" onchange="smartFilter()" 
+                            class="bg-carbon border border-borderGray text-white text-[11px] rounded-lg focus:ring-red-600 focus:border-red-600 block w-full p-2 outline-none cursor-pointer font-bold"
+                            style="background: #000; border: 1px solid var(--carbon-border); border-radius: 8px;">
+                            <option value="ROMBO" selected>ROMBO</option>
+                            <option value="QP">QP</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="info-display" class="hidden md:flex items-center gap-3">
+                    <div class="bg-carbon border border-borderGray px-4 py-1.5 rounded-xl flex flex-col items-end leading-tight min-w-[110px]" style="background: #000; border: 1px solid var(--carbon-border);">
+                        <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Fecha Excel</span>
+                        <span id="display-fecha" class="text-xs font-black text-white tracking-wide">---</span>
+                    </div>
+                    <div class="bg-carbon border border-borderGray px-4 py-1.5 rounded-xl flex flex-col items-end leading-tight min-w-[110px]" style="background: #000; border: 1px solid var(--carbon-border);">
+                        <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Total Guías</span>
+                        <span id="display-total-guias" class="text-xs font-black text-red-500 tracking-wide">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Estadísticas Cuadratura -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+                <div class="card-stats bg-darkGray p-3 rounded-xl border border-borderGray border-l-4 border-l-red-600 flex flex-col justify-between" style="background: var(--carbon-light); border: 1px solid var(--carbon-border); border-left: 4px solid var(--primary);">
+                    <div>
+                        <p class="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">Faltan Escanear (Hoy/Ayer/Antier)</p>
+                        <p class="text-xl font-black text-red-600" id="total-pending-count" style="color: var(--bad); font-size: 1.5rem; margin: 2px 0;">0</p>
+                    </div>
+                    <div class="flex flex-col border-t border-borderGray/50 mt-1 pt-1" style="border-top: 1px solid var(--carbon-border);">
+                        <div style="font-size: 9px; display:flex; justify-content: space-between; color: var(--text-dim);">EMB: <span id="sub-pending-no-emb" class="text-white font-bold">0</span></div>
+                        <div style="font-size: 9px; display:flex; justify-content: space-between; color: var(--text-dim);">ENT: <span id="sub-pending-no-ent" class="text-white font-bold">0</span></div>
+                    </div>
+                </div>
+                <div class="card-stats bg-darkGray p-3 rounded-xl border border-borderGray border-l-4 border-l-orange-500" style="background: var(--carbon-light); border: 1px solid var(--carbon-border); border-left: 4px solid #f97316;">
+                    <p class="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">No Emb. TR2</p>
+                    <p class="text-xl font-black text-orange-500" id="count-no-emb" style="color: #f97316; font-size: 1.5rem; margin: 2px 0;">0</p>
+                    <div class="flex gap-2 border-t border-borderGray/50 mt-1 pt-1" style="border-top: 1px solid var(--carbon-border); font-size:9px; color: var(--text-dim);">
+                        <div class="flex-1">A: <span id="sub-no-emb-amz" class="text-white">0</span></div>
+                        <div class="flex-1">S: <span id="sub-no-emb-same" class="text-white">0</span></div>
+                    </div>
+                </div>
+                <div class="card-stats bg-darkGray p-3 rounded-xl border border-borderGray border-l-4 border-l-yellow-500" style="background: var(--carbon-light); border: 1px solid var(--carbon-border); border-left: 4px solid #eab308;">
+                    <p class="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">No Recibido</p>
+                    <p class="text-xl font-black text-yellow-500" id="count-no-rec" style="color: #eab308; font-size: 1.5rem; margin: 2px 0;">0</p>
+                    <div class="flex gap-2 border-t border-borderGray/50 mt-1 pt-1" style="border-top: 1px solid var(--carbon-border); font-size:9px; color: var(--text-dim);">
+                        <div class="flex-1">A: <span id="sub-no-rec-amz" class="text-white">0</span></div>
+                        <div class="flex-1">S: <span id="sub-no-rec-same" class="text-white">0</span></div>
+                    </div>
+                </div>
+                <div class="card-stats bg-darkGray p-3 rounded-xl border border-borderGray border-l-4 border-l-blue-600" style="background: var(--carbon-light); border: 1px solid var(--carbon-border); border-left: 4px solid #2563eb;">
+                    <p class="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">No Entregado</p>
+                    <p class="text-xl font-black text-blue-500" id="count-no-ent" style="color: #2563eb; font-size: 1.5rem; margin: 2px 0;">0</p>
+                    <div class="flex gap-2 border-t border-borderGray/50 mt-1 pt-1" style="border-top: 1px solid var(--carbon-border); font-size:9px; color: var(--text-dim);">
+                        <div class="flex-1">A: <span id="sub-no-ent-amz" class="text-white">0</span></div>
+                        <div class="flex-1">S: <span id="sub-no-ent-same" class="text-white">0</span></div>
+                    </div>
+                </div>
+                <div class="card-stats bg-darkGray p-3 rounded-xl border border-borderGray border-l-4 border-l-green-600" style="background: var(--carbon-light); border: 1px solid var(--carbon-border); border-left: 4px solid #16a34a;">
+                    <p class="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">Total en Ruta</p>
+                    <p class="text-xl font-black text-green-500" id="count-in-route" style="color: #16a34a; font-size: 1.5rem; margin: 2px 0;">0</p>
+                    <div class="flex gap-2 border-t border-borderGray/50 mt-1 pt-1" style="border-top: 1px solid var(--carbon-border); font-size:9px; color: var(--text-dim);">
+                        <div class="flex-1">A: <span id="sub-ruta-amz" class="text-white">0</span></div>
+                        <div class="flex-1">S: <span id="sub-ruta-same" class="text-white">0</span></div>
+                    </div>
+                </div>
+                <div class="card-stats bg-darkGray p-3 rounded-xl border border-borderGray border-l-4 border-l-purple-600" style="background: var(--carbon-light); border: 1px solid var(--carbon-border); border-left: 4px solid #9333ea;">
+                    <p class="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">Choferes Ruta</p>
+                    <p class="text-xl font-black text-purple-500" id="count-drivers-route" style="color: #9333ea; font-size: 1.5rem; margin: 2px 0;">0</p>
+                    <div class="flex gap-2 border-t border-borderGray/50 mt-1 pt-1" style="border-top: 1px solid var(--carbon-border); font-size:9px; color: var(--text-dim);">
+                        <div class="flex-1">A: <span id="sub-chofer-amz" class="text-white">0</span></div>
+                        <div class="flex-1">S: <span id="sub-chofer-same" class="text-white">0</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráfico y Listado de Pendientes -->
+            <div class="cuadratura-grid">
+                <div class="card flex flex-col h-fit">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-[10px] font-bold uppercase text-gray-400">Rendimiento</h3>
+                        <button onclick="copyDriverSummary()" class="text-red-500 text-[10px] font-bold hover:underline">COPIAR</button>
+                    </div>
+                    <div style="height: 120px; margin-bottom: 12px;"><canvas id="chart-pendientes"></canvas></div>
+                    <div id="driver-summary-list" style="max-height: 250px; overflow-y: auto; border-top: 1px solid var(--carbon-border);"></div>
+                </div>
+
+                <div class="card flex flex-col">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-[10px] font-bold uppercase text-gray-400">Listado de Pendientes (No Escaneadas en 3 Días)</h3>
+                        <button onclick="copyTableToSheets()" class="btn-primary text-white px-2 py-1 rounded text-[9px] font-bold">COPIAR SHEETS</button>
+                    </div>
+                    <div class="table-wrap" style="max-height: 500px; overflow-y: auto;">
+                        <table id="table-pending">
+                            <thead>
+                                <tr>
+                                    <th class="sortable" onclick="sortTable(0)">Cat <i class="fas fa-sort ml-1 opacity-30"></i></th>
+                                    <th class="sortable" onclick="sortTable(1)">Viaje <i class="fas fa-sort ml-1 opacity-30"></i></th>
+                                    <th class="sortable" onclick="sortTable(2)">Conductor <i class="fas fa-sort ml-1 opacity-30"></i></th>
+                                    <th class="sortable" onclick="sortTable(3)">Guía <i class="fas fa-sort ml-1 opacity-30"></i></th>
+                                    <th class="sortable" onclick="sortTable(4)">Estado <i class="fas fa-sort ml-1 opacity-30"></i></th>
+                                </tr>
+                            </thead>
+                            <tbody id="pending-list-body" class="text-[11px]">
+                                <tr><td colspan="5" class="p-10 text-center text-gray-600">Sube un archivo y presiona Procesar.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtro de Estados Adicionales -->
+            <div class="card flex flex-col">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
+                    <div class="flex items-center gap-3">
+                        <h3 class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Filtro de Paquetes por Estado</h3>
+                        <span id="statusMsg" class="text-[10px] text-gray-500 font-medium">Sube un archivo de viajes para comenzar.</span>
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <select id="estadoFilter" onchange="filterAndRenderTable()" disabled 
+                            class="bg-carbon border border-borderGray text-white text-[10px] rounded-lg focus:ring-red-600 focus:border-red-600 p-1.5 outline-none cursor-pointer font-bold disabled:opacity-40"
+                            style="background: #000; border: 1px solid var(--carbon-border); border-radius: 8px;">
+                            <option value="">-- Selecciona un archivo primero --</option>
+                        </select>
+                        <button id="copyBtn" onclick="copyToClipboard()" disabled class="btn-primary text-white px-2 py-1.5 rounded text-[9px] font-bold disabled:opacity-40 whitespace-nowrap">
+                            COPIAR ESTADOS
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-wrap" style="max-height: 500px; overflow-y: auto;">
+                    <table id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>Estado</th>
+                                <th>IdViaje</th>
+                                <th>Pedido Referencia externa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="text-[11px]">
+                            <tr>
+                                <td colspan="3" class="p-10 text-center text-gray-600">No hay datos cargados</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div><!-- /#cuadratura-tab -->
 
     </div><!-- /#app-root -->
 
@@ -424,9 +680,23 @@
     let unsubscribe = null;
     let editingId = null;
 
-    // Asignar fecha actual por defecto al iniciar (Usa la hora local del dispositivo en Monterrey)
+    // ============ CONTROL DE PESTAÑAS ============
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+        
+        // Ajustar tamaño del chart en caso de renderizarse oculto
+        if (tabId === 'cuadratura-tab' && chartInstance) {
+            chartInstance.resize();
+        }
+    }
+
+    // Asignar fecha actual por defecto al iniciar
     document.addEventListener("DOMContentLoaded", () => {
-        const hoyStr = new Date().toLocaleDateString('sv-SE'); // Formato YYYY-MM-DD local
+        const hoyStr = new Date().toLocaleDateString('sv-SE'); 
         document.getElementById('filter-date').value = hoyStr;
     });
 
@@ -493,18 +763,16 @@
         return allGuias.filter(g => g.guia === guiaNum).length;
     }
 
-    // ============ FILTRADO Y BÚSQUEDA GENERAL ============
+    // ============ FILTRADO Y BÚSQUEDA GENERAL (ADMIN) ============
     function getFilteredSorted() {
         const searchQuery = document.getElementById('search-universal').value.trim().toLowerCase();
         const dateVal = document.getElementById('filter-date').value;
         const dateKey = inputDateToDateKey(dateVal);
         let list = allGuias.slice();
 
-        // Si hay una búsqueda, se busca en todo el historial ignorando la fecha
         if (searchQuery) {
             list = list.filter(g => g.guia && g.guia.toLowerCase().includes(searchQuery));
         } else if (dateKey) {
-            // Si no hay búsqueda, se respeta el filtro de fecha actual
             list = list.filter(g => g.dateKey === dateKey);
         }
 
@@ -544,7 +812,7 @@
         });
     }
 
-    // ============ RENDER TABLA ============
+    // ============ RENDER TABLA (ADMIN) ============
     function render() {
         const list = getFilteredSorted();
         document.getElementById('total-count').textContent = `${list.length} guía(s)`;
@@ -598,7 +866,7 @@
         bar.style.display = selectedIds.size > 0 ? 'flex' : 'none';
     }
 
-    // ============ ESTADÍSTICAS ============
+    // ============ ESTADÍSTICAS (ADMIN) ============
     function getMondayOfCurrentWeek() {
         const now = new Date();
         const day = now.getDay(); 
@@ -657,12 +925,10 @@
         const ids = Array.from(selectedIds);
         const chunkSize = 450;
         
-        // Conversión e interpretación local de la nueva fecha de destino
         let newDateKey = null;
         let newTimestamp = null;
         if (bulkDateVal) {
             newDateKey = inputDateToDateKey(bulkDateVal);
-            // Creamos la fecha local y asignamos las 00:00:00 para el timestamp
             const localDateObj = new Date(bulkDateVal + 'T00:00:00');
             newTimestamp = localDateObj.getTime();
         }
@@ -692,7 +958,7 @@
         }
         
         selectedIds.clear();
-        document.getElementById('bulk-date').value = ''; // Limpiar el input de fecha masiva
+        document.getElementById('bulk-date').value = ''; 
         render();
     }
 
@@ -781,6 +1047,396 @@
         });
         
         document.getElementById('new-guia').value = '';
+    }
+
+    // =========================================================================
+    // ============ SCRIPTING ESPECÍFICO DE LA TAB DE CUADRATURA ============
+    // =========================================================================
+    let dataViajes = [], dataParadas = [], dataGuiasEscaneadas = new Set(), rawProcessedStats = [];
+    let rawDataFilter = []; 
+    let chartInstance = null;
+    let currentSortCol = -1;
+    let sortAsc = true;
+
+    document.getElementById('fileViajes').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const statusMsg = document.getElementById('statusMsg');
+        statusMsg.innerText = "Procesando archivo...";
+        statusMsg.style.color = "#aaa";
+
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            try {
+                const wb = XLSX.read(evt.target.result, { type: 'binary' });
+                
+                dataViajes = XLSX.utils.sheet_to_json(wb.Sheets["Viajes"]) || [];
+                
+                const targetSheetName = wb.SheetNames.find(name => name.trim().toLowerCase() === 'paradas');
+                if (!targetSheetName) {
+                    statusMsg.innerText = "Error: No se encontró la hoja 'Paradas'.";
+                    statusMsg.style.color = "#ff6b6b";
+                    return;
+                }
+                
+                dataParadas = XLSX.utils.sheet_to_json(wb.Sheets[targetSheetName]) || [];
+                
+                const jornadaRaw = dataViajes[0]?.Jornada || "";
+                const dateMatch = jornadaRaw.match(/\d{2}\/\d{2}\/\d{4}/);
+                document.getElementById('display-fecha').innerText = dateMatch ? dateMatch[0] : "S/F";
+                document.getElementById('info-display').classList.remove('hidden');
+
+                if (dataParadas.length === 0) {
+                    statusMsg.innerText = "La hoja 'Paradas' está vacía.";
+                    statusMsg.style.color = "#ff6b6b";
+                    return;
+                }
+
+                rawDataFilter = dataParadas.map(row => {
+                    return {
+                        estado: row['Estado'] !== undefined ? String(row['Estado']).trim() : '',
+                        idViaje: row['IdViaje'] !== undefined ? String(row['IdViaje']).trim() : '',
+                        referencia: row['Pedido Referencia externa'] !== undefined ? String(row['Pedido Referencia externa']).trim() : ''
+                    };
+                });
+
+                statusMsg.innerText = `Archivo cargado. ${rawDataFilter.length} registros en 'Paradas'.`;
+                statusMsg.style.color = "var(--good)"; 
+
+                populateEstadoFilter();
+
+            } catch (error) {
+                console.error(error);
+                statusMsg.innerText = "Error al leer el archivo Excel.";
+                statusMsg.style.color = "#ff6b6b";
+            }
+        };
+        reader.readAsBinaryString(file);
+    });
+
+    // Cargar guías guardadas en Firebase que correspondan a: Hoy, Ayer y Antier
+    async function fetchFirebase3DaysData() {
+        try {
+            const tempGuias = new Set();
+            
+            // Generar llaves locales d/m/yyyy para Hoy, Ayer y Antier
+            const calculoFecha = (diasAtras) => {
+                const d = new Date();
+                d.setDate(d.getDate() - diasAtras);
+                return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+            };
+            
+            const diasPermitidos = [calculoFecha(0), calculoFecha(1), calculoFecha(2)];
+            
+            // Filtrar del espejo local allGuias aquellas que estén en estos rangos
+            allGuias.forEach(g => {
+                if (g.guia && diasPermitidos.includes(g.dateKey)) {
+                    tempGuias.add(String(g.guia).trim());
+                }
+            });
+            
+            return tempGuias;
+        } catch (error) { 
+            console.error("Error filtrando Firebase", error);
+            return new Set(); 
+        }
+    }
+
+    async function processAllData() {
+        if (!dataViajes.length) return alert("Sube el archivo primero.");
+        document.getElementById('btn-loader').classList.remove('hidden');
+        
+        // Obtener guías escaneadas desde Firebase con un margen de 3 días (Hoy, Ayer y Antier)
+        dataGuiasEscaneadas = await fetchFirebase3DaysData();
+        rawProcessedStats = []; 
+        const viajeConductorMap = {};
+
+        dataViajes.forEach(v => {
+            viajeConductorMap[v.ID] = { 
+                conductor: v.Conductor ? String(v.Conductor).trim() : "", 
+                estadoViaje: v.Estado ? String(v.Estado).trim() : "", 
+                categoriaViaje: v.Categoría ? String(v.Categoría).trim() : "" 
+            };
+        });
+
+        dataParadas.forEach(p => {
+            const infoViaje = viajeConductorMap[p.IdViaje];
+            if (!infoViaje || infoViaje.conductor === "COP MTY") return;
+            const guia = String(p["Pedido Referencia externa"] || "").split('|')[0].trim();
+            const estadoPaquete = String(p.Estado || "").trim();
+            const proveedor = (infoViaje.conductor === "CONDUCTOR QP CONDUCTOR QP") ? "QP" : "ROMBO";
+
+            rawProcessedStats.push({
+                proveedor, ...infoViaje, 
+                categoria: String(p.Varchar5 || "").trim(),
+                estado: estadoPaquete, guia, viaje: p.IdViaje
+            });
+        });
+
+        renderUI();
+        filterAndRenderTable();
+        
+        document.getElementById('btn-loader').classList.add('hidden');
+    }
+
+    function renderUI() {
+        const query = document.getElementById('smart-search').value.toLowerCase();
+        const provSel = document.getElementById('filter-proveedor').value;
+        let stats = {
+            noEmb: { t: 0, a: 0, s: 0 }, noRec: { t: 0, a: 0, s: 0 },
+            noEnt: { t: 0, a: 0, s: 0 }, ruta: { t: 0, a: 0, s: 0 },
+            choferes: { t: new Set(), a: new Set(), s: new Set() },
+            totalGuias: 0, pendNoEmb: 0, pendNoEnt: 0
+        };
+        let tableHtml = "";
+        let pendientesCount = 0;
+        const driverNoEntregados = {};
+
+        rawProcessedStats.forEach(item => {
+            if (item.proveedor !== provSel) return;
+            
+            if (item.estado !== 'No Recibido CEDIS') {
+                stats.totalGuias++;
+            }
+            
+            const esAmz = item.categoria === "Amazon";
+            const esSame = item.categoria === "Amazon_SameDay";
+
+            if (item.estado === 'No Embarcado TR2') { stats.noEmb.t++; if(esAmz) stats.noEmb.a++; if(esSame) stats.noEmb.s++; }
+            if (item.estado === 'No Recibido CEDIS') { stats.noRec.t++; if(esAmz) stats.noRec.a++; if(esSame) stats.noRec.s++; }
+            if (item.estado === 'No Entregado') { stats.noEnt.t++; if(esAmz) stats.noEnt.a++; if(esSame) stats.noEnt.s++; }
+            if (item.estado === 'En Ruta de Entrega') { stats.ruta.t++; if(esAmz) stats.ruta.a++; if(esSame) stats.ruta.s++; }
+
+            if (item.estadoViaje === "En Ruta de Entrega") {
+                stats.choferes.t.add(item.conductor);
+                if (item.categoriaViaje === "Visible ASIGNADO") stats.choferes.a.add(item.conductor);
+                else if (item.categoriaViaje === "Amazon Same Day") stats.choferes.s.add(item.conductor);
+            }
+
+            const estadosRetorno = ['Fin de Carga', 'No Embarcado TR2', 'No Entregado', 'No Recibido CEDIS'];
+            if (estadosRetorno.includes(item.estado) && !dataGuiasEscaneadas.has(item.guia) && item.estado !== 'No Recibido CEDIS') {
+                if (item.estado === 'No Embarcado TR2') stats.pendNoEmb++;
+                if (item.estado === 'No Entregado') stats.pendNoEnt++;
+
+                const match = item.guia.toLowerCase().includes(query) || item.conductor.toLowerCase().includes(query) || String(item.viaje).includes(query);
+                if (match) {
+                    pendientesCount++;
+                    tableHtml += `
+                        <tr class="hover:bg-white/5 master-row">
+                            <td class="px-4 py-2 text-gray-500 italic">${item.categoria}</td>
+                            <td class="px-4 py-2 font-bold">${item.viaje}</td>
+                            <td class="px-4 py-2 text-gray-400">${item.conductor}</td>
+                            <td class="px-4 py-2 font-bold text-red-500">${item.guia}</td>
+                            <td class="px-4 py-2"><span class="px-1.5 py-0.5 rounded text-[7px] font-bold uppercase ${item.estado === 'No Entregado' ? 'bg-red-900/30 text-red-400' : 'bg-orange-900/30 text-orange-400'}">${item.estado}</span></td>
+                        </tr>`;
+                    if(item.estado === 'No Entregado') driverNoEntregados[item.conductor] = (driverNoEntregados[item.conductor] || 0) + 1;
+                }
+            }
+        });
+
+        document.getElementById('display-total-guias').innerText = stats.totalGuias;
+        document.getElementById('total-pending-count').innerText = pendientesCount;
+        document.getElementById('sub-pending-no-emb').innerText = stats.pendNoEmb;
+        document.getElementById('sub-pending-no-ent').innerText = stats.pendNoEnt;
+        document.getElementById('count-no-emb').innerText = stats.noEmb.t;
+        document.getElementById('sub-no-emb-amz').innerText = stats.noEmb.a;
+        document.getElementById('sub-no-emb-same').innerText = stats.noEmb.s;
+        document.getElementById('count-no-rec').innerText = stats.noRec.t;
+        document.getElementById('sub-no-rec-amz').innerText = stats.noRec.a;
+        document.getElementById('sub-no-rec-same').innerText = stats.noRec.s;
+        document.getElementById('count-no-ent').innerText = stats.noEnt.t;
+        document.getElementById('sub-no-ent-amz').innerText = stats.noEnt.a;
+        document.getElementById('sub-no-ent-same').innerText = stats.noEnt.s;
+        document.getElementById('count-in-route').innerText = stats.ruta.t;
+        document.getElementById('sub-ruta-amz').innerText = stats.ruta.a;
+        document.getElementById('sub-ruta-same').innerText = stats.ruta.s;
+        document.getElementById('count-drivers-route').innerText = stats.choferes.t.size;
+        document.getElementById('sub-chofer-amz').innerText = stats.choferes.a.size;
+        document.getElementById('sub-chofer-same').innerText = stats.choferes.s.size;
+        document.getElementById('pending-list-body').innerHTML = tableHtml || '<tr><td colspan="5" class="p-10 text-center text-gray-400">Sin resultados o todas escaneadas dentro de los últimos 3 días.</td></tr>';
+
+        const sorted = Object.entries(driverNoEntregados).sort((a,b) => b[1]-a[1]);
+        renderChart(sorted.slice(0, 5));
+        document.getElementById('driver-summary-list').innerHTML = sorted.map(([n, c]) => `
+            <div class="flex justify-between items-center py-1.5 px-1" style="display:flex; justify-content:space-between; padding: 6px 0;">
+                <span class="truncate pr-2 uppercase font-medium text-gray-400 text-[9px]" style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${n}</span>
+                <span class="font-black text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded text-[10px]" style="background: rgba(239, 68, 68, 0.1); padding: 2px 6px; border-radius:4px;">${c}</span>
+            </div>
+        `).join('');
+    }
+
+    function smartFilter() { renderUI(); }
+
+    function renderChart(data) {
+        const ctx = document.getElementById('chart-pendientes').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map(i => i[0].split(' ')[0]),
+                datasets: [{ data: data.map(i => i[1]), backgroundColor: '#dc2626', borderRadius: 2 }]
+            },
+            options: {
+                indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, grid: { display: false }, ticks: { color: '#666', font: { size: 8 } } },
+                    y: { grid: { display: false }, ticks: { color: '#999', font: { size: 8 } } }
+                }
+            }
+        });
+    }
+
+    function sortTable(n) {
+        const tableBody = document.getElementById("pending-list-body");
+        const rows = Array.from(tableBody.querySelectorAll(".master-row"));
+        if (rows.length === 0) return;
+
+        if (currentSortCol === n) {
+            sortAsc = !sortAsc;
+        } else {
+            sortAsc = true;
+            currentSortCol = n;
+        }
+
+        const sortedRows = rows.sort((a, b) => {
+            const valA = a.cells[n].innerText.trim().toLowerCase();
+            const valB = b.cells[n].innerText.trim().toLowerCase();
+            const numA = parseFloat(valA);
+            const numB = parseFloat(valB);
+
+            if (!isNaN(numA) && !isNaN(numB)) {
+                return sortAsc ? numA - numB : numB - numA;
+            }
+            return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        });
+
+        const fragment = document.createDocumentFragment();
+        sortedRows.forEach(row => fragment.appendChild(row));
+        tableBody.innerHTML = "";
+        tableBody.appendChild(fragment);
+        updateSortIcons(n);
+    }
+
+    function updateSortIcons(n) {
+        const headers = document.querySelectorAll("th.sortable i");
+        headers.forEach((icon, index) => {
+            if (index === n) {
+                icon.className = sortAsc ? "fas fa-sort-up ml-1" : "fas fa-sort-down ml-1";
+                icon.parentElement.classList.add("text-white");
+                icon.classList.remove("opacity-30");
+            } else {
+                icon.className = "fas fa-sort ml-1 opacity-30";
+                icon.parentElement.classList.remove("text-white");
+            }
+        });
+    }
+
+    function copyDriverSummary() {
+        let text = "CHOFER\tCANT\n";
+        document.querySelectorAll('#driver-summary-list > div').forEach(r => { text += `${r.children[0].innerText}\t${r.children[1].innerText}\n`; });
+        navigator.clipboard.writeText(text).then(() => alert("Copiado."));
+    }
+
+    function copyTableToSheets() {
+        let text = "CAT\tVIAJE\tCHOFER\tGUIA\tESTADO\n";
+        document.querySelectorAll('.master-row').forEach(r => { 
+            text += `${r.cells[0].innerText}\t${r.cells[1].innerText}\t${r.cells[2].innerText}\t${r.cells[3].innerText}\t${r.cells[4].innerText}\n`; 
+        });
+        navigator.clipboard.writeText(text).then(() => alert("Copiado."));
+    }
+
+    function populateEstadoFilter() {
+        const filterSelect = document.getElementById('estadoFilter');
+        const estados = [...new Set(rawDataFilter.map(item => item.estado))].filter(e => e !== '');
+        
+        filterSelect.innerHTML = '<option value="TODOS">-- TODOS LOS ESTADOS --</option>';
+        
+        estados.forEach(estado => {
+            const option = document.createElement('option');
+            option.value = estado;
+            option.innerText = estado;
+            filterSelect.appendChild(option);
+        });
+
+        filterSelect.disabled = false;
+        document.getElementById('copyBtn').disabled = false;
+    }
+
+    function filterAndRenderTable() {
+        const selectedEstado = document.getElementById('estadoFilter').value;
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+
+        if (rawDataFilter.length === 0) return;
+
+        let filtered = [...rawDataFilter];
+        if (selectedEstado && selectedEstado !== 'TODOS') {
+            filtered = rawDataFilter.filter(item => item.estado === selectedEstado);
+        }
+
+        filtered.sort((a, b) => {
+            const isA_TR2 = a.estado.toLowerCase() === 'no embarcado tr2';
+            const isB_TR2 = b.estado.toLowerCase() === 'no embarcado tr2';
+
+            if (isA_TR2 && !isB_TR2) return -1;
+            if (!isA_TR2 && isB_TR2) return 1;
+
+            const numA = parseFloat(a.idViaje) || 0;
+            const numB = parseFloat(b.idViaje) || 0;
+            return numA - numB;
+        });
+
+        if (filtered.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="3" class="p-10 text-center text-gray-500">Ningún dato coincide con el filtro</td></tr>';
+            return;
+        }
+
+        filtered.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-white/5";
+            
+            const isTR2 = item.estado.toLowerCase() === 'no embarcado tr2';
+            const colorClass = isTR2 ? 'class="px-4 py-2 font-bold text-red-400"' : 'class="px-4 py-2 text-gray-400"';
+
+            tr.innerHTML = `
+                <td ${colorClass}>${item.estado}</td>
+                <td class="px-4 py-2 font-bold">${item.idViaje}</td>
+                <td class="px-4 py-2 text-gray-300">${item.referencia}</td>
+            `;
+            tableBody.appendChild(tr);
+        });
+    }
+
+    function copyToClipboard() {
+        const table = document.getElementById('dataTable');
+        let tsvString = '';
+        const rows = table.querySelectorAll('tr');
+        
+        rows.forEach(row => {
+            const cols = row.querySelectorAll('th, td');
+            const rowData = [];
+            cols.forEach(col => {
+                let text = col.innerText.replace(/\n/g, " ");
+                rowData.push(text);
+            });
+            tsvString += rowData.join('\t') + '\n';
+        });
+
+        navigator.clipboard.writeText(tsvString).then(() => {
+            const copyBtn = document.getElementById('copyBtn');
+            const originalText = copyBtn.innerText;
+            copyBtn.innerText = '¡COPIADO!';
+            copyBtn.style.backgroundColor = '#10b981'; 
+            
+            setTimeout(() => {
+                copyBtn.innerText = originalText;
+                copyBtn.style.backgroundColor = 'var(--primary)';
+            }, 2000);
+        }).catch(err => {
+            alert('No se pudo copiar automáticamente: ', err);
+        });
     }
 </script>
 </body>

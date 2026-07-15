@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SCANNER V4 - ADMIN</title>
+<title>GUIAS RPK- ADMIN V0.2</title>
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
@@ -157,7 +157,9 @@
         display: none; flex-wrap: wrap; gap: 10px; align-items: center;
         background: #251616; border: 1px solid var(--primary);
     }
-    #bulk-bar select { min-width: 140px; background: #120707; border: 1px solid #541d1d; color: var(--white); border-radius: 6px; padding: 8px; font-family: 'Lexend'; font-size: 0.8rem; }
+    #bulk-bar select, #bulk-bar input[type="date"] { 
+        min-width: 140px; background: #120707; border: 1px solid #541d1d; color: var(--white); border-radius: 6px; padding: 8px; font-family: 'Lexend'; font-size: 0.8rem; 
+    }
     #bulk-bar .bulk-count { font-size: 0.82rem; color: var(--accent); font-weight: 600; margin-right: 8px; }
 
     /* ---- Tabla ---- */
@@ -295,6 +297,11 @@
                 <option value="PAQUETES ROJOS NM">PAQUETES ROJOS NM</option>
             </select>
 
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <label style="font-size:0.7rem; color:var(--accent); font-weight:600;">Mover fecha:</label>
+                <input type="date" id="bulk-date">
+            </div>
+
             <button class="btn-primary" onclick="applyBulkEdit()">APLICAR</button>
             <button class="btn-primary btn-danger" onclick="deleteBulk()">ELIMINAR</button>
         </div>
@@ -417,9 +424,9 @@
     let unsubscribe = null;
     let editingId = null;
 
-    // Asignar fecha actual por defecto al iniciar
+    // Asignar fecha actual por defecto al iniciar (Usa la hora local del dispositivo en Monterrey)
     document.addEventListener("DOMContentLoaded", () => {
-        const hoyStr = new Date().toISOString().split('T')[0];
+        const hoyStr = new Date().toLocaleDateString('sv-SE'); // Formato YYYY-MM-DD local
         document.getElementById('filter-date').value = hoyStr;
     });
 
@@ -472,11 +479,11 @@
     function stepDate(days) {
         const picker = document.getElementById('filter-date');
         if (!picker.value) {
-            picker.value = new Date().toISOString().split('T')[0];
+            picker.value = new Date().toLocaleDateString('sv-SE');
         } else {
             const date = new Date(picker.value + 'T00:00:00');
             date.setDate(date.getDate() + days);
-            picker.value = date.toISOString().split('T')[0];
+            picker.value = date.toLocaleDateString('sv-SE');
         }
         render();
     }
@@ -514,7 +521,6 @@
             return;
         }
         const dateKey = inputDateToDateKey(dateVal);
-        // Filtrar guías únicamente del día activo que contengan la acción "INYECCIÓN"
         const guiasInyeccion = allGuias.filter(g => g.dateKey === dateKey && g.accion === "INYECCIÓN");
         
         if (guiasInyeccion.length === 0) {
@@ -522,14 +528,12 @@
             return;
         }
 
-        // Formatear: GUIA; GUIA2; 
         const formattedText = guiasInyeccion.map(g => `${g.guia}; `).join('');
         
         navigator.clipboard.writeText(formattedText).then(() => {
             alert(`¡Se copiaron ${guiasInyeccion.length} guías al portapapeles con éxito!\nFormato: "GUIA; "`);
         }).catch(err => {
             console.error("Error al copiar al portapapeles: ", err);
-            // Fallback manual en caso de error de permisos del navegador
             const tempInput = document.createElement("textarea");
             tempInput.value = formattedText;
             document.body.appendChild(tempInput);
@@ -605,7 +609,7 @@
         return monday;
     }
     function updateStats() {
-        const todayStr = inputDateToDateKey(new Date().toISOString().split('T')[0]);
+        const todayStr = inputDateToDateKey(new Date().toLocaleDateString('sv-SE'));
         const monday = getMondayOfCurrentWeek();
         const sunday = new Date(monday);
         sunday.setDate(monday.getDate() + 6);
@@ -642,8 +646,9 @@
         const categoria = document.getElementById('bulk-categoria').value;
         const prov = document.getElementById('bulk-prov').value;
         const tipo = document.getElementById('bulk-tipo').value;
+        const bulkDateVal = document.getElementById('bulk-date').value;
 
-        if (accion === '__NOCHANGE__' && categoria === '__NOCHANGE__' && prov === '__NOCHANGE__' && tipo === '__NOCHANGE__') {
+        if (accion === '__NOCHANGE__' && categoria === '__NOCHANGE__' && prov === '__NOCHANGE__' && tipo === '__NOCHANGE__' && !bulkDateVal) {
             alert("No seleccionaste ningún cambio a aplicar.");
             return;
         }
@@ -651,16 +656,32 @@
 
         const ids = Array.from(selectedIds);
         const chunkSize = 450;
+        
+        // Conversión e interpretación local de la nueva fecha de destino
+        let newDateKey = null;
+        let newTimestamp = null;
+        if (bulkDateVal) {
+            newDateKey = inputDateToDateKey(bulkDateVal);
+            // Creamos la fecha local y asignamos las 00:00:00 para el timestamp
+            const localDateObj = new Date(bulkDateVal + 'T00:00:00');
+            newTimestamp = localDateObj.getTime();
+        }
+
         for (let i = 0; i < ids.length; i += chunkSize) {
             const chunk = ids.slice(i, i + chunkSize);
             const batch = db.batch();
             chunk.forEach(id => {
                 const current = allGuias.find(g => g.id === id) || {};
                 const update = {};
+                
                 if (accion !== '__NOCHANGE__') update.accion = accion;
                 if (categoria !== '__NOCHANGE__') update.categoria = categoria;
                 if (prov !== '__NOCHANGE__') update.prov = prov;
                 if (tipo !== '__NOCHANGE__') update.tipo = tipo;
+                if (newDateKey) {
+                    update.dateKey = newDateKey;
+                    update.timestamp = newTimestamp;
+                }
                 
                 const finalAccion = update.accion || current.accion;
                 const finalCategoria = update.categoria || current.categoria;
@@ -669,7 +690,9 @@
             });
             await batch.commit();
         }
+        
         selectedIds.clear();
+        document.getElementById('bulk-date').value = ''; // Limpiar el input de fecha masiva
         render();
     }
 
@@ -726,7 +749,7 @@
         closeEditModal();
     }
 
-    // ============ AGREGAR GUÍA MANUAL (CON VALIDACIÓN DE FECHA) ============
+    // ============ AGREGAR GUÍA MANUAL ============
     document.getElementById('new-accion').addEventListener('change', () => {
         fillCategoriaSelect(document.getElementById('new-categoria'), document.getElementById('new-accion').value, false);
     });
@@ -739,7 +762,6 @@
         const now = new Date();
         const dateKey = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
 
-        // VALIDACIÓN: Evita guías duplicadas el mismo día
         const yaExisteHoy = allGuias.some(g => g.guia === guia && g.dateKey === dateKey);
         if (yaExisteHoy) {
             alert(`La guía "${guia}" ya fue registrada el día de hoy (${dateKey}). No se permiten duplicados en la misma fecha.`);
@@ -751,7 +773,6 @@
         const prov = document.getElementById('new-prov').value;
         const tipo = document.getElementById('new-tipo').value;
         
-        // Se autogenera un ID único para permitir registros en fechas distintas
         await db.collection('guias').add({
             guia, accion, categoria, prov, tipo,
             dateKey, listKey: `${accion} - ${categoria}`,

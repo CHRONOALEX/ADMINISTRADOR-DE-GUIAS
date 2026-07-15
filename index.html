@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GUIAS RK- ADMIN & CUADRATURA V0.3</title>
+<title>GUIAS RPK- ADMIN & CUADRATURA V0.3</title>
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght=300;400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
@@ -254,28 +254,36 @@
     .form-row { display: flex; flex-wrap: wrap; gap: 10px; }
     .form-row > * { flex: 1; min-width: 140px; }
 
-    /* ---- ESTILOS EXCLUSIVOS CUADRATURA ---- */
+    /* ============================================== */
+    /* ---- ESTILOS RESTAURADOS DE CUADRATURA (ORIGINALES) ---- */
+    /* ============================================== */
+    .c-flex-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .c-flex-center { display: flex; align-items: center; gap: 8px; }
+    .c-grid-3 { display: grid; grid-template-columns: 1fr 3fr; gap: 16px; }
+    @media(max-width: 900px) { .c-grid-3 { grid-template-columns: 1fr; } }
+    
     .loading-spinner { animation: spin 1s linear infinite; }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    
     th.sortable { cursor: pointer; transition: all 0.2s; position: relative; }
     th.sortable:hover { background-color: var(--carbon-border); color: white; }
-    .card-stats { min-height: 90px; }
-    .cuadratura-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-    @media (min-width: 1024px) {
-        .cuadratura-grid {
-            grid-template-columns: 1fr 3fr;
-        }
-    }
+    
+    .c-badge { padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; }
+    .c-badge.no-ent { background: rgba(239, 68, 68, 0.15); color: var(--bad); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .c-badge.no-emb { background: rgba(249, 115, 22, 0.15); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.3); }
+    .c-badge.no-rec { background: rgba(234, 179, 8, 0.15); color: #eab308; border: 1px solid rgba(234, 179, 8, 0.3); }
+    .c-badge.ruta { background: rgba(22, 163, 74, 0.15); color: #16a34a; border: 1px solid rgba(22, 163, 74, 0.3); }
+
+    .c-label { font-size: 0.7rem; color: var(--text-dim); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .c-num-box { text-align: center; background: rgba(0,0,0,0.2); border: 1px solid var(--carbon-border); border-radius: 8px; padding: 10px 8px; }
+    .c-sub-val { font-size: 0.72rem; color: var(--text-dim); display: flex; justify-content: space-between; margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.05); }
+
 </style>
 </head>
 <body>
 
     <div id="login-screen">
-        <h1>Guias RK - ADMIN</h1>
+        <h1>SCANNER V4 - ADMIN</h1>
         <p>Inicia sesión con tu cuenta de Google para administrar las guías</p>
         <button id="btn-google-login" onclick="signInWithGoogle()">
             <svg width="18" height="18" viewBox="0 0 18 18" style="margin-right:2px;"><path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.25h2.91c1.7-1.56 2.68-3.86 2.68-6.58z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.22l-2.91-2.25c-.8.54-1.83.86-3.05.86-2.35 0-4.34-1.58-5.05-3.71H1.02V13c1.48 2.94 4.53 4.96 8.02 4.96z"/><path fill="#FBBC05" d="M3.95 10.68c-.18-.54-.28-1.12-.28-1.72s.1-1.18.28-1.72V4.99H1.02A8.97 8.97 0 0 0 0 9c0 1.49.36 2.92 1.02 4.21l2.93-2.53z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.4A8.99 8.99 0 0 0 1.02 5l2.93 2.53c.71-2.13 2.7-3.71 5.05-3.71z"/></svg>
@@ -428,131 +436,88 @@
         <!-- ================= PESTAÑA 2: CUADRATURA REDPACK ================= -->
         <div id="cuadratura-tab" class="tab-content">
             
-            <!-- Barra Superior Cuadratura -->
-            <div class="card flex flex-col md:flex-row items-center justify-between gap-3">
-                <div class="flex items-center gap-4">
-                    <div class="flex items-center gap-2">
-                        <div class="bg-red-600 p-2 rounded-lg">
-                            <i class="fas fa-truck-fast text-white text-base"></i>
-                        </div>
-                        <h1 class="text-sm font-extrabold tracking-tight whitespace-nowrap">CUADRATURA <span class="text-red-600">REDPACK</span></h1>
-                    </div>
-                    
-                    <div class="flex items-center gap-2">
-                        <input type="file" id="fileViajes" class="hidden" accept=".xlsx, .xls">
-                        <label for="fileViajes" class="cursor-pointer bg-borderGray hover:bg-white hover:text-black text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition flex items-center" style="background: var(--carbon-border);">
-                            <i class="fas fa-file-excel mr-1.5"></i> SUBIR ARCHIVO
-                        </label>
-                        <button id="btn-process" onclick="processAllData()" class="btn-primary text-white px-3 py-1.5 rounded-lg text-[10px] font-black transition flex items-center">
-                            <span>PROCESAR</span>
-                            <i id="btn-loader" class="fas fa-circle-notch loading-spinner hidden ml-1.5"></i>
-                        </button>
-                    </div>
+            <!-- Barra Superior Cuadratura (Diseño Clásico Restaurado) -->
+            <div class="card c-flex-between">
+                <div class="c-flex-center">
+                    <h1 class="page-title" style="margin:0; font-weight: 800;">CUADRATURA <span style="color:var(--primary);">REDPACK</span></h1>
+                    <input type="file" id="fileViajes" style="display:none;" accept=".xlsx, .xls">
+                    <label for="fileViajes" class="btn-primary btn-secondary" style="padding: 8px 14px; font-size: 0.75rem; font-weight: 700; cursor:pointer;">
+                        <i class="fas fa-file-excel" style="margin-right: 6px;"></i>SUBIR ARCHIVO
+                    </label>
+                    <button id="btn-process" class="btn-primary" onclick="processAllData()" style="padding: 8px 14px; font-size:0.75rem;">
+                        PROCESAR <i id="btn-loader" class="fas fa-circle-notch loading-spinner" style="display:none; margin-left:6px;"></i>
+                    </button>
                 </div>
 
-                <div class="flex items-center gap-2 flex-1 max-w-full md:max-w-md">
-                    <div class="relative flex-1" style="position: relative; width: 100%;">
-                        <input type="text" id="smart-search" 
-                            class="bg-carbon border border-borderGray text-white text-[11px] rounded-lg focus:ring-red-600 focus:border-red-600 block w-full p-2 pl-8 outline-none transition" 
-                            style="background: #000; border: 1px solid var(--carbon-border); width: 100%; border-radius: 8px; padding-left: 28px;"
-                            placeholder="Guía, Chofer o Viaje..."
-                            oninput="smartFilter()">
-                        <i class="fas fa-search text-gray-500 text-[10px]" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%);"></i>
+                <div class="c-flex-center" style="flex: 1; justify-content: flex-end; max-width: 500px;">
+                    <div style="position: relative; flex: 1;">
+                        <input type="text" id="smart-search" placeholder="Buscar guía, chofer o viaje..." oninput="smartFilter()" 
+                               style="width:100%; background:#000; border:1px solid var(--carbon-border); border-radius:8px; padding: 8px 12px 8px 32px; color:#fff; font-family:'Lexend'; font-size:0.8rem;">
+                        <i class="fas fa-search" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--text-dim); font-size:0.8rem;"></i>
                     </div>
-                    
-                    <div class="relative w-28">
-                        <select id="filter-proveedor" onchange="smartFilter()" 
-                            class="bg-carbon border border-borderGray text-white text-[11px] rounded-lg focus:ring-red-600 focus:border-red-600 block w-full p-2 outline-none cursor-pointer font-bold"
-                            style="background: #000; border: 1px solid var(--carbon-border); border-radius: 8px;">
-                            <option value="ROMBO" selected>ROMBO</option>
-                            <option value="QP">QP</option>
-                        </select>
-                    </div>
+                    <select id="filter-proveedor" onchange="smartFilter()" style="background:#000; border:1px solid var(--carbon-border); border-radius:8px; padding:8px; color:#fff; font-family:'Lexend'; font-size:0.8rem; font-weight:700;">
+                        <option value="ROMBO" selected>ROMBO</option>
+                        <option value="QP">QP</option>
+                    </select>
                 </div>
 
-                <div id="info-display" class="hidden md:flex items-center gap-3">
-                    <div class="bg-carbon border border-borderGray px-4 py-1.5 rounded-xl flex flex-col items-end leading-tight min-w-[110px]" style="background: #000; border: 1px solid var(--carbon-border);">
-                        <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Fecha Excel</span>
-                        <span id="display-fecha" class="text-xs font-black text-white tracking-wide">---</span>
-                    </div>
-                    <div class="bg-carbon border border-borderGray px-4 py-1.5 rounded-xl flex flex-col items-end leading-tight min-w-[110px]" style="background: #000; border: 1px solid var(--carbon-border);">
-                        <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Total Guías</span>
-                        <span id="display-total-guias" class="text-xs font-black text-red-500 tracking-wide">0</span>
-                    </div>
+                <div id="info-display" style="display:none;" class="c-flex-center">
+                    <div class="stat-box" style="padding: 6px 12px; min-width: 90px;"><div class="stat-num" id="display-fecha" style="font-size:1.1rem;">--</div><div class="stat-label">FECHA EXCEL</div></div>
+                    <div class="stat-box" style="padding: 6px 12px; min-width: 90px;"><div class="stat-num" id="display-total-guias" style="font-size:1.1rem; color:var(--primary);">0</div><div class="stat-label">TOTAL GUIAS</div></div>
                 </div>
             </div>
 
-            <!-- Panel de Estadísticas Cuadratura -->
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
-                <div class="card-stats bg-darkGray p-3 rounded-xl border border-borderGray border-l-4 border-l-red-600 flex flex-col justify-between" style="background: var(--carbon-light); border: 1px solid var(--carbon-border); border-left: 4px solid var(--primary);">
-                    <div>
-                        <p class="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">Faltan Escanear (Hoy/Ayer/Antier)</p>
-                        <p class="text-xl font-black text-red-600" id="total-pending-count" style="color: var(--bad); font-size: 1.5rem; margin: 2px 0;">0</p>
-                    </div>
-                    <div class="flex flex-col border-t border-borderGray/50 mt-1 pt-1" style="border-top: 1px solid var(--carbon-border);">
-                        <div style="font-size: 9px; display:flex; justify-content: space-between; color: var(--text-dim);">EMB: <span id="sub-pending-no-emb" class="text-white font-bold">0</span></div>
-                        <div style="font-size: 9px; display:flex; justify-content: space-between; color: var(--text-dim);">ENT: <span id="sub-pending-no-ent" class="text-white font-bold">0</span></div>
-                    </div>
+            <!-- Panel de Estadísticas Cuadratura (Diseño Clásico Restaurado) -->
+            <div id="stats-panel" class="card" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
+                <div class="c-num-box" style="border-left: 4px solid var(--primary);">
+                    <div class="c-label" style="font-size: 0.65rem;">Faltan Escanear (3 Días)</div>
+                    <div class="stat-num" id="total-pending-count" style="color:var(--bad); font-size:1.5rem; margin:4px 0;">0</div>
+                    <div class="c-sub-val"><span>No Emb: <strong id="sub-pending-no-emb" style="color:#fff;">0</strong></span><span>No Ent: <strong id="sub-pending-no-ent" style="color:#fff;">0</strong></span></div>
                 </div>
-                <div class="card-stats bg-darkGray p-3 rounded-xl border border-borderGray border-l-4 border-l-orange-500" style="background: var(--carbon-light); border: 1px solid var(--carbon-border); border-left: 4px solid #f97316;">
-                    <p class="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">No Emb. TR2</p>
-                    <p class="text-xl font-black text-orange-500" id="count-no-emb" style="color: #f97316; font-size: 1.5rem; margin: 2px 0;">0</p>
-                    <div class="flex gap-2 border-t border-borderGray/50 mt-1 pt-1" style="border-top: 1px solid var(--carbon-border); font-size:9px; color: var(--text-dim);">
-                        <div class="flex-1">A: <span id="sub-no-emb-amz" class="text-white">0</span></div>
-                        <div class="flex-1">S: <span id="sub-no-emb-same" class="text-white">0</span></div>
-                    </div>
+                <div class="c-num-box" style="border-left: 4px solid #f97316;">
+                    <div class="c-label" style="font-size: 0.65rem;">No Emb. TR2</div>
+                    <div class="stat-num" id="count-no-emb" style="color:#f97316; font-size:1.5rem; margin:4px 0;">0</div>
+                    <div class="c-sub-val"><span>Amz: <strong id="sub-no-emb-amz" style="color:#fff;">0</strong></span><span>Same: <strong id="sub-no-emb-same" style="color:#fff;">0</strong></span></div>
                 </div>
-                <div class="card-stats bg-darkGray p-3 rounded-xl border border-borderGray border-l-4 border-l-yellow-500" style="background: var(--carbon-light); border: 1px solid var(--carbon-border); border-left: 4px solid #eab308;">
-                    <p class="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">No Recibido</p>
-                    <p class="text-xl font-black text-yellow-500" id="count-no-rec" style="color: #eab308; font-size: 1.5rem; margin: 2px 0;">0</p>
-                    <div class="flex gap-2 border-t border-borderGray/50 mt-1 pt-1" style="border-top: 1px solid var(--carbon-border); font-size:9px; color: var(--text-dim);">
-                        <div class="flex-1">A: <span id="sub-no-rec-amz" class="text-white">0</span></div>
-                        <div class="flex-1">S: <span id="sub-no-rec-same" class="text-white">0</span></div>
-                    </div>
+                <div class="c-num-box" style="border-left: 4px solid #eab308;">
+                    <div class="c-label" style="font-size: 0.65rem;">No Recibido</div>
+                    <div class="stat-num" id="count-no-rec" style="color:#eab308; font-size:1.5rem; margin:4px 0;">0</div>
+                    <div class="c-sub-val"><span>Amz: <strong id="sub-no-rec-amz" style="color:#fff;">0</strong></span><span>Same: <strong id="sub-no-rec-same" style="color:#fff;">0</strong></span></div>
                 </div>
-                <div class="card-stats bg-darkGray p-3 rounded-xl border border-borderGray border-l-4 border-l-blue-600" style="background: var(--carbon-light); border: 1px solid var(--carbon-border); border-left: 4px solid #2563eb;">
-                    <p class="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">No Entregado</p>
-                    <p class="text-xl font-black text-blue-500" id="count-no-ent" style="color: #2563eb; font-size: 1.5rem; margin: 2px 0;">0</p>
-                    <div class="flex gap-2 border-t border-borderGray/50 mt-1 pt-1" style="border-top: 1px solid var(--carbon-border); font-size:9px; color: var(--text-dim);">
-                        <div class="flex-1">A: <span id="sub-no-ent-amz" class="text-white">0</span></div>
-                        <div class="flex-1">S: <span id="sub-no-ent-same" class="text-white">0</span></div>
-                    </div>
+                <div class="c-num-box" style="border-left: 4px solid #2563eb;">
+                    <div class="c-label" style="font-size: 0.65rem;">No Entregado</div>
+                    <div class="stat-num" id="count-no-ent" style="color:#2563eb; font-size:1.5rem; margin:4px 0;">0</div>
+                    <div class="c-sub-val"><span>Amz: <strong id="sub-no-ent-amz" style="color:#fff;">0</strong></span><span>Same: <strong id="sub-no-ent-same" style="color:#fff;">0</strong></span></div>
                 </div>
-                <div class="card-stats bg-darkGray p-3 rounded-xl border border-borderGray border-l-4 border-l-green-600" style="background: var(--carbon-light); border: 1px solid var(--carbon-border); border-left: 4px solid #16a34a;">
-                    <p class="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">Total en Ruta</p>
-                    <p class="text-xl font-black text-green-500" id="count-in-route" style="color: #16a34a; font-size: 1.5rem; margin: 2px 0;">0</p>
-                    <div class="flex gap-2 border-t border-borderGray/50 mt-1 pt-1" style="border-top: 1px solid var(--carbon-border); font-size:9px; color: var(--text-dim);">
-                        <div class="flex-1">A: <span id="sub-ruta-amz" class="text-white">0</span></div>
-                        <div class="flex-1">S: <span id="sub-ruta-same" class="text-white">0</span></div>
-                    </div>
+                <div class="c-num-box" style="border-left: 4px solid #16a34a;">
+                    <div class="c-label" style="font-size: 0.65rem;">Total en Ruta</div>
+                    <div class="stat-num" id="count-in-route" style="color:#16a34a; font-size:1.5rem; margin:4px 0;">0</div>
+                    <div class="c-sub-val"><span>Amz: <strong id="sub-ruta-amz" style="color:#fff;">0</strong></span><span>Same: <strong id="sub-ruta-same" style="color:#fff;">0</strong></span></div>
                 </div>
-                <div class="card-stats bg-darkGray p-3 rounded-xl border border-borderGray border-l-4 border-l-purple-600" style="background: var(--carbon-light); border: 1px solid var(--carbon-border); border-left: 4px solid #9333ea;">
-                    <p class="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">Choferes Ruta</p>
-                    <p class="text-xl font-black text-purple-500" id="count-drivers-route" style="color: #9333ea; font-size: 1.5rem; margin: 2px 0;">0</p>
-                    <div class="flex gap-2 border-t border-borderGray/50 mt-1 pt-1" style="border-top: 1px solid var(--carbon-border); font-size:9px; color: var(--text-dim);">
-                        <div class="flex-1">A: <span id="sub-chofer-amz" class="text-white">0</span></div>
-                        <div class="flex-1">S: <span id="sub-chofer-same" class="text-white">0</span></div>
-                    </div>
+                <div class="c-num-box" style="border-left: 4px solid #9333ea;">
+                    <div class="c-label" style="font-size: 0.65rem;">Choferes Ruta</div>
+                    <div class="stat-num" id="count-drivers-route" style="color:#9333ea; font-size:1.5rem; margin:4px 0;">0</div>
+                    <div class="c-sub-val"><span>Amz: <strong id="sub-chofer-amz" style="color:#fff;">0</strong></span><span>Same: <strong id="sub-chofer-same" style="color:#fff;">0</strong></span></div>
                 </div>
             </div>
 
-            <!-- Gráfico y Listado de Pendientes -->
-            <div class="cuadratura-grid">
-                <div class="card flex flex-col h-fit">
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-[10px] font-bold uppercase text-gray-400">Rendimiento</h3>
-                        <button onclick="copyDriverSummary()" class="text-red-500 text-[10px] font-bold hover:underline">COPIAR</button>
+            <!-- Gráfico y Listado de Pendientes (Diseño Clásico Restaurado) -->
+            <div class="c-grid-3">
+                <div class="card" style="display:flex; flex-direction:column; justify-content: space-between;">
+                    <div class="c-flex-between" style="border-bottom: 1px solid var(--carbon-border); padding-bottom:8px; margin-bottom:8px;">
+                        <span class="c-label">Rendimiento Choferes</span>
+                        <button onclick="copyDriverSummary()" class="cell-btn edit" style="font-size:0.75rem; font-weight:700;">COPIAR</button>
                     </div>
-                    <div style="height: 120px; margin-bottom: 12px;"><canvas id="chart-pendientes"></canvas></div>
-                    <div id="driver-summary-list" style="max-height: 250px; overflow-y: auto; border-top: 1px solid var(--carbon-border);"></div>
+                    <div style="height: 120px; margin-bottom: 10px;"><canvas id="chart-pendientes"></canvas></div>
+                    <div id="driver-summary-list" style="max-height: 180px; overflow-y:auto;"></div>
                 </div>
 
-                <div class="card flex flex-col">
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-[10px] font-bold uppercase text-gray-400">Listado de Pendientes (No Escaneadas en 3 Días)</h3>
-                        <button onclick="copyTableToSheets()" class="btn-primary text-white px-2 py-1 rounded text-[9px] font-bold">COPIAR SHEETS</button>
+                <div class="card">
+                    <div class="c-flex-between" style="border-bottom: 1px solid var(--carbon-border); padding-bottom:8px; margin-bottom:8px;">
+                        <span class="c-label">Listado de Pendientes (No Escaneadas en 3 Días)</span>
+                        <button onclick="copyTableToSheets()" class="btn-primary" style="padding:6px 12px; font-size:0.7rem;">COPIAR SHEETS</button>
                     </div>
-                    <div class="table-wrap" style="max-height: 500px; overflow-y: auto;">
+                    <div class="table-wrap" style="max-height: 320px; overflow-y: auto;">
                         <table id="table-pending">
                             <thead>
                                 <tr>
@@ -563,34 +528,32 @@
                                     <th class="sortable" onclick="sortTable(4)">Estado <i class="fas fa-sort ml-1 opacity-30"></i></th>
                                 </tr>
                             </thead>
-                            <tbody id="pending-list-body" class="text-[11px]">
-                                <tr><td colspan="5" class="p-10 text-center text-gray-600">Sube un archivo y presiona Procesar.</td></tr>
+                            <tbody id="pending-list-body">
+                                <tr><td colspan="5" class="empty-msg">Sube un archivo de viajes y presiona Procesar.</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Filtro de Estados Adicionales -->
-            <div class="card flex flex-col">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
-                    <div class="flex items-center gap-3">
-                        <h3 class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Filtro de Paquetes por Estado</h3>
-                        <span id="statusMsg" class="text-[10px] text-gray-500 font-medium">Sube un archivo de viajes para comenzar.</span>
+            <!-- Filtro de Estados Adicionales (Diseño Clásico Restaurado) -->
+            <div class="card">
+                <div class="c-flex-between" style="border-bottom: 1px solid var(--carbon-border); padding-bottom:8px; margin-bottom:12px;">
+                    <div class="c-flex-center">
+                        <span class="c-label">Filtro de Paquetes por Estado</span>
+                        <span id="statusMsg" style="font-size: 0.72rem; color:var(--text-dim); margin-left:6px;">Sube un archivo de viajes para comenzar.</span>
                     </div>
-                    <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <select id="estadoFilter" onchange="filterAndRenderTable()" disabled 
-                            class="bg-carbon border border-borderGray text-white text-[10px] rounded-lg focus:ring-red-600 focus:border-red-600 p-1.5 outline-none cursor-pointer font-bold disabled:opacity-40"
-                            style="background: #000; border: 1px solid var(--carbon-border); border-radius: 8px;">
+                    <div class="c-flex-center">
+                        <select id="estadoFilter" onchange="filterAndRenderTable()" disabled style="background:#000; color:#fff; border:1px solid var(--carbon-border); border-radius:8px; padding:6px 12px; font-family:'Lexend'; font-size:0.75rem;">
                             <option value="">-- Selecciona un archivo primero --</option>
                         </select>
-                        <button id="copyBtn" onclick="copyToClipboard()" disabled class="btn-primary text-white px-2 py-1.5 rounded text-[9px] font-bold disabled:opacity-40 whitespace-nowrap">
+                        <button id="copyBtn" onclick="copyToClipboard()" disabled class="btn-primary" style="padding:6px 12px; font-size:0.72rem;">
                             COPIAR ESTADOS
                         </button>
                     </div>
                 </div>
                 
-                <div class="table-wrap" style="max-height: 500px; overflow-y: auto;">
+                <div class="table-wrap" style="max-height: 350px; overflow-y: auto;">
                     <table id="dataTable">
                         <thead>
                             <tr>
@@ -599,9 +562,9 @@
                                 <th>Pedido Referencia externa</th>
                             </tr>
                         </thead>
-                        <tbody id="tableBody" class="text-[11px]">
+                        <tbody id="tableBody">
                             <tr>
-                                <td colspan="3" class="p-10 text-center text-gray-600">No hay datos cargados</td>
+                                <td colspan="3" class="empty-msg">No hay datos cargados</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1085,7 +1048,7 @@
                 const jornadaRaw = dataViajes[0]?.Jornada || "";
                 const dateMatch = jornadaRaw.match(/\d{2}\/\d{2}\/\d{4}/);
                 document.getElementById('display-fecha').innerText = dateMatch ? dateMatch[0] : "S/F";
-                document.getElementById('info-display').classList.remove('hidden');
+                document.getElementById('info-display').style.display = 'flex';
 
                 if (dataParadas.length === 0) {
                     statusMsg.innerText = "La hoja 'Paradas' está vacía.";
@@ -1145,7 +1108,7 @@
 
     async function processAllData() {
         if (!dataViajes.length) return alert("Sube el archivo primero.");
-        document.getElementById('btn-loader').classList.remove('hidden');
+        document.getElementById('btn-loader').style.display = 'inline-block';
         
         // Obtener guías escaneadas desde Firebase con un margen de 3 días (Hoy, Ayer y Antier)
         dataGuiasEscaneadas = await fetchFirebase3DaysData();
@@ -1177,7 +1140,7 @@
         renderUI();
         filterAndRenderTable();
         
-        document.getElementById('btn-loader').classList.add('hidden');
+        document.getElementById('btn-loader').style.display = 'none';
     }
 
     function renderUI() {
@@ -1222,13 +1185,14 @@
                 const match = item.guia.toLowerCase().includes(query) || item.conductor.toLowerCase().includes(query) || String(item.viaje).includes(query);
                 if (match) {
                     pendientesCount++;
+                    const badgeClass = item.estado === 'No Entregado' ? 'c-badge no-ent' : 'c-badge no-emb';
                     tableHtml += `
-                        <tr class="hover:bg-white/5 master-row">
-                            <td class="px-4 py-2 text-gray-500 italic">${item.categoria}</td>
-                            <td class="px-4 py-2 font-bold">${item.viaje}</td>
-                            <td class="px-4 py-2 text-gray-400">${item.conductor}</td>
-                            <td class="px-4 py-2 font-bold text-red-500">${item.guia}</td>
-                            <td class="px-4 py-2"><span class="px-1.5 py-0.5 rounded text-[7px] font-bold uppercase ${item.estado === 'No Entregado' ? 'bg-red-900/30 text-red-400' : 'bg-orange-900/30 text-orange-400'}">${item.estado}</span></td>
+                        <tr class="master-row">
+                            <td style="color:var(--text-dim); font-style: italic;">${item.categoria}</td>
+                            <td style="font-weight:700;">${item.viaje}</td>
+                            <td style="color:var(--text-dim);">${item.conductor}</td>
+                            <td style="font-weight:700; color:var(--bad);">${item.guia}</td>
+                            <td><span class="${badgeClass}">${item.estado}</span></td>
                         </tr>`;
                     if(item.estado === 'No Entregado') driverNoEntregados[item.conductor] = (driverNoEntregados[item.conductor] || 0) + 1;
                 }
@@ -1254,14 +1218,14 @@
         document.getElementById('count-drivers-route').innerText = stats.choferes.t.size;
         document.getElementById('sub-chofer-amz').innerText = stats.choferes.a.size;
         document.getElementById('sub-chofer-same').innerText = stats.choferes.s.size;
-        document.getElementById('pending-list-body').innerHTML = tableHtml || '<tr><td colspan="5" class="p-10 text-center text-gray-400">Sin resultados o todas escaneadas dentro de los últimos 3 días.</td></tr>';
+        document.getElementById('pending-list-body').innerHTML = tableHtml || '<tr><td colspan="5" class="empty-msg">Sin resultados o todas escaneadas dentro de los últimos 3 días.</td></tr>';
 
         const sorted = Object.entries(driverNoEntregados).sort((a,b) => b[1]-a[1]);
         renderChart(sorted.slice(0, 5));
         document.getElementById('driver-summary-list').innerHTML = sorted.map(([n, c]) => `
-            <div class="flex justify-between items-center py-1.5 px-1" style="display:flex; justify-content:space-between; padding: 6px 0;">
-                <span class="truncate pr-2 uppercase font-medium text-gray-400 text-[9px]" style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${n}</span>
-                <span class="font-black text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded text-[10px]" style="background: rgba(239, 68, 68, 0.1); padding: 2px 6px; border-radius:4px;">${c}</span>
+            <div style="display:flex; justify-content:space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.03);">
+                <span style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-transform:uppercase; font-size:0.72rem; color:var(--text-dim);">${n}</span>
+                <span style="background: rgba(239, 68, 68, 0.1); padding: 2px 6px; border-radius:4px; font-weight:800; color:var(--bad); font-size:0.75rem;">${c}</span>
             </div>
         `).join('');
     }
@@ -1275,7 +1239,7 @@
             type: 'bar',
             data: {
                 labels: data.map(i => i[0].split(' ')[0]),
-                datasets: [{ data: data.map(i => i[1]), backgroundColor: '#dc2626', borderRadius: 2 }]
+                datasets: [{ data: data.map(i => i[1]), backgroundColor: '#9b2222', borderRadius: 2 }]
             },
             options: {
                 indexAxis: 'y', responsive: true, maintainAspectRatio: false,
@@ -1389,21 +1353,20 @@
         });
 
         if (filtered.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="3" class="p-10 text-center text-gray-500">Ningún dato coincide con el filtro</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="3" class="empty-msg">Ningún dato coincide con el filtro</td></tr>';
             return;
         }
 
         filtered.forEach(item => {
             const tr = document.createElement('tr');
-            tr.className = "hover:bg-white/5";
             
             const isTR2 = item.estado.toLowerCase() === 'no embarcado tr2';
-            const colorClass = isTR2 ? 'class="px-4 py-2 font-bold text-red-400"' : 'class="px-4 py-2 text-gray-400"';
+            const colorStyle = isTR2 ? 'style="font-weight:bold; color:#f97316;"' : 'style="color:var(--text-dim);"';
 
             tr.innerHTML = `
-                <td ${colorClass}>${item.estado}</td>
-                <td class="px-4 py-2 font-bold">${item.idViaje}</td>
-                <td class="px-4 py-2 text-gray-300">${item.referencia}</td>
+                <td ${colorStyle}>${item.estado}</td>
+                <td style="font-weight:bold;">${item.idViaje}</td>
+                <td style="color:#fff;">${item.referencia}</td>
             `;
             tableBody.appendChild(tr);
         });

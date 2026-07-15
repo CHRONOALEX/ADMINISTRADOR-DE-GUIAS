@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GUIAS RPK- ADMIN & CUADRATURA V0.3</title>
+<title>GUIAS RK- ADMIN & CUADRATURA V0.3</title>
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght=300;400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
@@ -254,6 +254,33 @@
     .form-row { display: flex; flex-wrap: wrap; gap: 10px; }
     .form-row > * { flex: 1; min-width: 140px; }
 
+    /* ---- Mini calendario (mover fecha) ---- */
+    .mini-calendar-popup {
+        display: none; position: absolute; top: calc(100% + 8px); left: 0; z-index: 3200;
+        background: var(--carbon-light); border: 1px solid var(--carbon-border); border-radius: 12px;
+        padding: 12px; width: 250px; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+    .mini-calendar-popup.open { display: block; }
+    .mc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .mc-header button { background: transparent; border: 1px solid var(--carbon-border); color: var(--text-main); width: 24px; height: 24px; border-radius: 6px; cursor: pointer; font-size: 0.7rem; padding: 0; }
+    .mc-header button:hover { background: var(--carbon-border); }
+    .mc-title { font-size: 0.78rem; font-weight: 700; color: var(--white); text-transform: capitalize; }
+    .mc-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+    .mc-dow { font-size: 0.58rem; color: var(--text-dim); text-align: center; font-weight: 700; padding-bottom: 4px; }
+    .mc-day {
+        position: relative; aspect-ratio: 1/1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        border-radius: 6px; cursor: pointer; font-size: 0.68rem; color: var(--text-main); border: 1px solid transparent;
+        background: rgba(255,255,255,0.02); transition: all 0.15s; gap: 1px;
+    }
+    .mc-day:hover { background: var(--carbon-border); }
+    .mc-day.mc-empty { visibility: hidden; cursor: default; }
+    .mc-day.mc-today { border-color: var(--accent); }
+    .mc-day.mc-selected { background: var(--primary); color: #fff; font-weight: 700; }
+    .mc-day-badge { font-size: 0.5rem; font-weight: 800; color: var(--accent); line-height: 1; }
+    .mc-day.mc-selected .mc-day-badge { color: #ffe9a8; }
+    .mc-footer { display: flex; justify-content: space-between; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--carbon-border); }
+    .mc-footer button { flex: 1; font-size: 0.65rem; padding: 5px 8px; }
+
     /* ============================================== */
     /* ---- ESTILOS RESTAURADOS DE CUADRATURA (ORIGINALES) ---- */
     /* ============================================== */
@@ -283,7 +310,7 @@
 <body>
 
     <div id="login-screen">
-        <h1>SCANNER V4 - ADMIN</h1>
+        <h1>GUIAS - ADMIN</h1>
         <p>Inicia sesión con tu cuenta de Google para administrar las guías</p>
         <button id="btn-google-login" onclick="signInWithGoogle()">
             <svg width="18" height="18" viewBox="0 0 18 18" style="margin-right:2px;"><path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.25h2.91c1.7-1.56 2.68-3.86 2.68-6.58z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.22l-2.91-2.25c-.8.54-1.83.86-3.05.86-2.35 0-4.34-1.58-5.05-3.71H1.02V13c1.48 2.94 4.53 4.96 8.02 4.96z"/><path fill="#FBBC05" d="M3.95 10.68c-.18-.54-.28-1.12-.28-1.72s.1-1.18.28-1.72V4.99H1.02A8.97 8.97 0 0 0 0 9c0 1.49.36 2.92 1.02 4.21l2.93-2.53z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.4A8.99 8.99 0 0 0 1.02 5l2.93 2.53c.71-2.13 2.7-3.71 5.05-3.71z"/></svg>
@@ -375,9 +402,13 @@
                     <option value="PAQUETES ROJOS NM">PAQUETES ROJOS NM</option>
                 </select>
 
-                <div style="display: flex; align-items: center; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 6px; position: relative;">
                     <label style="font-size:0.7rem; color:var(--accent); font-weight:600;">Mover fecha:</label>
-                    <input type="date" id="bulk-date">
+                    <button type="button" id="bulk-date-trigger" class="btn-primary btn-secondary" style="padding:7px 12px; font-size:0.75rem; display:flex; align-items:center; gap:6px;" onclick="toggleMiniCalendar(event)">
+                        <i class="fas fa-calendar-alt"></i><span id="bulk-date-label">Elegir fecha</span>
+                    </button>
+                    <input type="date" id="bulk-date" style="display:none;">
+                    <div id="mini-calendar-popup" class="mini-calendar-popup"></div>
                 </div>
 
                 <button class="btn-primary" onclick="applyBulkEdit()">APLICAR</button>
@@ -560,11 +591,12 @@
                                 <th>Estado</th>
                                 <th>IdViaje</th>
                                 <th>Pedido Referencia externa</th>
+                                <th>Última Categoría (3 días)</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody">
                             <tr>
-                                <td colspan="3" class="empty-msg">No hay datos cargados</td>
+                                <td colspan="4" class="empty-msg">No hay datos cargados</td>
                             </tr>
                         </tbody>
                     </table>
@@ -871,6 +903,105 @@
     }
     fillCategoriaSelect(document.getElementById('bulk-categoria'), '__NOCHANGE__', true);
 
+    // ============ MINI CALENDARIO (MOVER FECHA) ============
+    let miniCalendarViewDate = new Date();
+
+    function pad2(n) { return String(n).padStart(2, '0'); }
+    function dateToInputVal(d) { return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; }
+    function dateToKey(d) { return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`; }
+
+    function toggleMiniCalendar(e) {
+        e.stopPropagation();
+        const popup = document.getElementById('mini-calendar-popup');
+        if (popup.classList.contains('open')) { popup.classList.remove('open'); return; }
+        const currentVal = document.getElementById('bulk-date').value;
+        miniCalendarViewDate = currentVal ? new Date(currentVal + 'T00:00:00') : new Date();
+        renderMiniCalendar();
+        popup.classList.add('open');
+    }
+
+    function changeMiniCalendarMonth(delta) {
+        miniCalendarViewDate.setMonth(miniCalendarViewDate.getMonth() + delta);
+        renderMiniCalendar();
+    }
+
+    function renderMiniCalendar() {
+        const popup = document.getElementById('mini-calendar-popup');
+        const year = miniCalendarViewDate.getFullYear();
+        const month = miniCalendarViewDate.getMonth();
+        const today = new Date();
+        const todayKey = dateToKey(today);
+        const selectedVal = document.getElementById('bulk-date').value;
+        const selectedKey = selectedVal ? dateToKey(new Date(selectedVal + 'T00:00:00')) : null;
+
+        // Total de paquetes con ACCIÓN INYECCIÓN por cada fecha
+        const injCounts = {};
+        allGuias.forEach(g => {
+            if (g.accion === 'INYECCIÓN' && g.dateKey) {
+                injCounts[g.dateKey] = (injCounts[g.dateKey] || 0) + 1;
+            }
+        });
+
+        const firstDay = new Date(year, month, 1);
+        const startOffset = (firstDay.getDay() + 6) % 7; // lunes = 0
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const monthLabel = miniCalendarViewDate.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+        const dows = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+
+        let cellsHtml = '';
+        for (let i = 0; i < startOffset; i++) cellsHtml += `<div class="mc-day mc-empty"></div>`;
+        for (let day = 1; day <= daysInMonth; day++) {
+            const cellDate = new Date(year, month, day);
+            const cellKey = dateToKey(cellDate);
+            const cellVal = dateToInputVal(cellDate);
+            const count = injCounts[cellKey] || 0;
+            const classes = ['mc-day'];
+            if (cellKey === todayKey) classes.push('mc-today');
+            if (cellKey === selectedKey) classes.push('mc-selected');
+            cellsHtml += `<div class="${classes.join(' ')}" onclick="selectMiniCalendarDate('${cellVal}')" title="${count} guía(s) INYECCIÓN">
+                <span>${day}</span>
+                ${count > 0 ? `<span class="mc-day-badge">${count}</span>` : ''}
+            </div>`;
+        }
+
+        popup.innerHTML = `
+            <div class="mc-header">
+                <button type="button" onclick="changeMiniCalendarMonth(-1)">◀</button>
+                <span class="mc-title">${monthLabel}</span>
+                <button type="button" onclick="changeMiniCalendarMonth(1)">▶</button>
+            </div>
+            <div class="mc-grid">
+                ${dows.map(d => `<div class="mc-dow">${d}</div>`).join('')}
+                ${cellsHtml}
+            </div>
+            <div class="mc-footer">
+                <button type="button" class="btn-primary btn-secondary" onclick="selectMiniCalendarDate('${dateToInputVal(today)}')">HOY</button>
+                <button type="button" class="btn-primary btn-secondary" onclick="clearMiniCalendarDate()">LIMPIAR</button>
+            </div>
+        `;
+    }
+
+    function selectMiniCalendarDate(val) {
+        document.getElementById('bulk-date').value = val;
+        const d = new Date(val + 'T00:00:00');
+        document.getElementById('bulk-date-label').textContent = d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
+        document.getElementById('mini-calendar-popup').classList.remove('open');
+    }
+
+    function clearMiniCalendarDate() {
+        document.getElementById('bulk-date').value = '';
+        document.getElementById('bulk-date-label').textContent = 'Elegir fecha';
+        document.getElementById('mini-calendar-popup').classList.remove('open');
+    }
+
+    document.addEventListener('click', (e) => {
+        const popup = document.getElementById('mini-calendar-popup');
+        const trigger = document.getElementById('bulk-date-trigger');
+        if (popup && popup.classList.contains('open') && !popup.contains(e.target) && e.target !== trigger && !trigger.contains(e.target)) {
+            popup.classList.remove('open');
+        }
+    });
+
     async function applyBulkEdit() {
         if (selectedIds.size === 0) return;
         const accion = document.getElementById('bulk-accion').value;
@@ -921,7 +1052,8 @@
         }
         
         selectedIds.clear();
-        document.getElementById('bulk-date').value = ''; 
+        document.getElementById('bulk-date').value = '';
+        document.getElementById('bulk-date-label').textContent = 'Elegir fecha';
         render();
     }
 
@@ -1353,7 +1485,7 @@
         });
 
         if (filtered.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="3" class="empty-msg">Ningún dato coincide con el filtro</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="4" class="empty-msg">Ningún dato coincide con el filtro</td></tr>';
             return;
         }
 
@@ -1363,13 +1495,44 @@
             const isTR2 = item.estado.toLowerCase() === 'no embarcado tr2';
             const colorStyle = isTR2 ? 'style="font-weight:bold; color:#f97316;"' : 'style="color:var(--text-dim);"';
 
+            let catCellHtml;
+            if (isTR2) {
+                const cat = getUltimaCategoriaTR2(item.referencia);
+                const esFaltante = cat === 'Faltante';
+                const catStyle = esFaltante ? 'color:var(--bad); font-weight:700;' : 'color:var(--good); font-weight:700;';
+                catCellHtml = `<td style="${catStyle}">${cat}</td>`;
+            } else {
+                catCellHtml = `<td style="color:var(--text-dim);">—</td>`;
+            }
+
             tr.innerHTML = `
                 <td ${colorStyle}>${item.estado}</td>
                 <td style="font-weight:bold;">${item.idViaje}</td>
                 <td style="color:#fff;">${item.referencia}</td>
+                ${catCellHtml}
             `;
             tableBody.appendChild(tr);
         });
+    }
+
+    // ============ COLUMNA VIRTUAL: ÚLTIMA CATEGORÍA (SOLO NO EMBARCADO TR2) ============
+    function calcularDiasPermitidos() {
+        const calc = (diasAtras) => {
+            const d = new Date();
+            d.setDate(d.getDate() - diasAtras);
+            return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+        };
+        return [calc(0), calc(1), calc(2)]; // Hoy, Ayer, Antier
+    }
+
+    function getUltimaCategoriaTR2(referenciaRaw) {
+        const guiaNum = String(referenciaRaw || '').split('|')[0].trim();
+        if (!guiaNum) return 'Faltante';
+        const diasPermitidos = calcularDiasPermitidos();
+        const matches = allGuias.filter(g => g.guia === guiaNum && diasPermitidos.includes(g.dateKey));
+        if (matches.length === 0) return 'Faltante';
+        matches.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        return matches[0].categoria || 'Faltante';
     }
 
     function copyToClipboard() {

@@ -10,125 +10,203 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <style>
     :root {
-        --primary: #8a2929;
-        --carbon-dark: #121212;
-        --carbon-light: #1e1e1e;
-        --carbon-border: #333333;
+        --primary: #9b2222;
+        --primary-hover: #b82d2d;
+        --carbon-dark: #0b0b0c;
+        --carbon-light: #141416;
+        --carbon-card: #1d1d21;
+        --carbon-border: #2d2d34;
         --accent: #ffc107;
-        --text-main: #e0e0e0;
-        --text-dim: #a0a0a0;
+        --accent-hover: #ffca2c;
+        --text-main: #f3f4f6;
+        --text-dim: #9ca3af;
         --white: #ffffff;
         --good: #10b981;
-        --bad: #ff4444;
+        --bad: #ef4444;
+        --glow: rgba(155, 34, 34, 0.15);
     }
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; outline: none; }
     body {
         font-family: 'Lexend', sans-serif;
         margin: 0;
         background: var(--carbon-dark);
         color: var(--text-main);
         min-height: 100vh;
+        background-image: radial-gradient(circle at top right, #1f1212 0%, var(--carbon-dark) 60%);
     }
     #login-screen {
         display: flex; position: fixed; inset: 0; background: var(--carbon-dark);
         z-index: 3000; flex-direction: column; align-items: center; justify-content: center;
-        gap: 18px; text-align: center; padding: 20px;
+        gap: 20px; text-align: center; padding: 20px;
     }
-    #login-screen h1 { font-size: 1.1rem; margin: 0; }
-    #login-screen p { font-size: 0.8rem; color: var(--text-dim); margin: 0; }
+    #login-screen h1 { font-size: 1.8rem; margin: 0; letter-spacing: 1px; color: var(--white); font-weight: 700; }
+    #login-screen p { font-size: 0.9rem; color: var(--text-dim); margin: 0; max-width: 320px; line-height: 1.4; }
     #btn-google-login {
         display: flex; align-items: center; gap: 10px;
-        background: var(--white); color: #1f1f1f; border: none; border-radius: 8px;
-        padding: 12px 22px; font-size: 0.9rem; font-weight: 600;
-        font-family: 'Lexend', sans-serif; cursor: pointer;
+        background: var(--white); color: #121212; border: none; border-radius: 8px;
+        padding: 12px 24px; font-size: 0.95rem; font-weight: 600;
+        font-family: 'Lexend', sans-serif; cursor: pointer; transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
     }
-    #login-status { font-size: 0.75rem; color: var(--accent); min-height: 1em; }
+    #btn-google-login:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(255,255,255,0.15); }
+    #login-status { font-size: 0.8rem; color: var(--accent); min-height: 1.2em; }
 
-    #app-root { display: none; flex-direction: column; padding: 10px; gap: 10px; max-width: 1200px; margin: 0 auto; }
+    #app-root { display: none; flex-direction: column; padding: 16px; gap: 16px; max-width: 1200px; margin: 0 auto; }
+
+    /* ---- Buscador Universal ---- */
+    #search-container {
+        position: relative;
+        margin-bottom: 4px;
+    }
+    #search-universal {
+        width: 100%;
+        background: var(--carbon-light);
+        color: var(--white);
+        border: 2px solid var(--carbon-border);
+        border-radius: 10px;
+        padding: 14px 16px 14px 46px;
+        font-family: 'Lexend', sans-serif;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+    #search-universal:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--glow);
+    }
+    .search-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-dim);
+        font-size: 1.1rem;
+        pointer-events: none;
+    }
 
     #user-bar {
         display: flex; align-items: center; justify-content: space-between;
-        background: #000; padding: 8px 12px; font-size: 0.7rem; color: var(--text-dim);
-        border-radius: 8px; border: 1px solid var(--carbon-border);
+        background: var(--carbon-light); padding: 10px 16px; font-size: 0.75rem; color: var(--text-dim);
+        border-radius: 10px; border: 1px solid var(--carbon-border);
     }
-    #user-bar #btn-logout, .btn-secondary {
+    #user-bar #btn-logout {
         background: transparent; border: 1px solid var(--carbon-border);
-        color: var(--text-dim); border-radius: 5px; padding: 5px 10px;
-        font-size: 0.7rem; font-family: 'Lexend', sans-serif; cursor: pointer;
+        color: var(--text-dim); border-radius: 6px; padding: 6px 12px;
+        font-size: 0.75rem; font-family: 'Lexend', sans-serif; cursor: pointer; transition: all 0.2s;
     }
+    #user-bar #btn-logout:hover { background: var(--bad); color: var(--white); border-color: var(--bad); }
 
-    h1.page-title { font-size: 1rem; margin: 4px 0; color: var(--white); }
+    h1.page-title { font-size: 1.2rem; margin: 4px 0; color: var(--white); font-weight: 600; letter-spacing: 0.5px; }
 
     .card {
         background: var(--carbon-light); border: 1px solid var(--carbon-border);
-        border-radius: 10px; padding: 12px;
+        border-radius: 12px; padding: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.35);
     }
 
     /* ---- Estadísticas ---- */
     #stats-panel {
-        display: flex; flex-wrap: wrap; gap: 10px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
     }
     .stat-box {
-        flex: 1; min-width: 110px; text-align: center;
-        background: #000; border: 1px solid var(--carbon-border); border-radius: 8px;
-        padding: 10px 6px;
+        text-align: center;
+        background: rgba(0, 0, 0, 0.3); border: 1px solid var(--carbon-border); border-radius: 10px;
+        padding: 14px 10px; transition: transform 0.2s;
     }
-    .stat-box .stat-num { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
-    .stat-box .stat-label { font-size: 0.62rem; color: var(--text-dim); margin-top: 2px; }
+    .stat-box:hover { transform: translateY(-2px); }
+    .stat-box .stat-num { font-size: 1.6rem; font-weight: 700; color: var(--accent); text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    .stat-box.stat-today .stat-num { color: var(--good); }
+    .stat-box .stat-label { font-size: 0.68rem; color: var(--text-dim); margin-top: 4px; font-weight: 600; letter-spacing: 0.5px; }
 
     /* ---- Filtros ---- */
-    #filter-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    #filter-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .filter-group { display: flex; align-items: center; gap: 6px; }
     #filter-bar input, #filter-bar select {
         background: #000; color: var(--white); border: 1px solid var(--carbon-border);
-        border-radius: 6px; padding: 8px; font-family: 'Lexend', sans-serif; font-size: 0.8rem;
+        border-radius: 8px; padding: 8px 12px; font-family: 'Lexend', sans-serif; font-size: 0.85rem;
+        transition: all 0.2s;
     }
+    #filter-bar input:focus, #filter-bar select:focus { border-color: var(--primary); }
+    
+    /* Control de fechas rápido */
+    .date-control { display: flex; align-items: center; gap: 4px; background: #000; border: 1px solid var(--carbon-border); border-radius: 8px; padding: 2px; }
+    .date-nav-btn { background: var(--carbon-light); border: none; color: var(--text-main); font-size: 0.8rem; padding: 6px 10px; cursor: pointer; border-radius: 6px; transition: background 0.2s; }
+    .date-nav-btn:hover { background: var(--carbon-border); }
+    #filter-date { border: none !important; background: transparent !important; padding: 6px 8px !important; }
+
     .btn-primary {
-        background: var(--primary); color: white; border: none; border-radius: 6px;
-        padding: 8px 14px; font-size: 0.78rem; font-weight: 600; cursor: pointer;
-        font-family: 'Lexend', sans-serif;
+        background: var(--primary); color: white; border: none; border-radius: 8px;
+        padding: 10px 18px; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+        font-family: 'Lexend', sans-serif; transition: all 0.2s;
+        box-shadow: 0 2px 6px rgba(155, 34, 34, 0.3);
     }
-    .btn-danger { background: transparent; color: var(--bad); border: 1px solid var(--bad); }
-    .btn-good { background: transparent; color: var(--good); border: 1px solid var(--good); }
+    .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    .btn-secondary { background: transparent; border: 1px solid var(--carbon-border); color: var(--text-dim); box-shadow: none; }
+    .btn-secondary:hover { background: var(--carbon-border); color: var(--white); }
+    .btn-danger { background: transparent; color: var(--bad); border: 1px solid var(--bad); box-shadow: none; }
+    .btn-danger:hover { background: var(--bad); color: white; }
+    .btn-good { background: transparent; color: var(--good); border: 1px solid var(--good); box-shadow: none; }
+    .btn-good:hover { background: var(--good); color: white; }
+    
+    .btn-inject { background: #0c4a6e; color: #38bdf8; border: 1px solid #0284c7; box-shadow: none; font-size: 0.8rem; }
+    .btn-inject:hover { background: #0284c7; color: white; transform: translateY(-1px); }
 
     /* ---- Barra de edición masiva ---- */
     #bulk-bar {
-        display: none; flex-wrap: wrap; gap: 8px; align-items: center;
-        background: #241a06; border: 1px solid var(--accent);
+        display: none; flex-wrap: wrap; gap: 10px; align-items: center;
+        background: #251616; border: 1px solid var(--primary);
     }
-    #bulk-bar select { min-width: 140px; }
-    #bulk-bar .bulk-count { font-size: 0.78rem; color: var(--accent); font-weight: 600; }
+    #bulk-bar select { min-width: 140px; background: #120707; border: 1px solid #541d1d; color: var(--white); border-radius: 6px; padding: 8px; font-family: 'Lexend'; font-size: 0.8rem; }
+    #bulk-bar .bulk-count { font-size: 0.82rem; color: var(--accent); font-weight: 600; margin-right: 8px; }
 
     /* ---- Tabla ---- */
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; min-width: 760px; }
-    th { text-align: left; padding: 8px 6px; font-size: 0.62rem; color: var(--text-dim); border-bottom: 1px solid var(--carbon-border); white-space: nowrap; }
-    td { padding: 7px 6px; border-bottom: 1px solid #1a1a1a; font-size: 0.72rem; vertical-align: middle; white-space: nowrap; }
-    .guia-text { font-weight: 700; color: var(--white); }
-    .cell-btn { background: none; border: none; cursor: pointer; font-size: 0.95rem; }
+    .table-wrap { overflow-x: auto; margin-top: 4px; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 760px; }
+    th { text-align: left; padding: 12px 10px; font-size: 0.72rem; color: var(--text-dim); border-bottom: 1px solid var(--carbon-border); white-space: nowrap; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { padding: 10px 10px; border-bottom: 1px solid #1a1a1f; font-size: 0.8rem; vertical-align: middle; white-space: nowrap; transition: background 0.15s; }
+    tr:hover td { background: rgba(255, 255, 255, 0.02); }
+    .guia-container { display: flex; align-items: center; gap: 8px; }
+    .guia-text { font-weight: 700; color: var(--white); font-size: 0.85rem; letter-spacing: 0.5px; }
+    
+    /* Contador de Repeticiones Individual */
+    .guia-badge-count {
+        background: rgba(255, 193, 7, 0.12);
+        color: var(--accent);
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 193, 7, 0.25);
+    }
+    
+    .cell-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 4px 8px; border-radius: 4px; transition: background 0.2s; }
+    .cell-btn:hover { background: rgba(255,255,255,0.05); }
     .cell-btn.edit { color: var(--accent); }
     .cell-btn.del { color: var(--bad); }
 
     /* ---- Modal de edición individual ---- */
     #edit-modal-bg {
-        display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 2500;
-        align-items: center; justify-content: center; padding: 16px;
+        display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2500;
+        align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(4px);
     }
     #edit-modal {
-        background: var(--carbon-light); border: 1px solid var(--carbon-border); border-radius: 10px;
-        padding: 16px; width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 10px;
+        background: var(--carbon-light); border: 1px solid var(--carbon-border); border-radius: 14px;
+        padding: 20px; width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
-    #edit-modal label { font-size: 0.68rem; color: var(--text-dim); display: block; margin-bottom: 3px; }
+    #edit-modal label { font-size: 0.72rem; color: var(--text-dim); display: block; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
     #edit-modal select, #edit-modal input {
         width: 100%; background: #000; color: var(--white); border: 1px solid var(--carbon-border);
-        border-radius: 6px; padding: 8px; font-family: 'Lexend', sans-serif; font-size: 0.8rem;
+        border-radius: 8px; padding: 10px; font-family: 'Lexend', sans-serif; font-size: 0.85rem;
     }
-    #edit-modal input[disabled] { color: var(--text-dim); }
-    .modal-actions { display: flex; gap: 8px; margin-top: 4px; }
-    .modal-actions button { flex: 1; padding: 10px; }
+    #edit-modal input[disabled] { color: var(--text-dim); background: #121215; cursor: not-allowed; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+    .modal-actions button { flex: 1; padding: 12px; }
 
-    .empty-msg { text-align: center; padding: 20px; color: var(--text-dim); font-size: 0.8rem; }
-    .form-row { display: flex; flex-wrap: wrap; gap: 8px; }
-    .form-row > * { flex: 1; min-width: 130px; }
+    .empty-msg { text-align: center; padding: 30px 20px; color: var(--text-dim); font-size: 0.9rem; }
+    .form-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .form-row > * { flex: 1; min-width: 140px; }
 </style>
 </head>
 <body>
@@ -136,11 +214,20 @@
     <div id="login-screen">
         <h1>SCANNER V4 - ADMIN</h1>
         <p>Inicia sesión con tu cuenta de Google para administrar las guías</p>
-        <button id="btn-google-login" onclick="signInWithGoogle()">Iniciar sesión con Google</button>
+        <button id="btn-google-login" onclick="signInWithGoogle()">
+            <svg width="18" height="18" viewBox="0 0 18 18" style="margin-right:2px;"><path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.25h2.91c1.7-1.56 2.68-3.86 2.68-6.58z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.22l-2.91-2.25c-.8.54-1.83.86-3.05.86-2.35 0-4.34-1.58-5.05-3.71H1.02V13c1.48 2.94 4.53 4.96 8.02 4.96z"/><path fill="#FBBC05" d="M3.95 10.68c-.18-.54-.28-1.12-.28-1.72s.1-1.18.28-1.72V4.99H1.02A8.97 8.97 0 0 0 0 9c0 1.49.36 2.92 1.02 4.21l2.93-2.53z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.4A8.99 8.99 0 0 0 1.02 5l2.93 2.53c.71-2.13 2.7-3.71 5.05-3.71z"/></svg>
+            Iniciar sesión con Google
+        </button>
         <div id="login-status"></div>
     </div>
 
     <div id="app-root">
+
+        <!-- Buscador Universal Superior (Ignora fechas) -->
+        <div id="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-universal" placeholder="Buscador rápido universal (Escribe una guía y presiona enter o espera...)" oninput="render()">
+        </div>
 
         <div id="user-bar">
             <span id="user-email"></span>
@@ -150,6 +237,7 @@
         <h1 class="page-title">Panel de administración de guías</h1>
 
         <div id="stats-panel" class="card">
+            <div class="stat-box stat-today"><div class="stat-num" id="stat-hoy">0</div><div class="stat-label">ESCANEADAS HOY</div></div>
             <div class="stat-box"><div class="stat-num" id="stat-semana">0</div><div class="stat-label">ESCANEADAS ESTA SEMANA</div></div>
             <div class="stat-box"><div class="stat-num" id="stat-tr2">0</div><div class="stat-label">NO EMBARCADO TR2</div></div>
             <div class="stat-box"><div class="stat-num" id="stat-dev">0</div><div class="stat-label">DEVOLUCIÓN</div></div>
@@ -157,17 +245,26 @@
         </div>
 
         <div id="filter-bar" class="card">
-            <label style="font-size:0.7rem; color:var(--text-dim);">Fecha:</label>
-            <input type="date" id="filter-date" onchange="render()">
-            <button class="btn-primary btn-secondary" onclick="clearDateFilter()">VER TODAS</button>
+            <div class="filter-group">
+                <label style="font-size:0.75rem; color:var(--text-dim); font-weight: 600;">Fecha:</label>
+                <div class="date-control">
+                    <button class="date-nav-btn" onclick="stepDate(-1)">◀</button>
+                    <input type="date" id="filter-date" onchange="render()">
+                    <button class="date-nav-btn" onclick="stepDate(1)">▶</button>
+                </div>
+                <button class="btn-primary btn-secondary" onclick="clearDateFilter()">VER TODAS</button>
+            </div>
 
-            <label style="font-size:0.7rem; color:var(--text-dim); margin-left:auto;">Orden:</label>
-            <select id="sort-order" onchange="render()">
-                <option value="desc">Más reciente primero</option>
-                <option value="asc">Más antiguo primero</option>
-            </select>
+            <button class="btn-primary btn-inject" onclick="injectGuidesCopy()">⚡ INYECTAR GUÍAS (COPIAR)</button>
 
-            <span id="total-count" style="font-size:0.7rem; color:var(--text-dim);"></span>
+            <div class="filter-group" style="margin-left:auto;">
+                <label style="font-size:0.75rem; color:var(--text-dim); font-weight:600;">Orden:</label>
+                <select id="sort-order" onchange="render()">
+                    <option value="desc">Más reciente primero</option>
+                    <option value="asc">Más antiguo primero</option>
+                </select>
+                <span id="total-count" style="font-size:0.75rem; color:var(--text-dim); font-weight:600; background: rgba(255,255,255,0.05); padding:6px 12px; border-radius:6px; border:1px solid var(--carbon-border);"></span>
+            </div>
         </div>
 
         <div id="bulk-bar" class="card">
@@ -198,8 +295,8 @@
                 <option value="PAQUETES ROJOS NM">PAQUETES ROJOS NM</option>
             </select>
 
-            <button class="btn-primary" onclick="applyBulkEdit()">APLICAR A SELECCIONADAS</button>
-            <button class="btn-primary btn-danger" onclick="deleteBulk()">ELIMINAR SELECCIONADAS</button>
+            <button class="btn-primary" onclick="applyBulkEdit()">APLICAR</button>
+            <button class="btn-primary btn-danger" onclick="deleteBulk()">ELIMINAR</button>
         </div>
 
         <div class="card">
@@ -207,7 +304,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th><input type="checkbox" id="check-all" onchange="toggleSelectAll(this)"></th>
+                            <th style="width: 40px;"><input type="checkbox" id="check-all" onchange="toggleSelectAll(this)"></th>
                             <th>GUÍA</th>
                             <th>FECHA</th>
                             <th>ACCIÓN</th>
@@ -215,17 +312,17 @@
                             <th>PROVEEDOR</th>
                             <th>TIPO</th>
                             <th>OPERADOR</th>
-                            <th></th>
+                            <th style="width: 80px; text-align: center;">ACCIONES</th>
                         </tr>
                     </thead>
                     <tbody id="table-body"></tbody>
                 </table>
             </div>
-            <div id="empty-msg" class="empty-msg" style="display:none;">No hay guías para este filtro.</div>
+            <div id="empty-msg" class="empty-msg" style="display:none;">No hay guías para este filtro o búsqueda.</div>
         </div>
 
         <div class="card">
-            <div style="font-size:0.75rem; font-weight:600; color:var(--accent); margin-bottom:8px;">AGREGAR GUÍA MANUALMENTE</div>
+            <div style="font-size:0.85rem; font-weight:600; color:var(--accent); margin-bottom:12px; letter-spacing: 0.5px;">AGREGAR GUÍA MANUALMENTE</div>
             <div class="form-row">
                 <input type="text" id="new-guia" placeholder="Número de guía">
                 <select id="new-accion">
@@ -234,7 +331,7 @@
                 </select>
                 <select id="new-categoria"></select>
             </div>
-            <div class="form-row" style="margin-top:8px;">
+            <div class="form-row" style="margin-top:10px;">
                 <select id="new-prov">
                     <option value="ROMBO">ROMBO</option>
                     <option value="QP">QP</option>
@@ -246,7 +343,7 @@
                     <option value="DEVOLUCIÓN">DEVOLUCIÓN</option>
                     <option value="PAQUETES ROJOS NM">PAQUETES ROJOS NM</option>
                 </select>
-                <button class="btn-primary" onclick="addGuiaManual()">AGREGAR</button>
+                <button class="btn-primary" onclick="addGuiaManual()">AGREGAR GUÍA</button>
             </div>
         </div>
 
@@ -254,7 +351,7 @@
 
     <div id="edit-modal-bg">
         <div id="edit-modal">
-            <div style="font-weight:700;">Editar guía</div>
+            <div style="font-weight:700; font-size:1.1rem; color:var(--white); border-bottom:1px solid var(--carbon-border); padding-bottom:10px;">Editar guía</div>
             <div>
                 <label>Número de guía (no editable)</label>
                 <input type="text" id="edit-guia" disabled>
@@ -295,7 +392,7 @@
     </div>
 
 <script>
-    // ============ CONFIGURACIÓN DE FIREBASE (mismo proyecto que el scanner) ============
+    // ============ CONFIGURACIÓN DE FIREBASE ============
     const firebaseConfig = {
         apiKey: "AIzaSyCg9mMvEg4tKa8Qpi3CVx_oTN0GSgO_iJ0",
         authDomain: "rpkmty.firebaseapp.com",
@@ -319,6 +416,12 @@
     let selectedIds = new Set();
     let unsubscribe = null;
     let editingId = null;
+
+    // Asignar fecha actual por defecto al iniciar
+    document.addEventListener("DOMContentLoaded", () => {
+        const hoyStr = new Date().toISOString().split('T')[0];
+        document.getElementById('filter-date').value = hoyStr;
+    });
 
     // ============ LOGIN ============
     function signInWithGoogle() {
@@ -350,14 +453,13 @@
         if (unsubscribe) unsubscribe();
         unsubscribe = db.collection('guias').onSnapshot(snapshot => {
             allGuias = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-            // limpia selección de ids que ya no existen
             selectedIds.forEach(id => { if (!allGuias.some(g => g.id === id)) selectedIds.delete(id); });
             render();
             updateStats();
         });
     }
 
-    // ============ FILTRO Y ORDEN ============
+    // ============ AUXILIARES DE FECHAS ============
     function inputDateToDateKey(value) {
         if (!value) return null;
         const [y, m, d] = value.split('-');
@@ -367,15 +469,75 @@
         document.getElementById('filter-date').value = '';
         render();
     }
+    function stepDate(days) {
+        const picker = document.getElementById('filter-date');
+        if (!picker.value) {
+            picker.value = new Date().toISOString().split('T')[0];
+        } else {
+            const date = new Date(picker.value + 'T00:00:00');
+            date.setDate(date.getDate() + days);
+            picker.value = date.toISOString().split('T')[0];
+        }
+        render();
+    }
 
+    // ============ CONTADOR DE REPETICIONES DE GUÍA ============
+    function getGuiaRepetitionCount(guiaNum) {
+        return allGuias.filter(g => g.guia === guiaNum).length;
+    }
+
+    // ============ FILTRADO Y BÚSQUEDA GENERAL ============
     function getFilteredSorted() {
+        const searchQuery = document.getElementById('search-universal').value.trim().toLowerCase();
         const dateVal = document.getElementById('filter-date').value;
         const dateKey = inputDateToDateKey(dateVal);
         let list = allGuias.slice();
-        if (dateKey) list = list.filter(g => g.dateKey === dateKey);
+
+        // Si hay una búsqueda, se busca en todo el historial ignorando la fecha
+        if (searchQuery) {
+            list = list.filter(g => g.guia && g.guia.toLowerCase().includes(searchQuery));
+        } else if (dateKey) {
+            // Si no hay búsqueda, se respeta el filtro de fecha actual
+            list = list.filter(g => g.dateKey === dateKey);
+        }
+
         const order = document.getElementById('sort-order').value;
         list.sort((a, b) => (order === 'asc' ? (a.timestamp || 0) - (b.timestamp || 0) : (b.timestamp || 0) - (a.timestamp || 0)));
         return list;
+    }
+
+    // ============ INYECTOR DE GUÍAS (COPIAR) ============
+    function injectGuidesCopy() {
+        const dateVal = document.getElementById('filter-date').value;
+        if (!dateVal) {
+            alert("Por favor selecciona una fecha para inyectar guías.");
+            return;
+        }
+        const dateKey = inputDateToDateKey(dateVal);
+        // Filtrar guías únicamente del día activo que contengan la acción "INYECCIÓN"
+        const guiasInyeccion = allGuias.filter(g => g.dateKey === dateKey && g.accion === "INYECCIÓN");
+        
+        if (guiasInyeccion.length === 0) {
+            alert(`No se encontraron guías con la acción "INYECCIÓN" para la fecha ${dateKey}`);
+            return;
+        }
+
+        // Formatear: GUIA; GUIA2; 
+        const formattedText = guiasInyeccion.map(g => `${g.guia}; `).join('');
+        
+        navigator.clipboard.writeText(formattedText).then(() => {
+            alert(`¡Se copiaron ${guiasInyeccion.length} guías al portapapeles con éxito!\nFormato: "GUIA; "`);
+        }).catch(err => {
+            console.error("Error al copiar al portapapeles: ", err);
+            // Fallback manual en caso de error de permisos del navegador
+            const tempInput = document.createElement("textarea");
+            tempInput.value = formattedText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            alert(`¡Copiado! (Fallback) ${guiasInyeccion.length} guías listas.`);
+        });
     }
 
     // ============ RENDER TABLA ============
@@ -385,22 +547,31 @@
         const tbody = document.getElementById('table-body');
         document.getElementById('empty-msg').style.display = list.length ? 'none' : 'block';
 
-        tbody.innerHTML = list.map(g => `
-            <tr>
-                <td><input type="checkbox" data-id="${g.id}" ${selectedIds.has(g.id) ? 'checked' : ''} onchange="toggleSelect('${g.id}', this.checked)"></td>
-                <td><span class="guia-text">${g.guia}</span></td>
-                <td>${g.dateKey || ''}</td>
-                <td>${g.accion || ''}</td>
-                <td>${g.categoria || ''}</td>
-                <td>${g.prov || ''}</td>
-                <td>${g.tipo || ''}</td>
-                <td style="font-size:0.65rem; color:var(--text-dim);">${g.operador || ''}</td>
-                <td>
-                    <button class="cell-btn edit" onclick="openEditModal('${g.id}')">✎</button>
-                    <button class="cell-btn del" onclick="deleteSingle('${g.id}')">✕</button>
-                </td>
-            </tr>
-        `).join('');
+        tbody.innerHTML = list.map(g => {
+            const count = getGuiaRepetitionCount(g.guia);
+            const badgeHTML = count > 1 ? `<span class="guia-badge-count" title="Esta guía se ha registrado ${count} veces en el historial">${count}x</span>` : '';
+            return `
+                <tr>
+                    <td><input type="checkbox" data-id="${g.id}" ${selectedIds.has(g.id) ? 'checked' : ''} onchange="toggleSelect('${g.id}', this.checked)"></td>
+                    <td>
+                        <div class="guia-container">
+                            <span class="guia-text">${g.guia}</span>
+                            ${badgeHTML}
+                        </div>
+                    </td>
+                    <td>${g.dateKey || ''}</td>
+                    <td>${g.accion || ''}</td>
+                    <td>${g.categoria || ''}</td>
+                    <td>${g.prov || ''}</td>
+                    <td>${g.tipo || ''}</td>
+                    <td style="font-size:0.68rem; color:var(--text-dim);">${g.operador || ''}</td>
+                    <td style="text-align: center;">
+                        <button class="cell-btn edit" onclick="openEditModal('${g.id}')">✎</button>
+                        <button class="cell-btn del" onclick="deleteSingle('${g.id}')">✕</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
 
         document.getElementById('check-all').checked = list.length > 0 && list.every(g => selectedIds.has(g.id));
         updateBulkBar();
@@ -423,10 +594,10 @@
         bar.style.display = selectedIds.size > 0 ? 'flex' : 'none';
     }
 
-    // ============ ESTADÍSTICAS DE LA SEMANA ============
+    // ============ ESTADÍSTICAS ============
     function getMondayOfCurrentWeek() {
         const now = new Date();
-        const day = now.getDay(); // 0 = domingo
+        const day = now.getDay(); 
         const offset = (day === 0) ? -6 : (1 - day);
         const monday = new Date(now);
         monday.setDate(now.getDate() + offset);
@@ -434,12 +605,16 @@
         return monday;
     }
     function updateStats() {
+        const todayStr = inputDateToDateKey(new Date().toISOString().split('T')[0]);
         const monday = getMondayOfCurrentWeek();
         const sunday = new Date(monday);
         sunday.setDate(monday.getDate() + 6);
         sunday.setHours(23, 59, 59, 999);
 
+        const hoyGuias = allGuias.filter(g => g.dateKey === todayStr);
         const semana = allGuias.filter(g => g.timestamp >= monday.getTime() && g.timestamp <= sunday.getTime());
+
+        document.getElementById('stat-hoy').textContent = hoyGuias.length;
         document.getElementById('stat-semana').textContent = semana.length;
         document.getElementById('stat-tr2').textContent = semana.filter(g => g.tipo === 'NO EMBARCADO TR2').length;
         document.getElementById('stat-dev').textContent = semana.filter(g => g.tipo === 'DEVOLUCIÓN').length;
@@ -472,7 +647,7 @@
             alert("No seleccionaste ningún cambio a aplicar.");
             return;
         }
-        if (!confirm(`¿Aplicar estos cambios a ${selectedIds.size} guía(s) seleccionada(s)? El número de guía nunca se modifica.`)) return;
+        if (!confirm(`¿Aplicar estos cambios a ${selectedIds.size} guía(s) seleccionada(s)?`)) return;
 
         const ids = Array.from(selectedIds);
         const chunkSize = 450;
@@ -486,7 +661,7 @@
                 if (categoria !== '__NOCHANGE__') update.categoria = categoria;
                 if (prov !== '__NOCHANGE__') update.prov = prov;
                 if (tipo !== '__NOCHANGE__') update.tipo = tipo;
-                // listKey se recalcula si cambió acción o categoría, para que el scanner siga agrupando bien
+                
                 const finalAccion = update.accion || current.accion;
                 const finalCategoria = update.categoria || current.categoria;
                 if (update.accion || update.categoria) update.listKey = `${finalAccion} - ${finalCategoria}`;
@@ -513,7 +688,7 @@
     }
 
     function deleteSingle(id) {
-        if (!confirm(`¿Eliminar la guía ${id}?`)) return;
+        if (!confirm(`¿Eliminar esta guía del registro?`)) return;
         db.collection('guias').doc(id).delete();
         selectedIds.delete(id);
     }
@@ -546,12 +721,12 @@
         const tipo = document.getElementById('edit-tipo').value;
         db.collection('guias').doc(editingId).update({
             accion, categoria, prov, tipo,
-            listKey: `${accion} - ${categoria}` // el número de guía (ID del documento) nunca se toca
+            listKey: `${accion} - ${categoria}`
         });
         closeEditModal();
     }
 
-    // ============ AGREGAR GUÍA MANUAL ============
+    // ============ AGREGAR GUÍA MANUAL (CON VALIDACIÓN DE FECHA) ============
     document.getElementById('new-accion').addEventListener('change', () => {
         fillCategoriaSelect(document.getElementById('new-categoria'), document.getElementById('new-accion').value, false);
     });
@@ -560,21 +735,30 @@
     async function addGuiaManual() {
         const guia = document.getElementById('new-guia').value.trim();
         if (!guia) { alert("Escribe un número de guía."); return; }
-        const ref = db.collection('guias').doc(guia);
-        const existing = await ref.get();
-        if (existing.exists) { alert("Esa guía ya existe en la base de datos."); return; }
+        
+        const now = new Date();
+        const dateKey = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
+
+        // VALIDACIÓN: Evita guías duplicadas el mismo día
+        const yaExisteHoy = allGuias.some(g => g.guia === guia && g.dateKey === dateKey);
+        if (yaExisteHoy) {
+            alert(`La guía "${guia}" ya fue registrada el día de hoy (${dateKey}). No se permiten duplicados en la misma fecha.`);
+            return;
+        }
+
         const accion = document.getElementById('new-accion').value;
         const categoria = document.getElementById('new-categoria').value;
         const prov = document.getElementById('new-prov').value;
         const tipo = document.getElementById('new-tipo').value;
-        const now = new Date();
-        const dateKey = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
-        await ref.set({
+        
+        // Se autogenera un ID único para permitir registros en fechas distintas
+        await db.collection('guias').add({
             guia, accion, categoria, prov, tipo,
             dateKey, listKey: `${accion} - ${categoria}`,
             timestamp: Date.now(),
             operador: auth.currentUser ? (auth.currentUser.email || auth.currentUser.displayName) : null
         });
+        
         document.getElementById('new-guia').value = '';
     }
 </script>

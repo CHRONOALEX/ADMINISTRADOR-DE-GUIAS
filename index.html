@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCANNER V4 - ADMIN</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<style>
+    :root {
+        --primary: #8a2929;
+        --carbon-dark: #121212;
+        --carbon-light: #1e1e1e;
+        --carbon-border: #333333;
+        --accent: #ffc107;
+        --text-main: #e0e0e0;
+        --text-dim: #a0a0a0;
+        --white: #ffffff;
+        --good: #10b981;
+        --bad: #ff4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+        font-family: 'Lexend', sans-serif;
+        margin: 0;
+        background: var(--carbon-dark);
+        color: var(--text-main);
+        min-height: 100vh;
+    }
+    #login-screen {
+        display: flex; position: fixed; inset: 0; background: var(--carbon-dark);
+        z-index: 3000; flex-direction: column; align-items: center; justify-content: center;
+        gap: 18px; text-align: center; padding: 20px;
+    }
+    #login-screen h1 { font-size: 1.1rem; margin: 0; }
+    #login-screen p { font-size: 0.8rem; color: var(--text-dim); margin: 0; }
+    #btn-google-login {
+        display: flex; align-items: center; gap: 10px;
+        background: var(--white); color: #1f1f1f; border: none; border-radius: 8px;
+        padding: 12px 22px; font-size: 0.9rem; font-weight: 600;
+        font-family: 'Lexend', sans-serif; cursor: pointer;
+    }
+    #login-status { font-size: 0.75rem; color: var(--accent); min-height: 1em; }
+
+    #app-root { display: none; flex-direction: column; padding: 10px; gap: 10px; max-width: 1200px; margin: 0 auto; }
+
+    #user-bar {
+        display: flex; align-items: center; justify-content: space-between;
+        background: #000; padding: 8px 12px; font-size: 0.7rem; color: var(--text-dim);
+        border-radius: 8px; border: 1px solid var(--carbon-border);
+    }
+    #user-bar #btn-logout, .btn-secondary {
+        background: transparent; border: 1px solid var(--carbon-border);
+        color: var(--text-dim); border-radius: 5px; padding: 5px 10px;
+        font-size: 0.7rem; font-family: 'Lexend', sans-serif; cursor: pointer;
+    }
+
+    h1.page-title { font-size: 1rem; margin: 4px 0; color: var(--white); }
+
+    .card {
+        background: var(--carbon-light); border: 1px solid var(--carbon-border);
+        border-radius: 10px; padding: 12px;
+    }
+
+    /* ---- Estadísticas ---- */
+    #stats-panel {
+        display: flex; flex-wrap: wrap; gap: 10px;
+    }
+    .stat-box {
+        flex: 1; min-width: 110px; text-align: center;
+        background: #000; border: 1px solid var(--carbon-border); border-radius: 8px;
+        padding: 10px 6px;
+    }
+    .stat-box .stat-num { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+    .stat-box .stat-label { font-size: 0.62rem; color: var(--text-dim); margin-top: 2px; }
+
+    /* ---- Filtros ---- */
+    #filter-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    #filter-bar input, #filter-bar select {
+        background: #000; color: var(--white); border: 1px solid var(--carbon-border);
+        border-radius: 6px; padding: 8px; font-family: 'Lexend', sans-serif; font-size: 0.8rem;
+    }
+    .btn-primary {
+        background: var(--primary); color: white; border: none; border-radius: 6px;
+        padding: 8px 14px; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+        font-family: 'Lexend', sans-serif;
+    }
+    .btn-danger { background: transparent; color: var(--bad); border: 1px solid var(--bad); }
+    .btn-good { background: transparent; color: var(--good); border: 1px solid var(--good); }
+
+    /* ---- Barra de edición masiva ---- */
+    #bulk-bar {
+        display: none; flex-wrap: wrap; gap: 8px; align-items: center;
+        background: #241a06; border: 1px solid var(--accent);
+    }
+    #bulk-bar select { min-width: 140px; }
+    #bulk-bar .bulk-count { font-size: 0.78rem; color: var(--accent); font-weight: 600; }
+
+    /* ---- Tabla ---- */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    th { text-align: left; padding: 8px 6px; font-size: 0.62rem; color: var(--text-dim); border-bottom: 1px solid var(--carbon-border); white-space: nowrap; }
+    td { padding: 7px 6px; border-bottom: 1px solid #1a1a1a; font-size: 0.72rem; vertical-align: middle; white-space: nowrap; }
+    .guia-text { font-weight: 700; color: var(--white); }
+    .cell-btn { background: none; border: none; cursor: pointer; font-size: 0.95rem; }
+    .cell-btn.edit { color: var(--accent); }
+    .cell-btn.del { color: var(--bad); }
+
+    /* ---- Modal de edición individual ---- */
+    #edit-modal-bg {
+        display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 2500;
+        align-items: center; justify-content: center; padding: 16px;
+    }
+    #edit-modal {
+        background: var(--carbon-light); border: 1px solid var(--carbon-border); border-radius: 10px;
+        padding: 16px; width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 10px;
+    }
+    #edit-modal label { font-size: 0.68rem; color: var(--text-dim); display: block; margin-bottom: 3px; }
+    #edit-modal select, #edit-modal input {
+        width: 100%; background: #000; color: var(--white); border: 1px solid var(--carbon-border);
+        border-radius: 6px; padding: 8px; font-family: 'Lexend', sans-serif; font-size: 0.8rem;
+    }
+    #edit-modal input[disabled] { color: var(--text-dim); }
+    .modal-actions { display: flex; gap: 8px; margin-top: 4px; }
+    .modal-actions button { flex: 1; padding: 10px; }
+
+    .empty-msg { text-align: center; padding: 20px; color: var(--text-dim); font-size: 0.8rem; }
+    .form-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .form-row > * { flex: 1; min-width: 130px; }
+</style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <h1>SCANNER V4 - ADMIN</h1>
+        <p>Inicia sesión con tu cuenta de Google para administrar las guías</p>
+        <button id="btn-google-login" onclick="signInWithGoogle()">Iniciar sesión con Google</button>
+        <div id="login-status"></div>
+    </div>
+
+    <div id="app-root">
+
+        <div id="user-bar">
+            <span id="user-email"></span>
+            <button id="btn-logout" onclick="logout()">CERRAR SESIÓN</button>
+        </div>
+
+        <h1 class="page-title">Panel de administración de guías</h1>
+
+        <div id="stats-panel" class="card">
+            <div class="stat-box"><div class="stat-num" id="stat-semana">0</div><div class="stat-label">ESCANEADAS ESTA SEMANA</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-tr2">0</div><div class="stat-label">NO EMBARCADO TR2</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-dev">0</div><div class="stat-label">DEVOLUCIÓN</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-rojos">0</div><div class="stat-label">PAQUETES ROJOS NM</div></div>
+        </div>
+
+        <div id="filter-bar" class="card">
+            <label style="font-size:0.7rem; color:var(--text-dim);">Fecha:</label>
+            <input type="date" id="filter-date" onchange="render()">
+            <button class="btn-primary btn-secondary" onclick="clearDateFilter()">VER TODAS</button>
+
+            <label style="font-size:0.7rem; color:var(--text-dim); margin-left:auto;">Orden:</label>
+            <select id="sort-order" onchange="render()">
+                <option value="desc">Más reciente primero</option>
+                <option value="asc">Más antiguo primero</option>
+            </select>
+
+            <span id="total-count" style="font-size:0.7rem; color:var(--text-dim);"></span>
+        </div>
+
+        <div id="bulk-bar" class="card">
+            <span class="bulk-count"><span id="bulk-count-num">0</span> seleccionadas</span>
+
+            <select id="bulk-accion" onchange="onBulkAccionChange()">
+                <option value="__NOCHANGE__">Acción: no cambiar</option>
+                <option value="INYECCIÓN">INYECCIÓN</option>
+                <option value="DEVOLUCIÓN A ORIGEN">DEVOLUCIÓN A ORIGEN</option>
+            </select>
+
+            <select id="bulk-categoria">
+                <option value="__NOCHANGE__">Categoría: no cambiar</option>
+            </select>
+
+            <select id="bulk-prov">
+                <option value="__NOCHANGE__">Proveedor: no cambiar</option>
+                <option value="ROMBO">ROMBO</option>
+                <option value="QP">QP</option>
+                <option value="EMISSARY">EMISSARY</option>
+                <option value="OTRO">OTRO</option>
+            </select>
+
+            <select id="bulk-tipo">
+                <option value="__NOCHANGE__">Tipo: no cambiar</option>
+                <option value="NO EMBARCADO TR2">NO EMBARCADO TR2</option>
+                <option value="DEVOLUCIÓN">DEVOLUCIÓN</option>
+                <option value="PAQUETES ROJOS NM">PAQUETES ROJOS NM</option>
+            </select>
+
+            <button class="btn-primary" onclick="applyBulkEdit()">APLICAR A SELECCIONADAS</button>
+            <button class="btn-primary btn-danger" onclick="deleteBulk()">ELIMINAR SELECCIONADAS</button>
+        </div>
+
+        <div class="card">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="check-all" onchange="toggleSelectAll(this)"></th>
+                            <th>GUÍA</th>
+                            <th>FECHA</th>
+                            <th>ACCIÓN</th>
+                            <th>CATEGORÍA</th>
+                            <th>PROVEEDOR</th>
+                            <th>TIPO</th>
+                            <th>OPERADOR</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+            <div id="empty-msg" class="empty-msg" style="display:none;">No hay guías para este filtro.</div>
+        </div>
+
+        <div class="card">
+            <div style="font-size:0.75rem; font-weight:600; color:var(--accent); margin-bottom:8px;">AGREGAR GUÍA MANUALMENTE</div>
+            <div class="form-row">
+                <input type="text" id="new-guia" placeholder="Número de guía">
+                <select id="new-accion">
+                    <option value="INYECCIÓN">INYECCIÓN</option>
+                    <option value="DEVOLUCIÓN A ORIGEN">DEVOLUCIÓN A ORIGEN</option>
+                </select>
+                <select id="new-categoria"></select>
+            </div>
+            <div class="form-row" style="margin-top:8px;">
+                <select id="new-prov">
+                    <option value="ROMBO">ROMBO</option>
+                    <option value="QP">QP</option>
+                    <option value="EMISSARY">EMISSARY</option>
+                    <option value="OTRO">OTRO</option>
+                </select>
+                <select id="new-tipo">
+                    <option value="NO EMBARCADO TR2">NO EMBARCADO TR2</option>
+                    <option value="DEVOLUCIÓN">DEVOLUCIÓN</option>
+                    <option value="PAQUETES ROJOS NM">PAQUETES ROJOS NM</option>
+                </select>
+                <button class="btn-primary" onclick="addGuiaManual()">AGREGAR</button>
+            </div>
+        </div>
+
+    </div><!-- /#app-root -->
+
+    <div id="edit-modal-bg">
+        <div id="edit-modal">
+            <div style="font-weight:700;">Editar guía</div>
+            <div>
+                <label>Número de guía (no editable)</label>
+                <input type="text" id="edit-guia" disabled>
+            </div>
+            <div>
+                <label>Acción</label>
+                <select id="edit-accion" onchange="onEditAccionChange()">
+                    <option value="INYECCIÓN">INYECCIÓN</option>
+                    <option value="DEVOLUCIÓN A ORIGEN">DEVOLUCIÓN A ORIGEN</option>
+                </select>
+            </div>
+            <div>
+                <label>Categoría</label>
+                <select id="edit-categoria"></select>
+            </div>
+            <div>
+                <label>Proveedor</label>
+                <select id="edit-prov">
+                    <option value="ROMBO">ROMBO</option>
+                    <option value="QP">QP</option>
+                    <option value="EMISSARY">EMISSARY</option>
+                    <option value="OTRO">OTRO</option>
+                </select>
+            </div>
+            <div>
+                <label>Tipo</label>
+                <select id="edit-tipo">
+                    <option value="NO EMBARCADO TR2">NO EMBARCADO TR2</option>
+                    <option value="DEVOLUCIÓN">DEVOLUCIÓN</option>
+                    <option value="PAQUETES ROJOS NM">PAQUETES ROJOS NM</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary btn-secondary" onclick="closeEditModal()">CANCELAR</button>
+                <button class="btn-primary" onclick="saveEdit()">GUARDAR</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // ============ CONFIGURACIÓN DE FIREBASE (mismo proyecto que el scanner) ============
+    const firebaseConfig = {
+        apiKey: "AIzaSyCg9mMvEg4tKa8Qpi3CVx_oTN0GSgO_iJ0",
+        authDomain: "rpkmty.firebaseapp.com",
+        projectId: "rpkmty",
+        storageBucket: "rpkmty.firebasestorage.app",
+        messagingSenderId: "414713465217",
+        appId: "1:414713465217:web:fb642bcfa7cffb665d4080",
+        measurementId: "G-NWBSKBZ2FB"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const categoriasPorAccion = {
+        "INYECCIÓN": ["NO MANIFESTADO", "MAL PUNTEADO", "ANDEN INCORRECTO", "REINTENTO", "NEGOCIO CERRADO", "MAL ETIQUETADO"],
+        "DEVOLUCIÓN A ORIGEN": ["NO MANIFESTADO", "MAL PUNTEADO", "SIN CONTENIDO", "PAQUETE DAÑADO", "EXCESO DE DIMENSIONES", "FUERA DE COBERTURA", "3 INTENTOS", "MAL ENTREGADO", "NEGOCIO CERRADO", "MAL ETIQUETADO", "DOMICILIO INCORRECTO", "RECHAZO"]
+    };
+
+    let allGuias = [];       // espejo local de toda la colección "guias"
+    let selectedIds = new Set();
+    let unsubscribe = null;
+    let editingId = null;
+
+    // ============ LOGIN ============
+    function signInWithGoogle() {
+        document.getElementById('login-status').textContent = "Abriendo ventana de Google...";
+        auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(err => {
+            document.getElementById('login-status').textContent = "Error: " + err.message;
+        });
+    }
+    function logout() {
+        if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+        auth.signOut();
+    }
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-root').style.display = 'flex';
+            document.getElementById('user-email').textContent = user.email || user.displayName || '';
+            iniciarListener();
+        } else {
+            if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+            allGuias = [];
+            document.getElementById('app-root').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+        }
+    });
+
+    // ============ LISTENER EN TIEMPO REAL ============
+    function iniciarListener() {
+        if (unsubscribe) unsubscribe();
+        unsubscribe = db.collection('guias').onSnapshot(snapshot => {
+            allGuias = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            // limpia selección de ids que ya no existen
+            selectedIds.forEach(id => { if (!allGuias.some(g => g.id === id)) selectedIds.delete(id); });
+            render();
+            updateStats();
+        });
+    }
+
+    // ============ FILTRO Y ORDEN ============
+    function inputDateToDateKey(value) {
+        if (!value) return null;
+        const [y, m, d] = value.split('-');
+        return `${parseInt(d)}/${parseInt(m)}/${y}`;
+    }
+    function clearDateFilter() {
+        document.getElementById('filter-date').value = '';
+        render();
+    }
+
+    function getFilteredSorted() {
+        const dateVal = document.getElementById('filter-date').value;
+        const dateKey = inputDateToDateKey(dateVal);
+        let list = allGuias.slice();
+        if (dateKey) list = list.filter(g => g.dateKey === dateKey);
+        const order = document.getElementById('sort-order').value;
+        list.sort((a, b) => (order === 'asc' ? (a.timestamp || 0) - (b.timestamp || 0) : (b.timestamp || 0) - (a.timestamp || 0)));
+        return list;
+    }
+
+    // ============ RENDER TABLA ============
+    function render() {
+        const list = getFilteredSorted();
+        document.getElementById('total-count').textContent = `${list.length} guía(s)`;
+        const tbody = document.getElementById('table-body');
+        document.getElementById('empty-msg').style.display = list.length ? 'none' : 'block';
+
+        tbody.innerHTML = list.map(g => `
+            <tr>
+                <td><input type="checkbox" data-id="${g.id}" ${selectedIds.has(g.id) ? 'checked' : ''} onchange="toggleSelect('${g.id}', this.checked)"></td>
+                <td><span class="guia-text">${g.guia}</span></td>
+                <td>${g.dateKey || ''}</td>
+                <td>${g.accion || ''}</td>
+                <td>${g.categoria || ''}</td>
+                <td>${g.prov || ''}</td>
+                <td>${g.tipo || ''}</td>
+                <td style="font-size:0.65rem; color:var(--text-dim);">${g.operador || ''}</td>
+                <td>
+                    <button class="cell-btn edit" onclick="openEditModal('${g.id}')">✎</button>
+                    <button class="cell-btn del" onclick="deleteSingle('${g.id}')">✕</button>
+                </td>
+            </tr>
+        `).join('');
+
+        document.getElementById('check-all').checked = list.length > 0 && list.every(g => selectedIds.has(g.id));
+        updateBulkBar();
+    }
+
+    function toggleSelect(id, checked) {
+        if (checked) selectedIds.add(id); else selectedIds.delete(id);
+        updateBulkBar();
+        document.getElementById('check-all').checked = getFilteredSorted().every(g => selectedIds.has(g.id));
+    }
+    function toggleSelectAll(checkbox) {
+        const list = getFilteredSorted();
+        if (checkbox.checked) list.forEach(g => selectedIds.add(g.id));
+        else list.forEach(g => selectedIds.delete(g.id));
+        render();
+    }
+    function updateBulkBar() {
+        const bar = document.getElementById('bulk-bar');
+        document.getElementById('bulk-count-num').textContent = selectedIds.size;
+        bar.style.display = selectedIds.size > 0 ? 'flex' : 'none';
+    }
+
+    // ============ ESTADÍSTICAS DE LA SEMANA ============
+    function getMondayOfCurrentWeek() {
+        const now = new Date();
+        const day = now.getDay(); // 0 = domingo
+        const offset = (day === 0) ? -6 : (1 - day);
+        const monday = new Date(now);
+        monday.setDate(now.getDate() + offset);
+        monday.setHours(0, 0, 0, 0);
+        return monday;
+    }
+    function updateStats() {
+        const monday = getMondayOfCurrentWeek();
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+        sunday.setHours(23, 59, 59, 999);
+
+        const semana = allGuias.filter(g => g.timestamp >= monday.getTime() && g.timestamp <= sunday.getTime());
+        document.getElementById('stat-semana').textContent = semana.length;
+        document.getElementById('stat-tr2').textContent = semana.filter(g => g.tipo === 'NO EMBARCADO TR2').length;
+        document.getElementById('stat-dev').textContent = semana.filter(g => g.tipo === 'DEVOLUCIÓN').length;
+        document.getElementById('stat-rojos').textContent = semana.filter(g => g.tipo === 'PAQUETES ROJOS NM').length;
+    }
+
+    // ============ EDICIÓN MASIVA ============
+    function fillCategoriaSelect(selectEl, accion, includeNoChange) {
+        const opciones = accion === '__NOCHANGE__' || !accion
+            ? [...new Set([...categoriasPorAccion["INYECCIÓN"], ...categoriasPorAccion["DEVOLUCIÓN A ORIGEN"]])]
+            : (categoriasPorAccion[accion] || []);
+        let html = includeNoChange ? `<option value="__NOCHANGE__">Categoría: no cambiar</option>` : '';
+        html += opciones.map(c => `<option value="${c}">${c}</option>`).join('');
+        selectEl.innerHTML = html;
+    }
+    function onBulkAccionChange() {
+        const accion = document.getElementById('bulk-accion').value;
+        fillCategoriaSelect(document.getElementById('bulk-categoria'), accion, true);
+    }
+    fillCategoriaSelect(document.getElementById('bulk-categoria'), '__NOCHANGE__', true);
+
+    async function applyBulkEdit() {
+        if (selectedIds.size === 0) return;
+        const accion = document.getElementById('bulk-accion').value;
+        const categoria = document.getElementById('bulk-categoria').value;
+        const prov = document.getElementById('bulk-prov').value;
+        const tipo = document.getElementById('bulk-tipo').value;
+
+        if (accion === '__NOCHANGE__' && categoria === '__NOCHANGE__' && prov === '__NOCHANGE__' && tipo === '__NOCHANGE__') {
+            alert("No seleccionaste ningún cambio a aplicar.");
+            return;
+        }
+        if (!confirm(`¿Aplicar estos cambios a ${selectedIds.size} guía(s) seleccionada(s)? El número de guía nunca se modifica.`)) return;
+
+        const ids = Array.from(selectedIds);
+        const chunkSize = 450;
+        for (let i = 0; i < ids.length; i += chunkSize) {
+            const chunk = ids.slice(i, i + chunkSize);
+            const batch = db.batch();
+            chunk.forEach(id => {
+                const current = allGuias.find(g => g.id === id) || {};
+                const update = {};
+                if (accion !== '__NOCHANGE__') update.accion = accion;
+                if (categoria !== '__NOCHANGE__') update.categoria = categoria;
+                if (prov !== '__NOCHANGE__') update.prov = prov;
+                if (tipo !== '__NOCHANGE__') update.tipo = tipo;
+                // listKey se recalcula si cambió acción o categoría, para que el scanner siga agrupando bien
+                const finalAccion = update.accion || current.accion;
+                const finalCategoria = update.categoria || current.categoria;
+                if (update.accion || update.categoria) update.listKey = `${finalAccion} - ${finalCategoria}`;
+                batch.update(db.collection('guias').doc(id), update);
+            });
+            await batch.commit();
+        }
+        selectedIds.clear();
+        render();
+    }
+
+    async function deleteBulk() {
+        if (selectedIds.size === 0) return;
+        if (!confirm(`¿ELIMINAR PERMANENTEMENTE ${selectedIds.size} guía(s) seleccionada(s)?`)) return;
+        const ids = Array.from(selectedIds);
+        const chunkSize = 450;
+        for (let i = 0; i < ids.length; i += chunkSize) {
+            const chunk = ids.slice(i, i + chunkSize);
+            const batch = db.batch();
+            chunk.forEach(id => batch.delete(db.collection('guias').doc(id)));
+            await batch.commit();
+        }
+        selectedIds.clear();
+    }
+
+    function deleteSingle(id) {
+        if (!confirm(`¿Eliminar la guía ${id}?`)) return;
+        db.collection('guias').doc(id).delete();
+        selectedIds.delete(id);
+    }
+
+    // ============ EDICIÓN INDIVIDUAL ============
+    function openEditModal(id) {
+        const g = allGuias.find(x => x.id === id);
+        if (!g) return;
+        editingId = id;
+        document.getElementById('edit-guia').value = g.guia;
+        document.getElementById('edit-accion').value = g.accion;
+        fillCategoriaSelect(document.getElementById('edit-categoria'), g.accion, false);
+        document.getElementById('edit-categoria').value = g.categoria;
+        document.getElementById('edit-prov').value = g.prov;
+        document.getElementById('edit-tipo').value = g.tipo;
+        document.getElementById('edit-modal-bg').style.display = 'flex';
+    }
+    function onEditAccionChange() {
+        fillCategoriaSelect(document.getElementById('edit-categoria'), document.getElementById('edit-accion').value, false);
+    }
+    function closeEditModal() {
+        editingId = null;
+        document.getElementById('edit-modal-bg').style.display = 'none';
+    }
+    function saveEdit() {
+        if (!editingId) return;
+        const accion = document.getElementById('edit-accion').value;
+        const categoria = document.getElementById('edit-categoria').value;
+        const prov = document.getElementById('edit-prov').value;
+        const tipo = document.getElementById('edit-tipo').value;
+        db.collection('guias').doc(editingId).update({
+            accion, categoria, prov, tipo,
+            listKey: `${accion} - ${categoria}` // el número de guía (ID del documento) nunca se toca
+        });
+        closeEditModal();
+    }
+
+    // ============ AGREGAR GUÍA MANUAL ============
+    document.getElementById('new-accion').addEventListener('change', () => {
+        fillCategoriaSelect(document.getElementById('new-categoria'), document.getElementById('new-accion').value, false);
+    });
+    fillCategoriaSelect(document.getElementById('new-categoria'), 'INYECCIÓN', false);
+
+    async function addGuiaManual() {
+        const guia = document.getElementById('new-guia').value.trim();
+        if (!guia) { alert("Escribe un número de guía."); return; }
+        const ref = db.collection('guias').doc(guia);
+        const existing = await ref.get();
+        if (existing.exists) { alert("Esa guía ya existe en la base de datos."); return; }
+        const accion = document.getElementById('new-accion').value;
+        const categoria = document.getElementById('new-categoria').value;
+        const prov = document.getElementById('new-prov').value;
+        const tipo = document.getElementById('new-tipo').value;
+        const now = new Date();
+        const dateKey = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
+        await ref.set({
+            guia, accion, categoria, prov, tipo,
+            dateKey, listKey: `${accion} - ${categoria}`,
+            timestamp: Date.now(),
+            operador: auth.currentUser ? (auth.currentUser.email || auth.currentUser.displayName) : null
+        });
+        document.getElementById('new-guia').value = '';
+    }
+</script>
+</body>
+</html>

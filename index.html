@@ -28,6 +28,11 @@
         --good: #10b981;
         --bad: #ef4444;
         --glow: rgba(155, 34, 34, 0.15);
+        /* Headers dinámicos */
+        --bg-header-admin: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+        --border-header-admin: #1d4ed8;
+        --bg-header-cuadratura: linear-gradient(135deg, #4a0e0e 0%, #5c0f0f 100%);
+        --border-header-cuadratura: #3d0a0a;
     }
     * { box-sizing: border-box; outline: none; scrollbar-width: thin; scrollbar-color: var(--carbon-border) var(--carbon-dark); }
     ::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -41,7 +46,7 @@
         background: var(--carbon-dark);
         color: var(--text-main);
         min-height: 100vh;
-        background-image: radial-gradient(circle at top right, #1f1212 0%, var(--carbon-dark) 60%);
+        background-image: radial-gradient(circle at top right, #1a1a1e 0%, var(--carbon-dark) 80%);
         font-size: 13px;
     }
     #login-screen {
@@ -74,29 +79,60 @@
 
     /* ---- Barra superior unificada (Top Nav) ---- */
     #top-nav {
-        display: flex; align-items: center; gap: 16px;
-        background: linear-gradient(135deg, #7a1919 0%, var(--primary) 55%, #8f1f1f 100%);
-        border: 1px solid #5c1414;
+        display: flex; align-items: center; gap: 20px;
+        background: var(--bg-header-admin);
+        border: 1px solid var(--border-header-admin);
         border-radius: 14px;
-        padding: 10px 14px;
+        padding: 10px 18px;
         box-shadow: 0 6px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
         position: sticky; top: 8px; z-index: 200;
+        transition: background 0.3s ease, border-color 0.3s ease;
     }
+    
+    /* Contenedor del título dinámico y los botones */
+    .header-left-group {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex: 0 1 auto;
+    }
+    
+    .header-dynamic-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--white);
+        white-space: nowrap;
+        letter-spacing: 0.5px;
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+        padding-right: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
     .top-nav-tabs { display: flex; gap: 8px; flex: 0 0 auto; }
     .nav-tab-btn {
         display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-        background: rgba(0,0,0,0.18); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.75);
-        border-radius: 10px; padding: 8px 14px; cursor: pointer; font-family: 'Lexend', sans-serif;
+        background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.8);
+        border-radius: 10px; padding: 6px 12px; cursor: pointer; font-family: 'Lexend', sans-serif;
         font-size: 0.62rem; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; line-height: 1.25;
         transition: all 0.2s ease; min-width: 78px;
     }
     .nav-tab-btn i { font-size: 1.05rem; color: var(--accent); }
-    .nav-tab-btn:hover { background: rgba(0,0,0,0.3); color: var(--white); transform: translateY(-1px); }
-    .nav-tab-btn.active {
-        background: var(--white); color: var(--primary); border-color: var(--white);
+    .nav-tab-btn:hover { background: rgba(0,0,0,0.35); color: var(--white); transform: translateY(-1px); }
+    
+    /* Estados activos específicos por tipo de header */
+    #top-nav.admin-mode .nav-tab-btn.active {
+        background: var(--white); color: #1e3a8a; border-color: var(--white);
         box-shadow: 0 4px 12px rgba(0,0,0,0.35);
     }
-    .nav-tab-btn.active i { color: var(--primary); }
+    #top-nav.admin-mode .nav-tab-btn.active i { color: #1e3a8a; }
+
+    #top-nav.cuadratura-mode .nav-tab-btn.active {
+        background: var(--white); color: #4a0e0e; border-color: var(--white);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+    }
+    #top-nav.cuadratura-mode .nav-tab-btn.active i { color: #4a0e0e; }
 
     .top-nav-search { flex: 1 1 auto; min-width: 0; position: relative; }
     .nav-search-group { display: none; align-items: center; gap: 8px; }
@@ -130,13 +166,14 @@
     }
     .top-nav-user #btn-logout:hover { background: var(--bad); border-color: var(--bad); color: var(--white); }
 
+    @media (max-width: 990px) {
+        .header-dynamic-title { display: none; }
+    }
     @media (max-width: 760px) {
         #top-nav { flex-wrap: wrap; position: static; }
         .top-nav-search { order: 3; flex: 1 1 100%; }
         .top-nav-user #user-email { display: none; }
     }
-
-    h1.page-title { font-size: 1.2rem; margin: 4px 0; color: var(--white); font-weight: 600; letter-spacing: 0.5px; }
 
     .card {
         background: var(--carbon-light); border: 1px solid var(--carbon-border);
@@ -327,16 +364,24 @@
     <div id="app-root">
 
         <!-- ================= BARRA SUPERIOR UNIFICADA ================= -->
-        <div id="top-nav">
-            <div class="top-nav-tabs">
-                <button class="nav-tab-btn active" onclick="switchTab('admin-tab', this)" title="Administrador de Guías">
-                    <i class="fas fa-boxes-stacked"></i>
-                    <span>Admin.<br>Guías</span>
-                </button>
-                <button class="nav-tab-btn" onclick="switchTab('cuadratura-tab', this)" title="Cuadratura Redpack">
-                    <i class="fas fa-scale-balanced"></i>
-                    <span>Cuadratura<br>Redpack</span>
-                </button>
+        <div id="top-nav" class="admin-mode">
+            
+            <div class="header-left-group">
+                <!-- Títulos dinámicos integrados en el header -->
+                <div id="header-title-text" class="header-dynamic-title">
+                    <i class="fas fa-boxes-stacked"></i> Panel de administración de guías
+                </div>
+                
+                <div class="top-nav-tabs">
+                    <button class="nav-tab-btn active" onclick="switchTab('admin-tab', this)" title="Administrador de Guías">
+                        <i class="fas fa-boxes-stacked"></i>
+                        <span>Admin.<br>Guías</span>
+                    </button>
+                    <button class="nav-tab-btn" onclick="switchTab('cuadratura-tab', this)" title="Cuadratura">
+                        <i class="fas fa-list-check"></i>
+                        <span>Cuadratura</span>
+                    </button>
+                </div>
             </div>
 
             <div class="top-nav-search">
@@ -362,8 +407,6 @@
 
         <!-- ================= PESTAÑA 1: ADMINISTRADOR DE GUIAS ================= -->
         <div id="admin-tab" class="tab-content active">
-
-            <h1 class="page-title">Panel de administración de guías</h1>
 
             <div id="stats-panel" class="card">
                 <div class="stat-box stat-today"><div class="stat-num" id="stat-hoy">0</div><div class="stat-label">ESCANEADAS HOY</div></div>
@@ -486,13 +529,12 @@
             </div>
         </div>
 
-        <!-- ================= PESTAÑA 2: CUADRATURA REDPACK ================= -->
+        <!-- ================= PESTAÑA 2: CUADRATURA ================= -->
         <div id="cuadratura-tab" class="tab-content">
             
             <!-- Barra Superior Cuadratura (Diseño Clásico Restaurado) -->
             <div class="card c-flex-between">
                 <div class="c-flex-center">
-                    <h1 class="page-title" style="margin:0; font-weight: 800;">CUADRATURA <span style="color:var(--primary);">REDPACK</span></h1>
                     <input type="file" id="fileViajes" style="display:none;" accept=".xlsx, .xls">
                     <label for="fileViajes" class="btn-primary btn-secondary" style="padding: 8px 14px; font-size: 0.75rem; font-weight: 700; cursor:pointer;">
                         <i class="fas fa-file-excel" style="margin-right: 6px;"></i>SUBIR ARCHIVO
@@ -685,7 +727,7 @@
     let unsubscribe = null;
     let editingId = null;
 
-    // ============ CONTROL DE PESTAÑAS ============
+    // ============ CONTROL DE PESTAÑAS Y DECORACIONES DEL HEADER ============
     function switchTab(tabId, btn) {
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
         document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
@@ -698,6 +740,22 @@
         const searchId = tabId === 'admin-tab' ? 'search-wrap-admin' : 'search-wrap-cuadratura';
         document.getElementById(searchId).classList.add('active');
         
+        // Ajuste dinámico de colores y títulos en el Header
+        const topNav = document.getElementById('top-nav');
+        const headerTitleText = document.getElementById('header-title-text');
+
+        if (tabId === 'admin-tab') {
+            topNav.style.background = 'var(--bg-header-admin)';
+            topNav.style.borderColor = 'var(--border-header-admin)';
+            topNav.className = 'admin-mode';
+            headerTitleText.innerHTML = '<i class="fas fa-boxes-stacked"></i> Panel de administración de guías';
+        } else {
+            topNav.style.background = 'var(--bg-header-cuadratura)';
+            topNav.style.borderColor = 'var(--border-header-cuadratura)';
+            topNav.className = 'cuadratura-mode';
+            headerTitleText.innerHTML = '<i class="fas fa-list-check"></i> CUADRATURA';
+        }
+
         // Ajustar tamaño del chart en caso de renderizarse oculto
         if (tabId === 'cuadratura-tab' && chartInstance) {
             chartInstance.resize();
@@ -1020,12 +1078,12 @@
     async function applyBulkEdit() {
         if (selectedIds.size === 0) return;
         const accion = document.getElementById('bulk-accion').value;
-        const categoria = document.getElementById('bulk-categoria').value;
+        const category = document.getElementById('bulk-categoria').value;
         const prov = document.getElementById('bulk-prov').value;
         const tipo = document.getElementById('bulk-tipo').value;
         const bulkDateVal = document.getElementById('bulk-date').value;
 
-        if (accion === '__NOCHANGE__' && categoria === '__NOCHANGE__' && prov === '__NOCHANGE__' && tipo === '__NOCHANGE__' && !bulkDateVal) {
+        if (accion === '__NOCHANGE__' && category === '__NOCHANGE__' && prov === '__NOCHANGE__' && tipo === '__NOCHANGE__' && !bulkDateVal) {
             alert("No seleccionaste ningún cambio a aplicar.");
             return;
         }
@@ -1050,7 +1108,7 @@
                 const update = {};
                 
                 if (accion !== '__NOCHANGE__') update.accion = accion;
-                if (categoria !== '__NOCHANGE__') update.categoria = categoria;
+                if (category !== '__NOCHANGE__') update.categoria = category;
                 if (prov !== '__NOCHANGE__') update.prov = prov;
                 if (tipo !== '__NOCHANGE__') update.tipo = tipo;
                 if (newDateKey) {
@@ -1399,6 +1457,7 @@
         });
     }
 
+    // ============ ORDENACIÓN DE TABLA ============
     function sortTable(n) {
         const tableBody = document.getElementById("pending-list-body");
         const rows = Array.from(tableBody.querySelectorAll(".master-row"));

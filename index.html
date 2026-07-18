@@ -11,6 +11,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <style>
     :root {
@@ -735,11 +736,14 @@
             </div>
 
             <div class="card">
-                <div class="c-flex-between" style="border-bottom: 1px solid var(--carbon-border); padding-bottom:8px; margin-bottom:12px;">
-                    <span class="c-label"><i class="fas fa-chart-column" style="margin-right:6px; color:var(--accent);"></i>Paquetes por día (periodo seleccionado)</span>
-                    <span id="tracker-chart-total" style="font-size:0.75rem; color:var(--accent); font-weight:700;"></span>
+                <div class="c-flex-between" style="border-bottom: 1px solid var(--carbon-border); padding-bottom:8px; margin-bottom:2px;">
+                    <span class="c-label"><i class="fas fa-chart-area" style="margin-right:6px; color:var(--accent);"></i>Paquetes por día (periodo seleccionado)</span>
                 </div>
-                <div style="height:220px;"><canvas id="tracker-chart"></canvas></div>
+                <div style="text-align:center; padding: 8px 0 2px;">
+                    <div id="tracker-chart-total-num" style="font-size:2.4rem; font-weight:800; color:#22d3ee; text-shadow:0 0 18px rgba(34,211,238,0.35); line-height:1;">0</div>
+                    <div style="font-size:0.65rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:1.2px; font-weight:700; margin-top:4px;">Total de paquetes en el periodo</div>
+                </div>
+                <div style="height:260px; margin-top:10px;"><canvas id="tracker-chart"></canvas></div>
             </div>
 
             <div class="card">
@@ -762,6 +766,8 @@
                                 <th>CATEGORÍA</th>
                                 <th>PROVEEDOR</th>
                                 <th>TIPO</th>
+                                <th style="text-align:center;">VECES ESCANEADA</th>
+                                <th>PRIMERA FECHA RECIBIDA</th>
                             </tr>
                         </thead>
                         <tbody id="tracker-table-body"></tbody>
@@ -1593,6 +1599,21 @@
         return new Date(y, m - 1, d);
     }
 
+    // Fecha más antigua en la que aparece una guía en todo el historial (no solo el filtro actual)
+    function getGuiaFirstDate(guiaNum) {
+        let earliestDate = null;
+        let earliestKey = '';
+        allGuias.forEach(g => {
+            if (g.guia !== guiaNum) return;
+            const d = dateKeyToDate(g.dateKey);
+            if (d && (!earliestDate || d < earliestDate)) {
+                earliestDate = d;
+                earliestKey = g.dateKey;
+            }
+        });
+        return earliestKey;
+    }
+
     function fillTrackerCategoriaSelect(accion, preserveSelection) {
         const sel = document.getElementById('tracker-categoria');
         const prevValue = preserveSelection ? sel.value : null;
@@ -1660,16 +1681,22 @@
         document.getElementById('tracker-empty-msg').style.display = list.length ? 'none' : 'block';
 
         const sorted = list.slice().sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-        tbody.innerHTML = sorted.map(g => `
-            <tr>
-                <td><span class="guia-text">${g.guia || ''}</span></td>
-                <td>${g.dateKey || ''}</td>
-                <td>${g.accion || ''}</td>
-                <td>${g.categoria || ''}</td>
-                <td>${g.prov || ''}</td>
-                <td>${g.tipo || ''}</td>
-            </tr>
-        `).join('');
+        tbody.innerHTML = sorted.map(g => {
+            const timesScanned = getGuiaRepetitionCount(g.guia);
+            const firstDate = getGuiaFirstDate(g.guia);
+            return `
+                <tr>
+                    <td><span class="guia-text">${g.guia || ''}</span></td>
+                    <td>${g.dateKey || ''}</td>
+                    <td>${g.accion || ''}</td>
+                    <td>${g.categoria || ''}</td>
+                    <td>${g.prov || ''}</td>
+                    <td>${g.tipo || ''}</td>
+                    <td style="text-align:center; font-weight:700; color:${timesScanned > 1 ? 'var(--accent)' : 'var(--text-dim)'};">${timesScanned}</td>
+                    <td style="color:var(--text-dim);">${firstDate}</td>
+                </tr>
+            `;
+        }).join('');
     }
 
     function renderTrackerChart(list) {
@@ -1698,22 +1725,63 @@
 
         const data = labels.map(l => counts[l] || 0);
         const totalCount = data.reduce((a, b) => a + b, 0);
-        document.getElementById('tracker-chart-total').textContent = `Total: ${totalCount} paquete(s)`;
+        const totalEl = document.getElementById('tracker-chart-total-num');
+        if (totalEl) totalEl.textContent = totalCount;
 
         const ctx = canvas.getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+        gradient.addColorStop(0, 'rgba(34, 211, 238, 0.45)');
+        gradient.addColorStop(1, 'rgba(34, 211, 238, 0.02)');
+
         if (trackerChartInstance) trackerChartInstance.destroy();
         trackerChartInstance = new Chart(ctx, {
-            type: 'bar',
+            type: 'line',
             data: {
                 labels: labels.map(l => l.split('/').slice(0, 2).join('/')),
-                datasets: [{ label: 'Paquetes', data, backgroundColor: '#0e7490', borderRadius: 4 }]
+                datasets: [{
+                    label: 'Paquetes',
+                    data,
+                    fill: true,
+                    backgroundColor: gradient,
+                    borderColor: '#22d3ee',
+                    borderWidth: 2.5,
+                    tension: 0.35,
+                    pointRadius: 3.5,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#0b0b0c',
+                    pointBorderColor: '#22d3ee',
+                    pointBorderWidth: 2,
+                }]
             },
+            plugins: (typeof ChartDataLabels !== 'undefined') ? [ChartDataLabels] : [],
             options: {
                 responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                layout: { padding: { top: 26, left: 4, right: 4 } },
+                interaction: { intersect: false, mode: 'index' },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1d1d21', titleColor: '#fff', bodyColor: '#22d3ee',
+                        borderColor: '#2d2d34', borderWidth: 1, padding: 10, displayColors: false,
+                    },
+                    datalabels: {
+                        align: 'top', anchor: 'end', offset: 4,
+                        color: '#e5faff',
+                        font: { size: 10, weight: '700', family: 'Lexend' },
+                        formatter: (value) => value > 0 ? value : '',
+                        backgroundColor: 'rgba(14,116,144,0.55)',
+                        borderRadius: 4,
+                        padding: { top: 2, bottom: 2, left: 5, right: 5 },
+                    }
+                },
                 scales: {
                     x: { grid: { display: false }, ticks: { color: '#999', font: { size: 9 } } },
-                    y: { beginAtZero: true, ticks: { color: '#999', font: { size: 9 }, precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#999', font: { size: 9 }, precision: 0 },
+                        suggestedMax: Math.max(...data, 0) + Math.ceil((Math.max(...data, 0) || 1) * 0.25)
+                    }
                 }
             }
         });
@@ -1732,7 +1800,7 @@
             alert('No hay guías para copiar con este filtro.');
             return;
         }
-        let text = "GUÍA\tFECHA\tACCIÓN\tCATEGORÍA\tPROVEEDOR\tTIPO\n";
+        let text = "GUÍA\tFECHA\tACCIÓN\tCATEGORÍA\tPROVEEDOR\tTIPO\tVECES ESCANEADA\tPRIMERA FECHA RECIBIDA\n";
         rows.forEach(r => {
             const cells = r.querySelectorAll('td');
             text += Array.from(cells).map(c => c.innerText.trim()).join('\t') + '\n';

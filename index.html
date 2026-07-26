@@ -567,6 +567,9 @@
                     <button id="btn-process" class="btn-primary" onclick="processAllData()" style="padding: 8px 14px; font-size:0.75rem;">
                         PROCESAR <i id="btn-loader" class="fas fa-circle-notch loading-spinner" style="display:none; margin-left:6px;"></i>
                     </button>
+                    <button id="btn-umbral-dias" onclick="cambiarUmbralDias()" title="Cambiar umbral de días para la cuadratura" class="btn-primary btn-secondary" style="padding: 8px 14px; font-size:0.75rem; font-weight:700;">
+                        <i class="fas fa-calendar-day" style="margin-right: 6px;"></i>UMBRAL: <span id="umbral-dias-label">2</span> DÍAS
+                    </button>
                 </div>
 
                 <div id="info-display" style="display:none;" class="c-flex-center">
@@ -622,7 +625,7 @@
 
                 <div class="card">
                     <div class="c-flex-between" style="border-bottom: 1px solid var(--carbon-border); padding-bottom:8px; margin-bottom:8px;">
-                        <span class="c-label">Listado de Pendientes (No Escaneadas en 3 Días)</span>
+                        <span class="c-label">Listado de Pendientes (No Escaneadas en <span id="umbral-dias-label-2">2</span> Días)</span>
                         <button onclick="copyTableToSheets()" class="btn-primary" style="padding:6px 12px; font-size:0.7rem;">COPIAR SHEETS</button>
                     </div>
                     <div class="table-wrap" style="max-height: 320px; overflow-y: auto;">
@@ -668,7 +671,7 @@
                                 <th>Estado</th>
                                 <th>IdViaje</th>
                                 <th>Pedido Referencia externa</th>
-                                <th>Última Categoría (3 días)</th>
+                                <th>Última Categoría (<span id="umbral-dias-label-3">2</span> días)</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody">
@@ -899,6 +902,8 @@
     });
 
     // ============ LOGIN ============
+    const CORREOS_AUTORIZADOS = ["s4muelmonreal@gmail.com", "chronoalex666@gmail.com"];
+
     function signInWithGoogle() {
         document.getElementById('login-status').textContent = "Abriendo ventana de Google...";
         auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(err => {
@@ -911,6 +916,22 @@
     }
     auth.onAuthStateChanged(user => {
         if (user) {
+            const correoUsuario = (user.email || "").toLowerCase().trim();
+            const autorizado = CORREOS_AUTORIZADOS.includes(correoUsuario);
+
+            if (!autorizado) {
+                if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+                allGuias = [];
+                document.getElementById('app-root').style.display = 'none';
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('login-status').style.color = 'var(--bad)';
+                document.getElementById('login-status').textContent = `Acceso denegado: ${user.email || 'este correo'} no está autorizado.`;
+                auth.signOut();
+                return;
+            }
+
+            document.getElementById('login-status').style.color = 'var(--accent)';
+            document.getElementById('login-status').textContent = '';
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('app-root').style.display = 'flex';
             document.getElementById('user-email').textContent = user.email || user.displayName || '';
@@ -1352,6 +1373,15 @@
     // ============ SCRIPTING ESPECÍFICO DE LA TAB DE CUADRATURA ============
     // =========================================================================
     let dataViajes = [], dataParadas = [], dataGuiasEscaneadas = new Set(), rawProcessedStats = [];
+    let umbralDiasCuadratura = 2; // Umbral de días (2 a 4) usado para la cuadratura: Hoy, Ayer, ...
+
+    function cambiarUmbralDias() {
+        umbralDiasCuadratura = umbralDiasCuadratura >= 4 ? 2 : umbralDiasCuadratura + 1;
+        document.querySelectorAll('#umbral-dias-label, #umbral-dias-label-2, #umbral-dias-label-3').forEach(el => el.innerText = umbralDiasCuadratura);
+        if (dataViajes.length) {
+            processAllData();
+        }
+    }
     let rawDataFilter = []; 
     let chartInstance = null;
     let trackerChartInstance = null;
@@ -1415,19 +1445,19 @@
         reader.readAsBinaryString(file);
     });
 
-    // Cargar guías guardadas en Firebase que correspondan a: Hoy, Ayer y Antier
+    // Cargar guías guardadas en Firebase que correspondan al rango de días del umbral (Hoy, Ayer, ...)
     async function fetchFirebase3DaysData() {
         try {
             const tempGuias = new Set();
             
-            // Generar llaves locales d/m/yyyy para Hoy, Ayer y Antier
+            // Generar llaves locales d/m/yyyy según el umbral de días configurado
             const calculoFecha = (diasAtras) => {
                 const d = new Date();
                 d.setDate(d.getDate() - diasAtras);
                 return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
             };
             
-            const diasPermitidos = [calculoFecha(0), calculoFecha(1), calculoFecha(2)];
+            const diasPermitidos = Array.from({ length: umbralDiasCuadratura }, (_, i) => calculoFecha(i));
             
             // Filtrar del espejo local allGuias aquellas que estén en estos rangos
             allGuias.forEach(g => {
@@ -1447,7 +1477,7 @@
         if (!dataViajes.length) return alert("Sube el archivo primero.");
         document.getElementById('btn-loader').style.display = 'inline-block';
         
-        // Obtener guías escaneadas desde Firebase con un margen de 3 días (Hoy, Ayer y Antier)
+        // Obtener guías escaneadas desde Firebase con el margen de días configurado (umbralDiasCuadratura)
         dataGuiasEscaneadas = await fetchFirebase3DaysData();
         rawProcessedStats = []; 
         const viajeConductorMap = {};
@@ -1555,7 +1585,7 @@
         document.getElementById('count-drivers-route').innerText = stats.choferes.t.size;
         document.getElementById('sub-chofer-amz').innerText = stats.choferes.a.size;
         document.getElementById('sub-chofer-same').innerText = stats.choferes.s.size;
-        document.getElementById('pending-list-body').innerHTML = tableHtml || '<tr><td colspan="5" class="empty-msg">Sin resultados o todas escaneadas dentro de los últimos 3 días.</td></tr>';
+        document.getElementById('pending-list-body').innerHTML = tableHtml || `<tr><td colspan="5" class="empty-msg">Sin resultados o todas escaneadas dentro de los últimos ${umbralDiasCuadratura} días.</td></tr>`;
 
         const sorted = Object.entries(driverNoEntregados).sort((a,b) => b[1]-a[1]);
         renderChart(sorted.slice(0, 5));
@@ -1958,7 +1988,7 @@
             d.setDate(d.getDate() - diasAtras);
             return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
         };
-        return [calc(0), calc(1), calc(2)]; // Hoy, Ayer, Antier
+        return Array.from({ length: umbralDiasCuadratura }, (_, i) => calc(i)); // Hoy, Ayer, ... según umbral
     }
 
     function getUltimaCategoriaTR2(referenciaRaw) {

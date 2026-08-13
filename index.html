@@ -1553,6 +1553,7 @@
             noEmb: { t: 0, a: 0, s: 0 }, noRec: { t: 0, a: 0, s: 0 },
             noEnt: { t: 0, a: 0, s: 0 }, ruta: { t: 0, a: 0, s: 0 },
             choferes: { t: new Set(), a: new Set(), s: new Set() },
+            guiasUnicas: new Set(),
             totalGuias: 0, pendNoEmb: 0, pendNoEnt: 0
         };
         let tableHtml = "";
@@ -1563,7 +1564,10 @@
             if (item.proveedor !== provSel) return;
             
             if (item.estado !== 'No Recibido CEDIS') {
-                stats.totalGuias++;
+                const guiaNum = parseFloat(item.guia);
+                if (!isNaN(guiaNum) && guiaNum > 0) {
+                    stats.guiasUnicas.add(item.guia);
+                }
             }
             
             const esAmz = item.categoria === "Amazon";
@@ -1602,6 +1606,7 @@
             }
         });
 
+        stats.totalGuias = stats.guiasUnicas.size;
         document.getElementById('display-total-guias').innerText = stats.totalGuias;
         document.getElementById('total-pending-count').innerText = pendientesCount;
         document.getElementById('sub-pending-no-emb').innerText = stats.pendNoEmb;

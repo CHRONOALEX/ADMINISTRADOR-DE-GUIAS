@@ -263,6 +263,30 @@
     .btn-inject { background: #0c4a6e; color: #38bdf8; border: 1px solid #0284c7; box-shadow: none; font-size: 0.8rem; }
     .btn-inject:hover { background: #0284c7; color: white; transform: translateY(-1px); }
 
+    .btn-inject-dev { background: #450a0a; color: #fca5a5; border: 1px solid var(--bad); box-shadow: none; font-size: 0.8rem; }
+    .btn-inject-dev:hover { background: var(--bad); color: white; transform: translateY(-1px); }
+
+    .btn-count-badge {
+        display: inline-block; margin-left: 8px; background: rgba(255,255,255,0.15);
+        padding: 1px 8px; border-radius: 999px; font-weight: 700; font-size: 0.78rem;
+    }
+
+    /* Selector de periodo de fecha */
+    .date-range-control { position: relative; display: flex; align-items: center; gap: 4px; }
+    .date-range-popup {
+        position: absolute; top: calc(100% + 6px); left: 0; z-index: 50;
+        background: var(--carbon-card); border: 1px solid var(--carbon-border); border-radius: 10px;
+        padding: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 8px;
+        min-width: 220px;
+    }
+    .date-range-popup label { font-size: 0.72rem; color: var(--text-dim); font-weight: 600; }
+    .date-range-popup input[type="date"] {
+        background: #000; color: var(--white); border: 1px solid var(--carbon-border);
+        border-radius: 8px; padding: 8px 10px; font-family: 'Lexend', sans-serif; font-size: 0.85rem; width: 100%;
+    }
+    .date-range-popup-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; }
+    .date-range-popup-actions .btn-primary { padding: 8px 12px; font-size: 0.78rem; flex: 1; }
+
     /* ---- Barra de edición masiva ---- */
     #bulk-bar {
         display: none; flex-wrap: wrap; gap: 10px; align-items: center;
@@ -459,16 +483,27 @@
 
             <div id="filter-bar" class="card">
                 <div class="filter-group">
-                    <label style="font-size:0.75rem; color:var(--text-dim); font-weight: 600;">Fecha:</label>
-                    <div class="date-control">
-                        <button class="date-nav-btn" onclick="stepDate(-1)">◀</button>
-                        <input type="date" id="filter-date" onchange="render()">
-                        <button class="date-nav-btn" onclick="stepDate(1)">▶</button>
+                    <div class="date-range-control">
+                        <button class="date-nav-btn" onclick="stepPeriod(-1)" title="Periodo anterior">◀</button>
+                        <button class="btn-primary btn-secondary" id="btn-fecha-toggle" onclick="toggleDateRangePopup(event)">
+                            <i class="fas fa-calendar-days"></i> <span id="fecha-label-text">Fecha</span>
+                        </button>
+                        <button class="date-nav-btn" onclick="stepPeriod(1)" title="Periodo siguiente">▶</button>
+                        <div id="date-range-popup" class="date-range-popup" style="display:none;">
+                            <label>Desde</label>
+                            <input type="date" id="filter-date-from">
+                            <label>Hasta</label>
+                            <input type="date" id="filter-date-to">
+                            <div class="date-range-popup-actions">
+                                <button type="button" class="btn-primary btn-secondary" onclick="clearDateFilter()">Ver todas</button>
+                                <button type="button" class="btn-primary" onclick="applyDateRange()">Aplicar</button>
+                            </div>
+                        </div>
                     </div>
-                    <button class="btn-primary btn-secondary" onclick="clearDateFilter()">VER TODAS</button>
                 </div>
 
-                <button class="btn-primary btn-inject" onclick="injectGuidesCopy()">⚡ INYECTAR GUÍAS (COPIAR)</button>
+                <button class="btn-primary btn-inject" onclick="injectGuidesCopy()">⚡ INYECTAR GUÍAS (COPIAR)<span class="btn-count-badge" id="count-inyeccion">0</span></button>
+                <button class="btn-primary btn-inject-dev" onclick="injectDevolucionCopy()">🔴 DEV ORIGEN (COPIAR)<span class="btn-count-badge" id="count-devolucion">0</span></button>
 
                 <div class="filter-group" style="margin-left:auto;">
                     <label style="font-size:0.75rem; color:var(--text-dim); font-weight:600;">Orden:</label>
@@ -915,8 +950,10 @@
 
     // Asignar fecha actual por defecto al iniciar
     document.addEventListener("DOMContentLoaded", () => {
-        const hoyStr = new Date().toLocaleDateString('sv-SE'); 
-        document.getElementById('filter-date').value = hoyStr;
+        const hoyStr = new Date().toLocaleDateString('sv-SE');
+        document.getElementById('filter-date-from').value = hoyStr;
+        document.getElementById('filter-date-to').value = hoyStr;
+        updateFechaLabel();
         resetTrackerFilters();
     });
 
@@ -995,20 +1032,94 @@
         const [y, m, d] = value.split('-');
         return `${parseInt(d)}/${parseInt(m)}/${y}`;
     }
-    function clearDateFilter() {
-        document.getElementById('filter-date').value = '';
+    // ============ FILTRO POR PERIODO DE FECHA ============
+    function formatDateKeyDisplay(val) {
+        if (!val) return '';
+        const [y, m, d] = val.split('-');
+        return `${d}/${m}/${y}`;
+    }
+    function updateFechaLabel() {
+        const fromVal = document.getElementById('filter-date-from').value;
+        const toVal = document.getElementById('filter-date-to').value;
+        const label = document.getElementById('fecha-label-text');
+        if (!fromVal && !toVal) {
+            label.textContent = 'Fecha: Todas';
+        } else if (fromVal && toVal && fromVal === toVal) {
+            label.textContent = formatDateKeyDisplay(fromVal);
+        } else if (fromVal && toVal) {
+            label.textContent = `${formatDateKeyDisplay(fromVal)} - ${formatDateKeyDisplay(toVal)}`;
+        } else if (fromVal) {
+            label.textContent = `Desde ${formatDateKeyDisplay(fromVal)}`;
+        } else {
+            label.textContent = `Hasta ${formatDateKeyDisplay(toVal)}`;
+        }
+    }
+    function toggleDateRangePopup(evt) {
+        if (evt) evt.stopPropagation();
+        const popup = document.getElementById('date-range-popup');
+        popup.style.display = popup.style.display === 'none' ? 'flex' : 'none';
+    }
+    document.addEventListener('click', (evt) => {
+        const popup = document.getElementById('date-range-popup');
+        const control = document.querySelector('.date-range-control');
+        if (popup && popup.style.display !== 'none' && control && !control.contains(evt.target)) {
+            popup.style.display = 'none';
+        }
+    });
+    function applyDateRange() {
+        const fromEl = document.getElementById('filter-date-from');
+        const toEl = document.getElementById('filter-date-to');
+        if (fromEl.value && toEl.value && fromEl.value > toEl.value) {
+            alert('La fecha "Desde" no puede ser posterior a la fecha "Hasta".');
+            return;
+        }
+        if (fromEl.value && !toEl.value) toEl.value = fromEl.value;
+        if (!fromEl.value && toEl.value) fromEl.value = toEl.value;
+        updateFechaLabel();
+        document.getElementById('date-range-popup').style.display = 'none';
         render();
     }
-    function stepDate(days) {
-        const picker = document.getElementById('filter-date');
-        if (!picker.value) {
-            picker.value = new Date().toLocaleDateString('sv-SE');
-        } else {
-            const date = new Date(picker.value + 'T00:00:00');
-            date.setDate(date.getDate() + days);
-            picker.value = date.toLocaleDateString('sv-SE');
-        }
+    function clearDateFilter() {
+        document.getElementById('filter-date-from').value = '';
+        document.getElementById('filter-date-to').value = '';
+        updateFechaLabel();
+        document.getElementById('date-range-popup').style.display = 'none';
         render();
+    }
+    function stepPeriod(days) {
+        const fromEl = document.getElementById('filter-date-from');
+        const toEl = document.getElementById('filter-date-to');
+        const todayStr = new Date().toLocaleDateString('sv-SE');
+        if (!fromEl.value && !toEl.value) {
+            fromEl.value = todayStr;
+            toEl.value = todayStr;
+        } else {
+            if (fromEl.value) {
+                const d = new Date(fromEl.value + 'T00:00:00');
+                d.setDate(d.getDate() + days);
+                fromEl.value = d.toLocaleDateString('sv-SE');
+            }
+            if (toEl.value) {
+                const d = new Date(toEl.value + 'T00:00:00');
+                d.setDate(d.getDate() + days);
+                toEl.value = d.toLocaleDateString('sv-SE');
+            }
+        }
+        updateFechaLabel();
+        render();
+    }
+    function getDateRangeBounds() {
+        const fromVal = document.getElementById('filter-date-from').value;
+        const toVal = document.getElementById('filter-date-to').value;
+        if (!fromVal && !toVal) return null; // sin filtro = ver todas
+        const start = fromVal ? new Date(fromVal + 'T00:00:00').getTime() : -Infinity;
+        const end = toVal ? new Date(toVal + 'T23:59:59.999').getTime() : Infinity;
+        return { start, end };
+    }
+    function getDateRangeFilteredList() {
+        const bounds = getDateRangeBounds();
+        if (!bounds) return allGuias.slice();
+        return allGuias.filter(g => g.timestamp >= bounds.start && g.timestamp <= bounds.end);
     }
 
     // ============ CONTADOR DE REPETICIONES DE GUÍA ============
@@ -1019,14 +1130,12 @@
     // ============ FILTRADO Y BÚSQUEDA GENERAL (ADMIN) ============
     function getFilteredSorted() {
         const searchQuery = document.getElementById('search-universal').value.trim().toLowerCase();
-        const dateVal = document.getElementById('filter-date').value;
-        const dateKey = inputDateToDateKey(dateVal);
-        let list = allGuias.slice();
+        let list;
 
         if (searchQuery) {
-            list = list.filter(g => g.guia && g.guia.toLowerCase().includes(searchQuery));
-        } else if (dateKey) {
-            list = list.filter(g => g.dateKey === dateKey);
+            list = allGuias.filter(g => g.guia && g.guia.toLowerCase().includes(searchQuery));
+        } else {
+            list = getDateRangeFilteredList();
         }
 
         const order = document.getElementById('sort-order').value;
@@ -1035,24 +1144,9 @@
     }
 
     // ============ INYECTOR DE GUÍAS (COPIAR) ============
-    function injectGuidesCopy() {
-        const dateVal = document.getElementById('filter-date').value;
-        if (!dateVal) {
-            alert("Por favor selecciona una fecha para inyectar guías.");
-            return;
-        }
-        const dateKey = inputDateToDateKey(dateVal);
-        const guiasInyeccion = allGuias.filter(g => g.dateKey === dateKey && g.accion === "INYECCIÓN");
-        
-        if (guiasInyeccion.length === 0) {
-            alert(`No se encontraron guías con la acción "INYECCIÓN" para la fecha ${dateKey}`);
-            return;
-        }
-
-        const formattedText = guiasInyeccion.map(g => `${g.guia}; `).join('');
-        
+    function copyTextWithFeedback(formattedText, count, label) {
         navigator.clipboard.writeText(formattedText).then(() => {
-            alert(`¡Se copiaron ${guiasInyeccion.length} guías al portapapeles con éxito!\nFormato: "GUIA; "`);
+            alert(`¡Se copiaron ${count} guías (${label}) al portapapeles con éxito!\nFormato: "GUIA; "`);
         }).catch(err => {
             console.error("Error al copiar al portapapeles: ", err);
             const tempInput = document.createElement("textarea");
@@ -1061,8 +1155,49 @@
             tempInput.select();
             document.execCommand("copy");
             document.body.removeChild(tempInput);
-            alert(`¡Copiado! (Fallback) ${guiasInyeccion.length} guías listas.`);
+            alert(`¡Copiado! (Fallback) ${count} guías (${label}) listas.`);
         });
+    }
+    function injectGuidesCopy() {
+        const bounds = getDateRangeBounds();
+        if (!bounds) {
+            alert("Por favor selecciona un periodo de fecha para inyectar guías.");
+            return;
+        }
+        const guiasInyeccion = getDateRangeFilteredList().filter(g => g.accion === "INYECCIÓN");
+
+        if (guiasInyeccion.length === 0) {
+            alert(`No se encontraron guías con la acción "INYECCIÓN" para el periodo seleccionado.`);
+            return;
+        }
+
+        const formattedText = guiasInyeccion.map(g => `${g.guia}; `).join('');
+        copyTextWithFeedback(formattedText, guiasInyeccion.length, "INYECCIÓN");
+    }
+    function injectDevolucionCopy() {
+        const bounds = getDateRangeBounds();
+        if (!bounds) {
+            alert("Por favor selecciona un periodo de fecha para inyectar guías.");
+            return;
+        }
+        const guiasDevolucion = getDateRangeFilteredList().filter(g => g.accion === "DEVOLUCIÓN A ORIGEN");
+
+        if (guiasDevolucion.length === 0) {
+            alert(`No se encontraron guías con la acción "DEVOLUCIÓN A ORIGEN" para el periodo seleccionado.`);
+            return;
+        }
+
+        const formattedText = guiasDevolucion.map(g => `${g.guia}; `).join('');
+        copyTextWithFeedback(formattedText, guiasDevolucion.length, "DEVOLUCIÓN A ORIGEN");
+    }
+    function updateInjectCounts() {
+        const list = getDateRangeFilteredList();
+        const inj = list.filter(g => g.accion === "INYECCIÓN").length;
+        const dev = list.filter(g => g.accion === "DEVOLUCIÓN A ORIGEN").length;
+        const injEl = document.getElementById('count-inyeccion');
+        const devEl = document.getElementById('count-devolucion');
+        if (injEl) injEl.textContent = inj;
+        if (devEl) devEl.textContent = dev;
     }
 
     // ============ RENDER TABLA (ADMIN) ============
@@ -1101,6 +1236,7 @@
 
         document.getElementById('check-all').checked = list.length > 0 && list.every(g => selectedIds.has(g.id));
         updateBulkBar();
+        updateInjectCounts();
     }
 
     function toggleSelect(id, checked) {

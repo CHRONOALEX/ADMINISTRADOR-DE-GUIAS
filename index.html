@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GUIAS RK- ADMIN & CUADRATURA V0.3</title>
+<title>GUIAS RK- ADMIN & CUADRATURA V0.4</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20x%3D%222%22%20y%3D%2224%22%20width%3D%2234%22%20height%3D%2220%22%20rx%3D%222%22%20fill%3D%22%23d81f2a%22/%3E%3Cpath%20d%3D%22M36%2030%20h13%20l9%209%20v5%20h-22%20z%22%20fill%3D%22%23d81f2a%22/%3E%3Crect%20x%3D%2243%22%20y%3D%2233%22%20width%3D%228%22%20height%3D%226%22%20rx%3D%221%22%20fill%3D%22%23bfe3ff%22/%3E%3Crect%20x%3D%222%22%20y%3D%2220%22%20width%3D%2234%22%20height%3D%225%22%20fill%3D%22%238f151d%22/%3E%3Crect%20x%3D%222%22%20y%3D%2242%22%20width%3D%2252%22%20height%3D%222%22%20fill%3D%22%231a1a1a%22%20opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%2214%22%20cy%3D%2246%22%20r%3D%226%22%20fill%3D%22%23111%22/%3E%3Ccircle%20cx%3D%2214%22%20cy%3D%2246%22%20r%3D%222.3%22%20fill%3D%22%23999%22/%3E%3Ccircle%20cx%3D%2246%22%20cy%3D%2246%22%20r%3D%226%22%20fill%3D%22%23111%22/%3E%3Ccircle%20cx%3D%2246%22%20cy%3D%2246%22%20r%3D%222.3%22%20fill%3D%22%23999%22/%3E%3C/svg%3E">
-<link href="https://fonts.googleapis.com/css2?family=Lexend:wght=300;400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
@@ -29,28 +29,101 @@
         --good: #10b981;
         --bad: #ef4444;
         --glow: rgba(155, 34, 34, 0.15);
-        /* Headers dinámicos */
         --bg-header-admin: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
         --border-header-admin: #1d4ed8;
         --bg-header-cuadratura: linear-gradient(135deg, #4a0e0e 0%, #5c0f0f 100%);
         --border-header-cuadratura: #3d0a0a;
         --bg-header-tracker: linear-gradient(135deg, #0f3d3d 0%, #0e7490 100%);
         --border-header-tracker: #0e7490;
+        --body-bg: var(--carbon-dark);
+        --card-bg: var(--carbon-light);
+        --input-bg: #000;
+        --table-row-hover: rgba(255, 255, 255, 0.02);
+        --border-subtle: #1a1a1f;
+        --scroll-track: var(--carbon-dark);
     }
-    * { box-sizing: border-box; outline: none; scrollbar-width: thin; scrollbar-color: var(--carbon-border) var(--carbon-dark); }
+    body.theme-light {
+        --carbon-dark: #f3f4f6;
+        --carbon-light: #ffffff;
+        --carbon-card: #f9fafb;
+        --carbon-border: #d1d5db;
+        --text-main: #1f2937;
+        --text-dim: #6b7280;
+        --white: #111827;
+        --body-bg: #e5e7eb;
+        --card-bg: #ffffff;
+        --input-bg: #ffffff;
+        --table-row-hover: rgba(0, 0, 0, 0.03);
+        --border-subtle: #e5e7eb;
+        --scroll-track: #e5e7eb;
+        --glow: rgba(155, 34, 34, 0.1);
+    }
+    body.theme-light {
+        background: var(--body-bg);
+        background-image: radial-gradient(circle at top right, #ffffff 0%, #e5e7eb 80%);
+        color: var(--text-main);
+    }
+    body.theme-light .card { background: var(--card-bg); border-color: var(--carbon-border); }
+    body.theme-light #filter-bar input,
+    body.theme-light #filter-bar select,
+    body.theme-light #tracker-filter-bar input,
+    body.theme-light #tracker-filter-bar select,
+    body.theme-light .form-row input,
+    body.theme-light .form-row select,
+    body.theme-light #edit-modal select,
+    body.theme-light #edit-modal input,
+    body.theme-light #bulk-bar select,
+    body.theme-light #bulk-bar input[type="date"] {
+        background: var(--input-bg) !important;
+        color: var(--text-main) !important;
+        border-color: var(--carbon-border) !important;
+    }
+    body.theme-light .date-range-popup { background: #ffffff; border-color: #d1d5db; }
+    body.theme-light .date-range-popup input[type="date"] { background: #ffffff; color: #1f2937; }
+    body.theme-light .mini-calendar-popup { background: #ffffff; border-color: #d1d5db; }
+    body.theme-light .mc-day { color: #1f2937; background: rgba(0,0,0,0.03); }
+    body.theme-light .mc-day:hover { background: #e5e7eb; }
+    body.theme-light .mc-header button { color: #1f2937; border-color: #d1d5db; }
+    body.theme-light .mc-header button:hover { background: #e5e7eb; }
+    body.theme-light .mc-title { color: #111827; }
+    body.theme-light .stat-box { background: rgba(0,0,0,0.04); }
+    body.theme-light .c-num-box { background: rgba(0,0,0,0.03); }
+    body.theme-light #bulk-bar { background: #fef2f2; border-color: #fca5a5; }
+    body.theme-light #bulk-bar .bulk-count { color: #9b2222; }
+    body.theme-light td { border-bottom-color: var(--border-subtle); }
+    body.theme-light tr:hover td { background: var(--table-row-hover); }
+    body.theme-light th { border-bottom-color: var(--carbon-border); }
+    body.theme-light .empty-msg { color: #6b7280; }
+    body.theme-light #edit-modal { background: #ffffff; }
+    body.theme-light .guia-text { color: var(--text-main); }
+    body.theme-light #login-screen { background: #e5e7eb; }
+    body.theme-light #login-screen h1 { color: #111827; }
+    body.theme-light #login-screen p { color: #6b7280; }
+    body.theme-light .mc-day.mc-selected { background: var(--primary); color: #fff; }
+    body.theme-light .mc-day.mc-today { border-color: var(--accent); }
+
+    .header-dynamic-title { color: #ffffff !important; }
+    .header-dynamic-title i { color: #ffffff !important; }
+    .nav-tab-btn i { color: var(--accent) !important; }
+    #top-nav.admin-mode .nav-tab-btn.active i { color: #1e3a8a !important; }
+    #top-nav.cuadratura-mode .nav-tab-btn.active i { color: #4a0e0e !important; }
+    #top-nav.tracker-mode .nav-tab-btn.active i { color: #0e7490 !important; }
+
+    * { box-sizing: border-box; outline: none; scrollbar-width: thin; scrollbar-color: var(--carbon-border) var(--scroll-track); }
     ::-webkit-scrollbar { width: 10px; height: 10px; }
-    ::-webkit-scrollbar-track { background: var(--carbon-dark); }
-    ::-webkit-scrollbar-thumb { background: var(--carbon-border); border-radius: 10px; border: 2px solid var(--carbon-dark); }
+    ::-webkit-scrollbar-track { background: var(--scroll-track); }
+    ::-webkit-scrollbar-thumb { background: var(--carbon-border); border-radius: 10px; border: 2px solid var(--scroll-track); }
     ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
-    ::-webkit-scrollbar-corner { background: var(--carbon-dark); }
+    ::-webkit-scrollbar-corner { background: var(--scroll-track); }
     body {
         font-family: 'Lexend', sans-serif;
         margin: 0;
-        background: var(--carbon-dark);
+        background: var(--body-bg);
         color: var(--text-main);
         min-height: 100vh;
         background-image: radial-gradient(circle at top right, #1a1a1e 0%, var(--carbon-dark) 80%);
         font-size: 13px;
+        transition: background 0.3s ease, color 0.3s ease;
     }
     #login-screen {
         display: flex; position: fixed; inset: 0; background: var(--carbon-dark);
@@ -80,7 +153,6 @@
         display: flex;
     }
 
-    /* ---- Barra superior unificada (Top Nav) ---- */
     #top-nav {
         display: flex; align-items: center; gap: 20px;
         background: var(--bg-header-admin);
@@ -93,7 +165,6 @@
         transition: background 0.3s ease, border-color 0.3s ease;
     }
     
-    /* Contenedor del título dinámico y los botones */
     .header-left-group {
         display: flex;
         align-items: center;
@@ -104,7 +175,7 @@
     .header-dynamic-title {
         font-size: 1.15rem;
         font-weight: 700;
-        color: var(--white);
+        color: #ffffff;
         white-space: nowrap;
         letter-spacing: 0.5px;
         border-right: 1px solid rgba(255, 255, 255, 0.2);
@@ -123,23 +194,22 @@
         transition: all 0.2s ease; min-width: 78px;
     }
     .nav-tab-btn i { font-size: 1.05rem; color: var(--accent); }
-    .nav-tab-btn:hover { background: rgba(0,0,0,0.35); color: var(--white); transform: translateY(-1px); }
+    .nav-tab-btn:hover { background: rgba(0,0,0,0.35); color: #ffffff; transform: translateY(-1px); }
     
-    /* Estados activos específicos por tipo de header */
     #top-nav.admin-mode .nav-tab-btn.active {
-        background: var(--white); color: #1e3a8a; border-color: var(--white);
+        background: #ffffff; color: #1e3a8a; border-color: #ffffff;
         box-shadow: 0 4px 12px rgba(0,0,0,0.35);
     }
     #top-nav.admin-mode .nav-tab-btn.active i { color: #1e3a8a; }
 
     #top-nav.cuadratura-mode .nav-tab-btn.active {
-        background: var(--white); color: #4a0e0e; border-color: var(--white);
+        background: #ffffff; color: #4a0e0e; border-color: #ffffff;
         box-shadow: 0 4px 12px rgba(0,0,0,0.35);
     }
     #top-nav.cuadratura-mode .nav-tab-btn.active i { color: #4a0e0e; }
 
     #top-nav.tracker-mode .nav-tab-btn.active {
-        background: var(--white); color: #0e7490; border-color: var(--white);
+        background: #ffffff; color: #0e7490; border-color: #ffffff;
         box-shadow: 0 4px 12px rgba(0,0,0,0.35);
     }
     #top-nav.tracker-mode .nav-tab-btn.active i { color: #0e7490; }
@@ -149,15 +219,61 @@
     .nav-search-group.active { display: flex; }
     .nav-search-group .search-icon { position: static; transform: none; color: rgba(255,255,255,0.6); font-size: 0.9rem; }
     .nav-search-group input[type="text"] {
-        flex: 1; min-width: 0; height: 38px; background: rgba(0,0,0,0.28); color: var(--white);
+        flex: 1; min-width: 0; height: 38px; background: rgba(0,0,0,0.28); color: #fff;
         border: 1px solid rgba(255,255,255,0.15); border-radius: 9px; padding: 0 14px;
         font-family: 'Lexend', sans-serif; font-size: 0.85rem; transition: all 0.2s;
     }
     .nav-search-group input[type="text"]::placeholder { color: rgba(255,255,255,0.5); }
     .nav-search-group input[type="text"]:focus { background: rgba(0,0,0,0.4); border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,193,7,0.15); }
     .nav-search-group select {
-        flex: 0 0 auto; height: 38px; background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.15); color: var(--white);
+        flex: 0 0 auto; height: 38px; background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.15); color: #fff;
         border-radius: 9px; padding: 0 10px; font-family: 'Lexend', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer;
+    }
+
+    .search-bulk-wrap {
+        position: relative;
+        width: 100%;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+    .search-bulk-wrap input[type="text"] {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .search-action-btn {
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #fff;
+        border-radius: 9px;
+        padding: 0 16px;
+        height: 38px;
+        cursor: pointer;
+        font-size: 0.78rem;
+        font-family: 'Lexend', sans-serif;
+        font-weight: 700;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+        flex: 0 0 auto;
+    }
+    .search-action-btn:hover { background: rgba(255,255,255,0.25); transform: translateY(-1px); }
+    .search-action-btn:active { transform: translateY(0); }
+
+    .search-limit-info {
+        font-size: 0.65rem;
+        color: rgba(255,255,255,0.85);
+        background: rgba(0,0,0,0.3);
+        padding: 3px 8px;
+        border-radius: 6px;
+        white-space: nowrap;
+        border: 1px solid rgba(255,255,255,0.15);
+        display: flex;
+        align-items: center;
+        gap: 4px;
     }
 
     .top-nav-user {
@@ -166,7 +282,7 @@
         border-radius: 20px; padding: 5px 6px 5px 12px;
     }
     .top-nav-user #user-email {
-        font-size: 0.65rem; color: rgba(255,255,255,0.75); font-weight: 500;
+        font-size: 0.65rem; color: rgba(255,255,255,0.85); font-weight: 500;
         max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .top-nav-user #btn-logout {
@@ -174,7 +290,15 @@
         background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.85);
         width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-size: 0.7rem; transition: all 0.2s;
     }
-    .top-nav-user #btn-logout:hover { background: var(--bad); border-color: var(--bad); color: var(--white); }
+    .top-nav-user #btn-logout:hover { background: var(--bad); border-color: var(--bad); color: #ffffff; }
+
+    #btn-theme-toggle {
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;
+        width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 0.85rem;
+        transition: all 0.2s; flex: 0 0 auto;
+    }
+    #btn-theme-toggle:hover { background: var(--accent); color: #111; border-color: var(--accent); }
 
     @media (max-width: 990px) {
         .header-dynamic-title { display: none; }
@@ -183,9 +307,9 @@
         #top-nav { flex-wrap: wrap; position: static; min-height: 0; }
         .top-nav-search { order: 3; flex: 1 1 100%; }
         .top-nav-user #user-email { display: none; }
+        .search-limit-info { display: none; }
     }
 
-    /* ---- Ajustes móviles específicos de CUADRATURA ---- */
     @media (max-width: 640px) {
         #cuadratura-tab .card { padding: 12px; }
         #stats-panel { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
@@ -201,12 +325,12 @@
     }
 
     .card {
-        background: var(--carbon-light); border: 1px solid var(--carbon-border);
+        background: var(--card-bg); border: 1px solid var(--carbon-border);
         border-radius: 12px; padding: 16px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+        transition: background 0.3s ease, border-color 0.3s ease;
     }
 
-    /* ---- Estadísticas ---- */
     #stats-panel {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -222,26 +346,24 @@
     .stat-box.stat-today .stat-num { color: var(--good); }
     .stat-box .stat-label { font-size: 0.68rem; color: var(--text-dim); margin-top: 4px; font-weight: 600; letter-spacing: 0.5px; }
 
-    /* ---- Filtros ---- */
     #filter-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
     .filter-group { display: flex; align-items: center; gap: 6px; }
     #filter-bar input, #filter-bar select {
-        background: #000; color: var(--white); border: 1px solid var(--carbon-border);
+        background: var(--input-bg); color: var(--text-main); border: 1px solid var(--carbon-border);
         border-radius: 8px; padding: 8px 12px; font-family: 'Lexend', sans-serif; font-size: 0.85rem;
         transition: all 0.2s;
     }
     #filter-bar input:focus, #filter-bar select:focus { border-color: var(--primary); }
 
     #tracker-filter-bar input, #tracker-filter-bar select {
-        background: #000; color: var(--white); border: 1px solid var(--carbon-border);
+        background: var(--input-bg); color: var(--text-main); border: 1px solid var(--carbon-border);
         border-radius: 8px; padding: 8px 12px; font-family: 'Lexend', sans-serif; font-size: 0.85rem;
         transition: all 0.2s;
     }
     #tracker-filter-bar input:focus, #tracker-filter-bar select:focus { border-color: #0e7490; box-shadow: 0 0 0 3px rgba(14,116,144,0.15); }
     #tracker-filter-bar select { cursor: pointer; }
     
-    /* Control de fechas rápido */
-    .date-control { display: flex; align-items: center; gap: 4px; background: #000; border: 1px solid var(--carbon-border); border-radius: 8px; padding: 2px; }
+    .date-control { display: flex; align-items: center; gap: 4px; background: var(--input-bg); border: 1px solid var(--carbon-border); border-radius: 8px; padding: 2px; }
     .date-nav-btn { background: var(--carbon-light); border: none; color: var(--text-main); font-size: 0.8rem; padding: 6px 10px; cursor: pointer; border-radius: 6px; transition: background 0.2s; }
     .date-nav-btn:hover { background: var(--carbon-border); }
     #filter-date { border: none !important; background: transparent !important; padding: 6px 8px !important; }
@@ -254,7 +376,7 @@
     }
     .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
     .btn-secondary { background: transparent; border: 1px solid var(--carbon-border); color: var(--text-dim); box-shadow: none; }
-    .btn-secondary:hover { background: var(--carbon-border); color: var(--white); }
+    .btn-secondary:hover { background: var(--carbon-border); color: var(--text-main); }
     .btn-danger { background: transparent; color: var(--bad); border: 1px solid var(--bad); box-shadow: none; }
     .btn-danger:hover { background: var(--bad); color: white; }
     .btn-good { background: transparent; color: var(--good); border: 1px solid var(--good); box-shadow: none; }
@@ -269,12 +391,16 @@
     .btn-inject-sameday { background: #0e7490; color: #67e8f9; border: 1px solid #0891b2; box-shadow: none; font-size: 0.8rem; }
     .btn-inject-sameday:hover { background: #0891b2; color: white; transform: translateY(-1px); }
 
+    .btn-copy-search-results {
+        background: #064e3b; color: #6ee7b7; border: 1px solid #10b981; box-shadow: none; font-size: 0.8rem;
+    }
+    .btn-copy-search-results:hover { background: #10b981; color: white; transform: translateY(-1px); }
+
     .btn-count-badge {
         display: inline-block; margin-left: 8px; background: rgba(255,255,255,0.15);
         padding: 1px 8px; border-radius: 999px; font-weight: 700; font-size: 0.78rem;
     }
 
-    /* Selector de periodo de fecha */
     .date-range-control { position: relative; display: flex; align-items: center; gap: 4px; }
     .date-range-popup {
         position: absolute; top: calc(100% + 6px); left: 0; z-index: 50;
@@ -284,32 +410,29 @@
     }
     .date-range-popup label { font-size: 0.72rem; color: var(--text-dim); font-weight: 600; }
     .date-range-popup input[type="date"] {
-        background: #000; color: var(--white); border: 1px solid var(--carbon-border);
+        background: var(--input-bg); color: var(--text-main); border: 1px solid var(--carbon-border);
         border-radius: 8px; padding: 8px 10px; font-family: 'Lexend', sans-serif; font-size: 0.85rem; width: 100%;
     }
     .date-range-popup-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; }
     .date-range-popup-actions .btn-primary { padding: 8px 12px; font-size: 0.78rem; flex: 1; }
 
-    /* ---- Barra de edición masiva ---- */
     #bulk-bar {
         display: none; flex-wrap: wrap; gap: 10px; align-items: center;
         background: #251616; border: 1px solid var(--primary);
     }
     #bulk-bar select, #bulk-bar input[type="date"] { 
-        min-width: 140px; background: #120707; border: 1px solid #541d1d; color: var(--white); border-radius: 6px; padding: 8px; font-family: 'Lexend'; font-size: 0.8rem; 
+        min-width: 140px; background: #120707; border: 1px solid #541d1d; color: var(--text-main); border-radius: 6px; padding: 8px; font-family: 'Lexend'; font-size: 0.8rem; 
     }
     #bulk-bar .bulk-count { font-size: 0.82rem; color: var(--accent); font-weight: 600; margin-right: 8px; }
 
-    /* ---- Tabla ---- */
     .table-wrap { overflow-x: auto; margin-top: 4px; }
     table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 760px; }
     th { text-align: left; padding: 12px 10px; font-size: 0.72rem; color: var(--text-dim); border-bottom: 1px solid var(--carbon-border); white-space: nowrap; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-    td { padding: 10px 10px; border-bottom: 1px solid #1a1a1f; font-size: 0.8rem; vertical-align: middle; white-space: nowrap; transition: background 0.15s; }
-    tr:hover td { background: rgba(255, 255, 255, 0.02); }
+    td { padding: 10px 10px; border-bottom: 1px solid var(--border-subtle); font-size: 0.8rem; vertical-align: middle; white-space: nowrap; transition: background 0.15s; }
+    tr:hover td { background: var(--table-row-hover); }
     .guia-container { display: flex; align-items: center; gap: 8px; }
-    .guia-text { font-weight: 700; color: var(--white); font-size: 0.85rem; letter-spacing: 0.5px; }
+    .guia-text { font-weight: 700; color: var(--text-main); font-size: 0.85rem; letter-spacing: 0.5px; }
     
-    /* Contador de Repeticiones Individual */
     .guia-badge-count {
         background: rgba(255, 193, 7, 0.12);
         color: var(--accent);
@@ -320,27 +443,27 @@
         border: 1px solid rgba(255, 193, 7, 0.25);
     }
     
-    .cell-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 4px 8px; border-radius: 4px; transition: background 0.2s; }
+    .cell-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 4px 8px; border-radius: 4px; transition: background 0.2s; color: var(--text-main); }
     .cell-btn:hover { background: rgba(255,255,255,0.05); }
+    body.theme-light .cell-btn:hover { background: rgba(0,0,0,0.06); }
     .cell-btn.edit { color: var(--accent); }
     .cell-btn.del { color: var(--bad); }
 
-    /* ---- Modal de edición individual ---- */
     #edit-modal-bg {
         display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2500;
         align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(4px);
     }
     #edit-modal {
-        background: var(--carbon-light); border: 1px solid var(--carbon-border); border-radius: 14px;
+        background: var(--card-bg); border: 1px solid var(--carbon-border); border-radius: 14px;
         padding: 20px; width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 12px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
     #edit-modal label { font-size: 0.72rem; color: var(--text-dim); display: block; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
     #edit-modal select, #edit-modal input {
-        width: 100%; background: #000; color: var(--white); border: 1px solid var(--carbon-border);
+        width: 100%; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--carbon-border);
         border-radius: 8px; padding: 10px; font-family: 'Lexend', sans-serif; font-size: 0.85rem;
     }
-    #edit-modal input[disabled] { color: var(--text-dim); background: #121215; cursor: not-allowed; }
+    #edit-modal input[disabled] { color: var(--text-dim); background: var(--carbon-card); cursor: not-allowed; }
     .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
     .modal-actions button { flex: 1; padding: 12px; }
 
@@ -348,7 +471,7 @@
     .form-row { display: flex; flex-wrap: wrap; gap: 10px; }
     .form-row > * { flex: 1; min-width: 140px; }
     .form-row input, .form-row select {
-        background: #000; color: var(--white); border: 1px solid var(--carbon-border);
+        background: var(--input-bg); color: var(--text-main); border: 1px solid var(--carbon-border);
         border-radius: 8px; padding: 10px 12px; font-family: 'Lexend', sans-serif; font-size: 0.85rem;
         transition: all 0.2s;
     }
@@ -356,17 +479,16 @@
     .form-row select { cursor: pointer; }
     .form-row .btn-primary { flex: 0 0 auto; min-width: 150px; }
 
-    /* ---- Mini calendario (mover fecha) ---- */
     .mini-calendar-popup {
         display: none; position: absolute; top: calc(100% + 8px); left: 0; z-index: 3200;
-        background: var(--carbon-light); border: 1px solid var(--carbon-border); border-radius: 12px;
+        background: var(--card-bg); border: 1px solid var(--carbon-border); border-radius: 12px;
         padding: 12px; width: 250px; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
     }
     .mini-calendar-popup.open { display: block; }
     .mc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
     .mc-header button { background: transparent; border: 1px solid var(--carbon-border); color: var(--text-main); width: 24px; height: 24px; border-radius: 6px; cursor: pointer; font-size: 0.7rem; padding: 0; }
     .mc-header button:hover { background: var(--carbon-border); }
-    .mc-title { font-size: 0.78rem; font-weight: 700; color: var(--white); text-transform: capitalize; }
+    .mc-title { font-size: 0.78rem; font-weight: 700; color: var(--text-main); text-transform: capitalize; }
     .mc-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
     .mc-dow { font-size: 0.58rem; color: var(--text-dim); text-align: center; font-weight: 700; padding-bottom: 4px; }
     .mc-day {
@@ -383,9 +505,6 @@
     .mc-footer { display: flex; justify-content: space-between; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--carbon-border); }
     .mc-footer button { flex: 1; font-size: 0.65rem; padding: 5px 8px; }
 
-    /* ============================================== */
-    /* ---- ESTILOS RESTAURADOS DE CUADRATURA (ORIGINALES) ---- */
-    /* ============================================== */
     .c-flex-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
     .c-flex-center { display: flex; align-items: center; gap: 8px; }
     .c-grid-3 { display: grid; grid-template-columns: 1fr 3fr; gap: 16px; }
@@ -395,7 +514,7 @@
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     
     th.sortable { cursor: pointer; transition: all 0.2s; position: relative; }
-    th.sortable:hover { background-color: var(--carbon-border); color: white; }
+    th.sortable:hover { background-color: var(--carbon-border); color: var(--text-main); }
     
     .c-badge { padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; }
     .c-badge.no-ent { background: rgba(239, 68, 68, 0.15); color: var(--bad); border: 1px solid rgba(239, 68, 68, 0.3); }
@@ -405,8 +524,9 @@
 
     .c-label { font-size: 0.7rem; color: var(--text-dim); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
     .c-num-box { text-align: center; background: rgba(0,0,0,0.2); border: 1px solid var(--carbon-border); border-radius: 8px; padding: 10px 8px; }
+    body.theme-light .c-num-box { background: rgba(0,0,0,0.04); }
     .c-sub-val { font-size: 0.72rem; color: var(--text-dim); display: flex; justify-content: space-between; margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.05); }
-
+    body.theme-light .c-sub-val { border-top-color: rgba(0,0,0,0.08); }
 </style>
 </head>
 <body>
@@ -423,13 +543,11 @@
 
     <div id="app-root">
 
-        <!-- ================= BARRA SUPERIOR UNIFICADA ================= -->
         <div id="top-nav" class="admin-mode">
             
             <div class="header-left-group">
-                <!-- Títulos dinámicos integrados en el header -->
                 <div id="header-title-text" class="header-dynamic-title">
-                    <i class="fas fa-boxes-stacked"></i> Panel de administración de guías
+                    <i class="fas fa-boxes-stacked"></i> Admin Guias
                 </div>
                 
                 <div class="top-nav-tabs">
@@ -451,7 +569,12 @@
             <div class="top-nav-search">
                 <div id="search-wrap-admin" class="nav-search-group active">
                     <span class="search-icon"><i class="fas fa-magnifying-glass"></i></span>
-                    <input type="text" id="search-universal" placeholder="Buscador rápido universal (Escribe una guía y presiona enter o espera...)" oninput="render()">
+                    <div class="search-bulk-wrap">
+                        <input type="text" id="search-universal" placeholder="Buscar guía... (límite: 15 días)" onkeydown="if(event.key==='Enter'){event.preventDefault(); ejecutarBusquedaAdmin();}">
+                        <button type="button" class="search-action-btn" onclick="ejecutarBusquedaAdmin()" title="Buscar">
+                            <i class="fas fa-magnifying-glass"></i> Buscar
+                        </button>
+                    </div>
                 </div>
                 <div id="search-wrap-cuadratura" class="nav-search-group">
                     <span class="search-icon"><i class="fas fa-magnifying-glass"></i></span>
@@ -467,13 +590,20 @@
                 </div>
             </div>
 
+            <div class="search-limit-info" id="search-limit-info">
+                <i class="fas fa-clock"></i> <span id="limit-days-text">15</span> días
+            </div>
+
             <div class="top-nav-user">
                 <span id="user-email"></span>
                 <button id="btn-logout" onclick="logout()" title="Cerrar sesión"><i class="fas fa-right-from-bracket"></i></button>
             </div>
+
+            <button id="btn-theme-toggle" onclick="toggleTheme()" title="Cambiar tema (Dark/Light)">
+                <i class="fas fa-sun" id="theme-icon"></i>
+            </button>
         </div>
 
-        <!-- ================= PESTAÑA 1: ADMINISTRADOR DE GUIAS ================= -->
         <div id="admin-tab" class="tab-content active">
 
             <div id="stats-panel" class="card">
@@ -508,6 +638,7 @@
                 <button class="btn-primary btn-inject" onclick="injectGuidesCopy()">⚡ INYECTAR GUÍAS (COPIAR)<span class="btn-count-badge" id="count-inyeccion">0</span></button>
                 <button class="btn-primary btn-inject-dev" onclick="injectDevolucionCopy()">🔴 DEV ORIGEN (COPIAR)<span class="btn-count-badge" id="count-devolucion">0</span></button>
                 <button class="btn-primary btn-inject-sameday" onclick="injectSamedayCopy()">📦 INY SAMEDAY (COPIAR)<span class="btn-count-badge" id="count-sameday">0</span></button>
+                <button class="btn-primary btn-copy-search-results" id="btn-copy-search" onclick="copySearchResults()">📋 COPIAR RESULTADOS<span class="btn-count-badge" id="count-search-results">0</span></button>
 
                 <div class="filter-group" style="margin-left:auto;">
                     <label style="font-size:0.75rem; color:var(--text-dim); font-weight:600;">Orden:</label>
@@ -612,10 +743,8 @@
             </div>
         </div>
 
-        <!-- ================= PESTAÑA 2: CUADRATURA ================= -->
         <div id="cuadratura-tab" class="tab-content">
             
-            <!-- Barra Superior Cuadratura (Diseño Clásico Restaurado) -->
             <div class="card c-flex-between">
                 <div class="c-flex-center">
                     <input type="file" id="fileViajes" style="display:none;" accept=".xlsx, .xls">
@@ -636,41 +765,39 @@
                 </div>
             </div>
 
-            <!-- Panel de Estadísticas Cuadratura (Diseño Clásico Restaurado) -->
             <div id="stats-panel" class="card" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
                 <div class="c-num-box" style="border-left: 4px solid var(--primary);">
                     <div class="c-label" style="font-size: 0.65rem;">Faltan Escanear</div>
                     <div class="stat-num" id="total-pending-count" style="color:var(--bad); font-size:1.5rem; margin:4px 0;">0</div>
-                    <div class="c-sub-val"><span>No Emb: <strong id="sub-pending-no-emb" style="color:#fff;">0</strong></span><span>No Ent: <strong id="sub-pending-no-ent" style="color:#fff;">0</strong></span></div>
+                    <div class="c-sub-val"><span>No Emb: <strong id="sub-pending-no-emb" style="color:var(--text-main);">0</strong></span><span>No Ent: <strong id="sub-pending-no-ent" style="color:var(--text-main);">0</strong></span></div>
                 </div>
                 <div class="c-num-box" style="border-left: 4px solid #f97316;">
                     <div class="c-label" style="font-size: 0.65rem;">No Emb. TR2</div>
                     <div class="stat-num" id="count-no-emb" style="color:#f97316; font-size:1.5rem; margin:4px 0;">0</div>
-                    <div class="c-sub-val"><span>Amz: <strong id="sub-no-emb-amz" style="color:#fff;">0</strong></span><span>Same: <strong id="sub-no-emb-same" style="color:#fff;">0</strong></span></div>
+                    <div class="c-sub-val"><span>Amz: <strong id="sub-no-emb-amz" style="color:var(--text-main);">0</strong></span><span>Same: <strong id="sub-no-emb-same" style="color:var(--text-main);">0</strong></span></div>
                 </div>
                 <div class="c-num-box" style="border-left: 4px solid #eab308;">
                     <div class="c-label" style="font-size: 0.65rem;">No Recibido</div>
                     <div class="stat-num" id="count-no-rec" style="color:#eab308; font-size:1.5rem; margin:4px 0;">0</div>
-                    <div class="c-sub-val"><span>Amz: <strong id="sub-no-rec-amz" style="color:#fff;">0</strong></span><span>Same: <strong id="sub-no-rec-same" style="color:#fff;">0</strong></span></div>
+                    <div class="c-sub-val"><span>Amz: <strong id="sub-no-rec-amz" style="color:var(--text-main);">0</strong></span><span>Same: <strong id="sub-no-rec-same" style="color:var(--text-main);">0</strong></span></div>
                 </div>
                 <div class="c-num-box" style="border-left: 4px solid #2563eb;">
                     <div class="c-label" style="font-size: 0.65rem;">No Entregado</div>
                     <div class="stat-num" id="count-no-ent" style="color:#2563eb; font-size:1.5rem; margin:4px 0;">0</div>
-                    <div class="c-sub-val"><span>Amz: <strong id="sub-no-ent-amz" style="color:#fff;">0</strong></span><span>Same: <strong id="sub-no-ent-same" style="color:#fff;">0</strong></span></div>
+                    <div class="c-sub-val"><span>Amz: <strong id="sub-no-ent-amz" style="color:var(--text-main);">0</strong></span><span>Same: <strong id="sub-no-ent-same" style="color:var(--text-main);">0</strong></span></div>
                 </div>
                 <div class="c-num-box" style="border-left: 4px solid #16a34a;">
                     <div class="c-label" style="font-size: 0.65rem;">Total en Ruta</div>
                     <div class="stat-num" id="count-in-route" style="color:#16a34a; font-size:1.5rem; margin:4px 0;">0</div>
-                    <div class="c-sub-val"><span>Amz: <strong id="sub-ruta-amz" style="color:#fff;">0</strong></span><span>Same: <strong id="sub-ruta-same" style="color:#fff;">0</strong></span></div>
+                    <div class="c-sub-val"><span>Amz: <strong id="sub-ruta-amz" style="color:var(--text-main);">0</strong></span><span>Same: <strong id="sub-ruta-same" style="color:var(--text-main);">0</strong></span></div>
                 </div>
                 <div class="c-num-box" style="border-left: 4px solid #9333ea;">
                     <div class="c-label" style="font-size: 0.65rem;">Choferes Ruta</div>
                     <div class="stat-num" id="count-drivers-route" style="color:#9333ea; font-size:1.5rem; margin:4px 0;">0</div>
-                    <div class="c-sub-val"><span>Amz: <strong id="sub-chofer-amz" style="color:#fff;">0</strong></span><span>Same: <strong id="sub-chofer-same" style="color:#fff;">0</strong></span></div>
+                    <div class="c-sub-val"><span>Amz: <strong id="sub-chofer-amz" style="color:var(--text-main);">0</strong></span><span>Same: <strong id="sub-chofer-same" style="color:var(--text-main);">0</strong></span></div>
                 </div>
             </div>
 
-            <!-- Gráfico y Listado de Pendientes (Diseño Clásico Restaurado) -->
             <div class="c-grid-3">
                 <div class="card" style="display:flex; flex-direction:column; justify-content: space-between;">
                     <div class="c-flex-between" style="border-bottom: 1px solid var(--carbon-border); padding-bottom:8px; margin-bottom:8px;">
@@ -705,7 +832,6 @@
                 </div>
             </div>
 
-            <!-- Filtro de Estados Adicionales (Diseño Clásico Restaurado) -->
             <div class="card">
                 <div class="c-flex-between" style="border-bottom: 1px solid var(--carbon-border); padding-bottom:8px; margin-bottom:12px;">
                     <div class="c-flex-center">
@@ -713,7 +839,7 @@
                         <span id="statusMsg" style="font-size: 0.72rem; color:var(--text-dim); margin-left:6px;">Sube un archivo de viajes para comenzar.</span>
                     </div>
                     <div class="c-flex-center">
-                        <select id="estadoFilter" onchange="filterAndRenderTable()" disabled style="background:#000; color:#fff; border:1px solid var(--carbon-border); border-radius:8px; padding:6px 12px; font-family:'Lexend'; font-size:0.75rem;">
+                        <select id="estadoFilter" onchange="filterAndRenderTable()" disabled style="background:var(--input-bg); color:var(--text-main); border:1px solid var(--carbon-border); border-radius:8px; padding:6px 12px; font-family:'Lexend'; font-size:0.75rem;">
                             <option value="">-- Selecciona un archivo primero --</option>
                         </select>
                         <button id="copyBtn" onclick="copyToClipboard()" disabled class="btn-primary" style="padding:6px 12px; font-size:0.72rem;">
@@ -743,9 +869,8 @@
                 </div>
             </div>
 
-        </div><!-- /#cuadratura-tab -->
+        </div>
 
-        <!-- ================= PESTAÑA 3: TRACKER ================= -->
         <div id="tracker-tab" class="tab-content">
 
             <div id="tracker-filter-bar" class="card" style="display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
@@ -840,13 +965,13 @@
                 <div id="tracker-empty-msg" class="empty-msg" style="display:none;">No hay guías para este filtro.</div>
             </div>
 
-        </div><!-- /#tracker-tab -->
+        </div>
 
-    </div><!-- /#app-root -->
+    </div>
 
     <div id="edit-modal-bg">
         <div id="edit-modal">
-            <div style="font-weight:700; font-size:1.1rem; color:var(--white); border-bottom:1px solid var(--carbon-border); padding-bottom:10px;">Editar guía</div>
+            <div style="font-weight:700; font-size:1.1rem; color:var(--text-main); border-bottom:1px solid var(--carbon-border); padding-bottom:10px;">Editar guía</div>
             <div>
                 <label>Número de guía (no editable)</label>
                 <input type="text" id="edit-guia" disabled>
@@ -888,7 +1013,6 @@
     </div>
 
 <script>
-    // ============ CONFIGURACIÓN DE FIREBASE ============
     const firebaseConfig = {
         apiKey: "AIzaSyCg9mMvEg4tKa8Qpi3CVx_oTN0GSgO_iJ0",
         authDomain: "rpkmty.firebaseapp.com",
@@ -909,12 +1033,34 @@
         "INY SAMEDAY": ["MAL PUNTEADO", "NEGOCIO CERRADO"]
     };
 
-    let allGuias = [];       // espejo local de toda la colección "guias"
+    const LIMITE_DIAS_BUSQUEDA = 15;
+
+    let allGuias = [];
     let selectedIds = new Set();
     let unsubscribe = null;
     let editingId = null;
 
-    // ============ CONTROL DE PESTAÑAS Y DECORACIONES DEL HEADER ============
+    function toggleTheme() {
+        const body = document.body;
+        const icon = document.getElementById('theme-icon');
+        const isLight = body.classList.toggle('theme-light');
+        if (isLight) {
+            icon.className = 'fas fa-moon';
+            localStorage.setItem('theme', 'light');
+        } else {
+            icon.className = 'fas fa-sun';
+            localStorage.setItem('theme', 'dark');
+        }
+    }
+    function loadTheme() {
+        const saved = localStorage.getItem('theme');
+        if (saved === 'light') {
+            document.body.classList.add('theme-light');
+            const icon = document.getElementById('theme-icon');
+            if (icon) icon.className = 'fas fa-moon';
+        }
+    }
+
     function switchTab(tabId, btn) {
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
         document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
@@ -922,52 +1068,49 @@
         document.getElementById(tabId).classList.add('active');
         btn.classList.add('active');
 
-        // Activar solo la barra de búsqueda de la pestaña visible
         document.querySelectorAll('.nav-search-group').forEach(g => g.classList.remove('active'));
         const searchIds = { 'admin-tab': 'search-wrap-admin', 'cuadratura-tab': 'search-wrap-cuadratura', 'tracker-tab': 'search-wrap-tracker' };
         document.getElementById(searchIds[tabId]).classList.add('active');
         
-        // Ajuste dinámico de colores y títulos en el Header
         const topNav = document.getElementById('top-nav');
         const headerTitleText = document.getElementById('header-title-text');
+        const limitInfo = document.getElementById('search-limit-info');
 
         if (tabId === 'admin-tab') {
             topNav.style.background = 'var(--bg-header-admin)';
             topNav.style.borderColor = 'var(--border-header-admin)';
             topNav.className = 'admin-mode';
-            headerTitleText.innerHTML = '<i class="fas fa-boxes-stacked"></i> Panel de administración de guías';
+            headerTitleText.innerHTML = '<i class="fas fa-boxes-stacked"></i> Admin Guias';
+            if (limitInfo) limitInfo.style.display = 'flex';
         } else if (tabId === 'tracker-tab') {
             topNav.style.background = 'var(--bg-header-tracker)';
             topNav.style.borderColor = 'var(--border-header-tracker)';
             topNav.className = 'tracker-mode';
-            headerTitleText.innerHTML = '<i class="fas fa-magnifying-glass"></i> TRACKER DE GUÍAS';
+            headerTitleText.innerHTML = '<i class="fas fa-magnifying-glass"></i> Tracker';
+            if (limitInfo) limitInfo.style.display = 'none';
         } else {
             topNav.style.background = 'var(--bg-header-cuadratura)';
             topNav.style.borderColor = 'var(--border-header-cuadratura)';
             topNav.className = 'cuadratura-mode';
-            headerTitleText.innerHTML = '<i class="fas fa-list-check"></i> CUADRATURA';
+            headerTitleText.innerHTML = '<i class="fas fa-list-check"></i> Cuadratura';
+            if (limitInfo) limitInfo.style.display = 'none';
         }
 
-        // Ajustar tamaño del chart en caso de renderizarse oculto
-        if (tabId === 'cuadratura-tab' && chartInstance) {
-            chartInstance.resize();
-        }
-        if (tabId === 'tracker-tab' && trackerChartInstance) {
-            trackerChartInstance.resize();
-        }
+        if (tabId === 'cuadratura-tab' && chartInstance) chartInstance.resize();
+        if (tabId === 'tracker-tab' && trackerChartInstance) trackerChartInstance.resize();
     }
 
-    // Asignar fecha actual por defecto al iniciar
     document.addEventListener("DOMContentLoaded", () => {
+        loadTheme();
         const hoyStr = new Date().toLocaleDateString('sv-SE');
         document.getElementById('filter-date-from').value = hoyStr;
         document.getElementById('filter-date-to').value = hoyStr;
         updateFechaLabel();
         resetTrackerFilters();
+        document.getElementById('limit-days-text').textContent = LIMITE_DIAS_BUSQUEDA;
     });
 
-    // ============ LOGIN ============
-    const CORREOS_AUTORIZADOS = ["s4muelmonreal@gmail.com", "chronoalex666@gmail.com", "franciscoantoniomartinezrasgad@gmail.com","antonio.serratosl@gmail.com"];
+    const CORREOS_AUTORIZADOS = ["s4muelmonreal@gmail.com", "chronoalex666@gmail.com", "franciscoantoniomartinezrasgad@gmail.com","antonio.serratosl@gmail.com","peregrinosilvana90@gmail.com"];
 
     function signInWithGoogle() {
         document.getElementById('login-status').textContent = "Abriendo ventana de Google...";
@@ -1009,7 +1152,6 @@
         }
     });
 
-    // ============ LISTENER EN TIEMPO REAL ============
     function iniciarListener() {
         if (unsubscribe) unsubscribe();
         unsubscribe = db.collection('guias').onSnapshot(snapshot => {
@@ -1021,27 +1163,20 @@
         });
     }
 
-    // ============ AUXILIARES DE FECHAS ============
-    // Formatea un timestamp (ms) a hora "hh:mm" usando siempre el huso horario de Monterrey, NL (no el del dispositivo)
     function formatHoraMonterrey(timestamp) {
         if (!timestamp) return '';
         try {
             return new Intl.DateTimeFormat('es-MX', {
                 timeZone: 'America/Monterrey',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
+                hour: '2-digit', minute: '2-digit', hour12: false
             }).format(new Date(timestamp));
-        } catch (e) {
-            return '';
-        }
+        } catch (e) { return ''; }
     }
     function inputDateToDateKey(value) {
         if (!value) return null;
         const [y, m, d] = value.split('-');
         return `${parseInt(d)}/${parseInt(m)}/${y}`;
     }
-    // ============ FILTRO POR PERIODO DE FECHA ============
     function formatDateKeyDisplay(val) {
         if (!val) return '';
         const [y, m, d] = val.split('-');
@@ -1051,17 +1186,11 @@
         const fromVal = document.getElementById('filter-date-from').value;
         const toVal = document.getElementById('filter-date-to').value;
         const label = document.getElementById('fecha-label-text');
-        if (!fromVal && !toVal) {
-            label.textContent = 'Fecha: Todas';
-        } else if (fromVal && toVal && fromVal === toVal) {
-            label.textContent = formatDateKeyDisplay(fromVal);
-        } else if (fromVal && toVal) {
-            label.textContent = `${formatDateKeyDisplay(fromVal)} - ${formatDateKeyDisplay(toVal)}`;
-        } else if (fromVal) {
-            label.textContent = `Desde ${formatDateKeyDisplay(fromVal)}`;
-        } else {
-            label.textContent = `Hasta ${formatDateKeyDisplay(toVal)}`;
-        }
+        if (!fromVal && !toVal) label.textContent = 'Fecha: Todas';
+        else if (fromVal && toVal && fromVal === toVal) label.textContent = formatDateKeyDisplay(fromVal);
+        else if (fromVal && toVal) label.textContent = `${formatDateKeyDisplay(fromVal)} - ${formatDateKeyDisplay(toVal)}`;
+        else if (fromVal) label.textContent = `Desde ${formatDateKeyDisplay(fromVal)}`;
+        else label.textContent = `Hasta ${formatDateKeyDisplay(toVal)}`;
     }
     function toggleDateRangePopup(evt) {
         if (evt) evt.stopPropagation();
@@ -1100,8 +1229,7 @@
         const toEl = document.getElementById('filter-date-to');
         const todayStr = new Date().toLocaleDateString('sv-SE');
         if (!fromEl.value && !toEl.value) {
-            fromEl.value = todayStr;
-            toEl.value = todayStr;
+            fromEl.value = todayStr; toEl.value = todayStr;
         } else {
             if (fromEl.value) {
                 const d = new Date(fromEl.value + 'T00:00:00');
@@ -1120,7 +1248,7 @@
     function getDateRangeBounds() {
         const fromVal = document.getElementById('filter-date-from').value;
         const toVal = document.getElementById('filter-date-to').value;
-        if (!fromVal && !toVal) return null; // sin filtro = ver todas
+        if (!fromVal && !toVal) return null;
         const start = fromVal ? new Date(fromVal + 'T00:00:00').getTime() : -Infinity;
         const end = toVal ? new Date(toVal + 'T23:59:59.999').getTime() : Infinity;
         return { start, end };
@@ -1131,18 +1259,76 @@
         return allGuias.filter(g => g.timestamp >= bounds.start && g.timestamp <= bounds.end);
     }
 
-    // ============ CONTADOR DE REPETICIONES DE GUÍA ============
+    function ejecutarBusquedaAdmin() {
+        render();
+    }
+
+    function parseSearchQuery() {
+        const raw = document.getElementById('search-universal').value.trim();
+        if (!raw) return { isBulk: false, terms: [] };
+        const parts = raw.split(/[\s,;]+/).map(t => t.trim()).filter(t => t.length > 0);
+        if (parts.length > 1) return { isBulk: true, terms: parts };
+        return { isBulk: false, terms: [raw] };
+    }
+
+    function copySearchResults() {
+        const list = getFilteredSorted();
+        if (!list || list.length === 0) {
+            alert('No hay resultados para copiar.');
+            return;
+        }
+        const queryInfo = parseSearchQuery();
+        let header = "GUÍA\tFECHA\tACCIÓN\tCATEGORÍA\tPROVEEDOR\tTIPO\tHORA ESCANEO\tOPERADOR\tREPETICIONES\n";
+        let text = header;
+        list.forEach(g => {
+            const count = getGuiaRepetitionCount(g.guia);
+            text += [
+                g.guia || '', g.dateKey || '', g.accion || '', g.categoria || '',
+                g.prov || '', g.tipo || '', formatHoraMonterrey(g.timestamp),
+                g.operador || '', count
+            ].join('\t') + '\n';
+        });
+        navigator.clipboard.writeText(text).then(() => {
+            alert(`¡Se copiaron ${list.length} guía(s) en formato tabla, listas para pegar en Google Sheets!\n\n${queryInfo.isBulk ? 'Búsqueda masiva: ' + queryInfo.terms.length + ' términos' : ''}`);
+        }).catch(err => {
+            const tempInput = document.createElement("textarea");
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            alert(`¡Copiado! (Fallback) ${list.length} guía(s) listas.`);
+        });
+    }
+
     function getGuiaRepetitionCount(guiaNum) {
         return allGuias.filter(g => g.guia === guiaNum).length;
     }
 
-    // ============ FILTRADO Y BÚSQUEDA GENERAL (ADMIN) ============
     function getFilteredSorted() {
-        const searchQuery = document.getElementById('search-universal').value.trim().toLowerCase();
+        const rawQuery = document.getElementById('search-universal').value.trim();
+        const queryInfo = parseSearchQuery();
         let list;
 
-        if (searchQuery) {
-            list = allGuias.filter(g => g.guia && g.guia.toLowerCase().includes(searchQuery));
+        if (rawQuery) {
+            const limiteMs = LIMITE_DIAS_BUSQUEDA * 24 * 60 * 60 * 1000;
+            const ahora = Date.now();
+            const minTimestamp = ahora - limiteMs;
+
+            if (queryInfo.isBulk) {
+                const termsLower = queryInfo.terms.map(t => t.toLowerCase());
+                list = allGuias.filter(g => {
+                    if (!g.timestamp || g.timestamp < minTimestamp) return false;
+                    const guiaLower = (g.guia || '').toLowerCase();
+                    return termsLower.some(t => guiaLower === t || guiaLower.includes(t));
+                });
+            } else {
+                const q = rawQuery.toLowerCase();
+                list = allGuias.filter(g => {
+                    if (!g.timestamp || g.timestamp < minTimestamp) return false;
+                    return g.guia && g.guia.toLowerCase().includes(q);
+                });
+            }
         } else {
             list = getDateRangeFilteredList();
         }
@@ -1152,12 +1338,10 @@
         return list;
     }
 
-    // ============ INYECTOR DE GUÍAS (COPIAR) ============
     function copyTextWithFeedback(formattedText, count, label) {
         navigator.clipboard.writeText(formattedText).then(() => {
             alert(`¡Se copiaron ${count} guías (${label}) al portapapeles con éxito!\nFormato: "GUIA; "`);
         }).catch(err => {
-            console.error("Error al copiar al portapapeles: ", err);
             const tempInput = document.createElement("textarea");
             tempInput.value = formattedText;
             document.body.appendChild(tempInput);
@@ -1169,49 +1353,25 @@
     }
     function injectGuidesCopy() {
         const bounds = getDateRangeBounds();
-        if (!bounds) {
-            alert("Por favor selecciona un periodo de fecha para inyectar guías.");
-            return;
-        }
+        if (!bounds) { alert("Por favor selecciona un periodo de fecha para inyectar guías."); return; }
         const guiasInyeccion = getDateRangeFilteredList().filter(g => g.accion === "INYECCIÓN");
-
-        if (guiasInyeccion.length === 0) {
-            alert(`No se encontraron guías con la acción "INYECCIÓN" para el periodo seleccionado.`);
-            return;
-        }
-
+        if (guiasInyeccion.length === 0) { alert(`No se encontraron guías con la acción "INYECCIÓN" para el periodo seleccionado.`); return; }
         const formattedText = guiasInyeccion.map(g => `${g.guia}; `).join('');
         copyTextWithFeedback(formattedText, guiasInyeccion.length, "INYECCIÓN");
     }
     function injectDevolucionCopy() {
         const bounds = getDateRangeBounds();
-        if (!bounds) {
-            alert("Por favor selecciona un periodo de fecha para inyectar guías.");
-            return;
-        }
+        if (!bounds) { alert("Por favor selecciona un periodo de fecha para inyectar guías."); return; }
         const guiasDevolucion = getDateRangeFilteredList().filter(g => g.accion === "DEVOLUCIÓN A ORIGEN");
-
-        if (guiasDevolucion.length === 0) {
-            alert(`No se encontraron guías con la acción "DEVOLUCIÓN A ORIGEN" para el periodo seleccionado.`);
-            return;
-        }
-
+        if (guiasDevolucion.length === 0) { alert(`No se encontraron guías con la acción "DEVOLUCIÓN A ORIGEN" para el periodo seleccionado.`); return; }
         const formattedText = guiasDevolucion.map(g => `${g.guia}; `).join('');
         copyTextWithFeedback(formattedText, guiasDevolucion.length, "DEVOLUCIÓN A ORIGEN");
     }
     function injectSamedayCopy() {
         const bounds = getDateRangeBounds();
-        if (!bounds) {
-            alert("Por favor selecciona un periodo de fecha para inyectar guías.");
-            return;
-        }
+        if (!bounds) { alert("Por favor selecciona un periodo de fecha para inyectar guías."); return; }
         const guiasSameday = getDateRangeFilteredList().filter(g => g.accion === "INY SAMEDAY");
-
-        if (guiasSameday.length === 0) {
-            alert(`No se encontraron guías con la acción "INY SAMEDAY" para el periodo seleccionado.`);
-            return;
-        }
-
+        if (guiasSameday.length === 0) { alert(`No se encontraron guías con la acción "INY SAMEDAY" para el periodo seleccionado.`); return; }
         const formattedText = guiasSameday.map(g => `${g.guia}; `).join('');
         copyTextWithFeedback(formattedText, guiasSameday.length, "INY SAMEDAY");
     }
@@ -1227,8 +1387,21 @@
         if (devEl) devEl.textContent = dev;
         if (samedayEl) samedayEl.textContent = sameday;
     }
+    function updateCopySearchButton() {
+        const rawQuery = document.getElementById('search-universal').value.trim();
+        const btn = document.getElementById('btn-copy-search');
+        const badge = document.getElementById('count-search-results');
+        if (!btn) return;
+        if (rawQuery) {
+            const list = getFilteredSorted();
+            btn.classList.add('visible');
+            if (badge) badge.textContent = list.length;
+        } else {
+            btn.classList.remove('visible');
+            if (badge) badge.textContent = '0';
+        }
+    }
 
-    // ============ RENDER TABLA (ADMIN) ============
     function render() {
         const list = getFilteredSorted();
         document.getElementById('total-count').textContent = `${list.length} guía(s)`;
@@ -1265,6 +1438,7 @@
         document.getElementById('check-all').checked = list.length > 0 && list.every(g => selectedIds.has(g.id));
         updateBulkBar();
         updateInjectCounts();
+        updateCopySearchButton();
     }
 
     function toggleSelect(id, checked) {
@@ -1284,7 +1458,6 @@
         bar.style.display = selectedIds.size > 0 ? 'flex' : 'none';
     }
 
-    // ============ ESTADÍSTICAS (ADMIN) ============
     function getMondayOfCurrentWeek() {
         const now = new Date();
         const day = now.getDay(); 
@@ -1311,15 +1484,10 @@
         document.getElementById('stat-rojos').textContent = semana.filter(g => g.tipo === 'PAQUETES ROJOS NM').length;
     }
 
-    // ============ EDICIÓN MASIVA ============
     function fillCategoriaSelect(selectEl, accion, includeNoChange) {
         let opciones;
         if (accion === '__NOCHANGE__' || !accion) {
-            opciones = [...new Set([
-                ...categoriasPorAccion["INYECCIÓN"],
-                ...categoriasPorAccion["DEVOLUCIÓN A ORIGEN"],
-                ...categoriasPorAccion["INY SAMEDAY"]
-            ])];
+            opciones = [...new Set([...categoriasPorAccion["INYECCIÓN"], ...categoriasPorAccion["DEVOLUCIÓN A ORIGEN"], ...categoriasPorAccion["INY SAMEDAY"]])];
         } else {
             opciones = categoriasPorAccion[accion] || [];
         }
@@ -1333,9 +1501,7 @@
     }
     fillCategoriaSelect(document.getElementById('bulk-categoria'), '__NOCHANGE__', true);
 
-    // ============ MINI CALENDARIO (MOVER FECHA) ============
     let miniCalendarViewDate = new Date();
-
     function pad2(n) { return String(n).padStart(2, '0'); }
     function dateToInputVal(d) { return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; }
     function dateToKey(d) { return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`; }
@@ -1349,12 +1515,10 @@
         renderMiniCalendar();
         popup.classList.add('open');
     }
-
     function changeMiniCalendarMonth(delta) {
         miniCalendarViewDate.setMonth(miniCalendarViewDate.getMonth() + delta);
         renderMiniCalendar();
     }
-
     function renderMiniCalendar() {
         const popup = document.getElementById('mini-calendar-popup');
         const year = miniCalendarViewDate.getFullYear();
@@ -1364,16 +1528,13 @@
         const selectedVal = document.getElementById('bulk-date').value;
         const selectedKey = selectedVal ? dateToKey(new Date(selectedVal + 'T00:00:00')) : null;
 
-        // Total de paquetes con ACCIÓN INYECCIÓN por cada fecha
         const injCounts = {};
         allGuias.forEach(g => {
-            if (g.accion === 'INYECCIÓN' && g.dateKey) {
-                injCounts[g.dateKey] = (injCounts[g.dateKey] || 0) + 1;
-            }
+            if (g.accion === 'INYECCIÓN' && g.dateKey) injCounts[g.dateKey] = (injCounts[g.dateKey] || 0) + 1;
         });
 
         const firstDay = new Date(year, month, 1);
-        const startOffset = (firstDay.getDay() + 6) % 7; // lunes = 0
+        const startOffset = (firstDay.getDay() + 6) % 7;
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         const monthLabel = miniCalendarViewDate.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
         const dows = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
@@ -1410,20 +1571,17 @@
             </div>
         `;
     }
-
     function selectMiniCalendarDate(val) {
         document.getElementById('bulk-date').value = val;
         const d = new Date(val + 'T00:00:00');
         document.getElementById('bulk-date-label').textContent = d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
         document.getElementById('mini-calendar-popup').classList.remove('open');
     }
-
     function clearMiniCalendarDate() {
         document.getElementById('bulk-date').value = '';
         document.getElementById('bulk-date-label').textContent = 'Elegir fecha';
         document.getElementById('mini-calendar-popup').classList.remove('open');
     }
-
     document.addEventListener('click', (e) => {
         const popup = document.getElementById('mini-calendar-popup');
         const trigger = document.getElementById('bulk-date-trigger');
@@ -1448,13 +1606,10 @@
 
         const ids = Array.from(selectedIds);
         const chunkSize = 450;
-        
-        let newDateKey = null;
-        let newTimestamp = null;
+        let newDateKey = null, newTimestamp = null;
         if (bulkDateVal) {
             newDateKey = inputDateToDateKey(bulkDateVal);
-            const localDateObj = new Date(bulkDateVal + 'T00:00:00');
-            newTimestamp = localDateObj.getTime();
+            newTimestamp = new Date(bulkDateVal + 'T00:00:00').getTime();
         }
 
         for (let i = 0; i < ids.length; i += chunkSize) {
@@ -1463,16 +1618,11 @@
             chunk.forEach(id => {
                 const current = allGuias.find(g => g.id === id) || {};
                 const update = {};
-                
                 if (accion !== '__NOCHANGE__') update.accion = accion;
                 if (category !== '__NOCHANGE__') update.categoria = category;
                 if (prov !== '__NOCHANGE__') update.prov = prov;
                 if (tipo !== '__NOCHANGE__') update.tipo = tipo;
-                if (newDateKey) {
-                    update.dateKey = newDateKey;
-                    update.timestamp = newTimestamp;
-                }
-                
+                if (newDateKey) { update.dateKey = newDateKey; update.timestamp = newTimestamp; }
                 const finalAccion = update.accion || current.accion;
                 const finalCategoria = update.categoria || current.categoria;
                 if (update.accion || update.categoria) update.listKey = `${finalAccion} - ${finalCategoria}`;
@@ -1480,7 +1630,6 @@
             });
             await batch.commit();
         }
-        
         selectedIds.clear();
         document.getElementById('bulk-date').value = '';
         document.getElementById('bulk-date-label').textContent = 'Elegir fecha';
@@ -1507,7 +1656,6 @@
         selectedIds.delete(id);
     }
 
-    // ============ EDICIÓN INDIVIDUAL ============
     function openEditModal(id) {
         const g = allGuias.find(x => x.id === id);
         if (!g) return;
@@ -1540,7 +1688,6 @@
         closeEditModal();
     }
 
-    // ============ AGREGAR GUÍA MANUAL ============
     document.getElementById('new-accion').addEventListener('change', () => {
         fillCategoriaSelect(document.getElementById('new-categoria'), document.getElementById('new-accion').value, false);
     });
@@ -1549,54 +1696,40 @@
     async function addGuiaManual() {
         const guia = document.getElementById('new-guia').value.trim();
         if (!guia) { alert("Escribe un número de guía."); return; }
-        
         const now = new Date();
         const dateKey = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
-
         const yaExisteHoy = allGuias.some(g => g.guia === guia && g.dateKey === dateKey);
-        if (yaExisteHoy) {
-            alert(`La guía "${guia}" ya fue registrada el día de hoy (${dateKey}). No se permiten duplicados en la misma fecha.`);
-            return;
-        }
-
+        if (yaExisteHoy) { alert(`La guía "${guia}" ya fue registrada el día de hoy (${dateKey}).`); return; }
         const accion = document.getElementById('new-accion').value;
         const categoria = document.getElementById('new-categoria').value;
         const prov = document.getElementById('new-prov').value;
         const tipo = document.getElementById('new-tipo').value;
-        
         await db.collection('guias').add({
             guia, accion, categoria, prov, tipo,
             dateKey, listKey: `${accion} - ${categoria}`,
             timestamp: Date.now(),
             operador: auth.currentUser ? (auth.currentUser.email || auth.currentUser.displayName) : null
         });
-        
         document.getElementById('new-guia').value = '';
     }
 
-    // =========================================================================
-    // ============ SCRIPTING ESPECÍFICO DE LA TAB DE CUADRATURA ============
-    // =========================================================================
     let dataViajes = [], dataParadas = [], dataGuiasEscaneadas = new Set(), rawProcessedStats = [];
-    let umbralDiasCuadratura = 2; // Umbral de días (2 a 4) usado para la cuadratura: Hoy, Ayer, ...
-
-    function cambiarUmbralDias() {
-        umbralDiasCuadratura = umbralDiasCuadratura >= 4 ? 2 : umbralDiasCuadratura + 1;
-        document.querySelectorAll('#umbral-dias-label, #umbral-dias-label-2, #umbral-dias-label-3').forEach(el => el.innerText = umbralDiasCuadratura);
-        if (dataViajes.length) {
-            processAllData();
-        }
-    }
+    let umbralDiasCuadratura = 2;
     let rawDataFilter = []; 
     let chartInstance = null;
     let trackerChartInstance = null;
     let currentSortCol = -1;
     let sortAsc = true;
 
+    function cambiarUmbralDias() {
+        umbralDiasCuadratura = umbralDiasCuadratura >= 4 ? 2 : umbralDiasCuadratura + 1;
+        document.querySelectorAll('#umbral-dias-label, #umbral-dias-label-2, #umbral-dias-label-3').forEach(el => el.innerText = umbralDiasCuadratura);
+        if (dataViajes.length) processAllData();
+    }
+
     document.getElementById('fileViajes').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         const statusMsg = document.getElementById('statusMsg');
         statusMsg.innerText = "Procesando archivo...";
         statusMsg.style.color = "#aaa";
@@ -1605,44 +1738,33 @@
         reader.onload = (evt) => {
             try {
                 const wb = XLSX.read(evt.target.result, { type: 'binary' });
-                
                 dataViajes = XLSX.utils.sheet_to_json(wb.Sheets["Viajes"]) || [];
-                
                 const targetSheetName = wb.SheetNames.find(name => name.trim().toLowerCase() === 'paradas');
                 if (!targetSheetName) {
                     statusMsg.innerText = "Error: No se encontró la hoja 'Paradas'.";
                     statusMsg.style.color = "#ff6b6b";
                     return;
                 }
-                
                 dataParadas = XLSX.utils.sheet_to_json(wb.Sheets[targetSheetName]) || [];
-                
                 const jornadaRaw = dataViajes[0]?.Jornada || "";
                 const dateMatch = jornadaRaw.match(/\d{2}\/\d{2}\/\d{4}/);
                 const fechaExcelCuadratura = dateMatch ? dateMatch[0] : "S/F";
                 document.getElementById('display-fecha').innerText = fechaExcelCuadratura;
                 document.getElementById('info-display').style.display = 'flex';
-
                 if (dataParadas.length === 0) {
                     statusMsg.innerText = "La hoja 'Paradas' está vacía.";
                     statusMsg.style.color = "#ff6b6b";
                     return;
                 }
-
-                rawDataFilter = dataParadas.map(row => {
-                    return {
-                        estado: row['Estado'] !== undefined ? String(row['Estado']).trim() : '',
-                        idViaje: row['IdViaje'] !== undefined ? String(row['IdViaje']).trim() : '',
-                        referencia: row['Pedido Referencia externa'] !== undefined ? String(row['Pedido Referencia externa']).trim() : '',
-                        fecha: fechaExcelCuadratura
-                    };
-                });
-
+                rawDataFilter = dataParadas.map(row => ({
+                    estado: row['Estado'] !== undefined ? String(row['Estado']).trim() : '',
+                    idViaje: row['IdViaje'] !== undefined ? String(row['IdViaje']).trim() : '',
+                    referencia: row['Pedido Referencia externa'] !== undefined ? String(row['Pedido Referencia externa']).trim() : '',
+                    fecha: fechaExcelCuadratura
+                }));
                 statusMsg.innerText = `Archivo cargado. ${rawDataFilter.length} registros en 'Paradas'.`;
                 statusMsg.style.color = "var(--good)"; 
-
                 populateEstadoFilter();
-
             } catch (error) {
                 console.error(error);
                 statusMsg.innerText = "Error al leer el archivo Excel.";
@@ -1652,27 +1774,18 @@
         reader.readAsBinaryString(file);
     });
 
-    // Cargar guías guardadas en Firebase que correspondan al rango de días del umbral (Hoy, Ayer, ...)
     async function fetchFirebase3DaysData() {
         try {
             const tempGuias = new Set();
-            
-            // Generar llaves locales d/m/yyyy según el umbral de días configurado
             const calculoFecha = (diasAtras) => {
                 const d = new Date();
                 d.setDate(d.getDate() - diasAtras);
                 return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
             };
-            
             const diasPermitidos = Array.from({ length: umbralDiasCuadratura }, (_, i) => calculoFecha(i));
-            
-            // Filtrar del espejo local allGuias aquellas que estén en estos rangos
             allGuias.forEach(g => {
-                if (g.guia && diasPermitidos.includes(g.dateKey)) {
-                    tempGuias.add(String(g.guia).trim());
-                }
+                if (g.guia && diasPermitidos.includes(g.dateKey)) tempGuias.add(String(g.guia).trim());
             });
-            
             return tempGuias;
         } catch (error) { 
             console.error("Error filtrando Firebase", error);
@@ -1683,12 +1796,9 @@
     async function processAllData() {
         if (!dataViajes.length) return alert("Sube el archivo primero.");
         document.getElementById('btn-loader').style.display = 'inline-block';
-        
-        // Obtener guías escaneadas desde Firebase con el margen de días configurado (umbralDiasCuadratura)
         dataGuiasEscaneadas = await fetchFirebase3DaysData();
         rawProcessedStats = []; 
         const viajeConductorMap = {};
-
         dataViajes.forEach(v => {
             viajeConductorMap[v.ID] = { 
                 conductor: v.Conductor ? String(v.Conductor).trim() : "", 
@@ -1696,24 +1806,20 @@
                 categoriaViaje: v.Categoría ? String(v.Categoría).trim() : "" 
             };
         });
-
         dataParadas.forEach(p => {
             const infoViaje = viajeConductorMap[p.IdViaje];
             if (!infoViaje || infoViaje.conductor === "COP MTY") return;
             const guia = String(p["Pedido Referencia externa"] || "").split('|')[0].trim();
             const estadoPaquete = String(p.Estado || "").trim();
             const proveedor = (infoViaje.conductor === "CONDUCTOR QP CONDUCTOR QP") ? "QP" : "ROMBO";
-
             rawProcessedStats.push({
                 proveedor, ...infoViaje, 
                 categoria: String(p.Varchar5 || "").trim(),
                 estado: estadoPaquete, guia, viaje: p.IdViaje
             });
         });
-
         renderUI();
         filterAndRenderTable();
-        
         document.getElementById('btn-loader').style.display = 'none';
     }
 
@@ -1733,33 +1839,25 @@
 
         rawProcessedStats.forEach(item => {
             if (item.proveedor !== provSel) return;
-            
             if (item.estado !== 'No Recibido CEDIS') {
                 const guiaNum = parseFloat(item.guia);
-                if (!isNaN(guiaNum) && guiaNum > 0) {
-                    stats.guiasUnicas.add(item.guia);
-                }
+                if (!isNaN(guiaNum) && guiaNum > 0) stats.guiasUnicas.add(item.guia);
             }
-            
             const esAmz = item.categoria === "Amazon";
             const esSame = item.categoria === "Amazon_SameDay";
-
             if (item.estado === 'No Embarcado TR2') { stats.noEmb.t++; if(esAmz) stats.noEmb.a++; if(esSame) stats.noEmb.s++; }
             if (item.estado === 'No Recibido CEDIS') { stats.noRec.t++; if(esAmz) stats.noRec.a++; if(esSame) stats.noRec.s++; }
             if (item.estado === 'No Entregado') { stats.noEnt.t++; if(esAmz) stats.noEnt.a++; if(esSame) stats.noEnt.s++; }
             if (item.estado === 'En Ruta de Entrega') { stats.ruta.t++; if(esAmz) stats.ruta.a++; if(esSame) stats.ruta.s++; }
-
             if (item.estadoViaje === "En Ruta de Entrega") {
                 stats.choferes.t.add(item.conductor);
                 if (item.categoriaViaje === "Visible ASIGNADO") stats.choferes.a.add(item.conductor);
                 else if (item.categoriaViaje === "Amazon Same Day") stats.choferes.s.add(item.conductor);
             }
-
             const estadosRetorno = ['Fin de Carga', 'No Embarcado TR2', 'No Entregado', 'No Recibido CEDIS'];
             if (estadosRetorno.includes(item.estado) && !dataGuiasEscaneadas.has(item.guia) && item.estado !== 'No Recibido CEDIS') {
                 if (item.estado === 'No Embarcado TR2') stats.pendNoEmb++;
                 if (item.estado === 'No Entregado') stats.pendNoEnt++;
-
                 const match = item.guia.toLowerCase().includes(query) || item.conductor.toLowerCase().includes(query) || String(item.viaje).includes(query);
                 if (match) {
                     pendientesCount++;
@@ -1831,7 +1929,6 @@
         });
     }
 
-    // ============ TRACKER: FILTROS, GRÁFICA Y TABLA ============
     function dateKeyToDate(dateKey) {
         if (!dateKey) return null;
         const parts = dateKey.split('/');
@@ -1840,22 +1937,15 @@
         if (isNaN(d) || isNaN(m) || isNaN(y)) return null;
         return new Date(y, m - 1, d);
     }
-
-    // Fecha más antigua en la que aparece una guía en todo el historial (no solo el filtro actual)
     function getGuiaFirstDate(guiaNum) {
-        let earliestDate = null;
-        let earliestKey = '';
+        let earliestDate = null, earliestKey = '';
         allGuias.forEach(g => {
             if (g.guia !== guiaNum) return;
             const d = dateKeyToDate(g.dateKey);
-            if (d && (!earliestDate || d < earliestDate)) {
-                earliestDate = d;
-                earliestKey = g.dateKey;
-            }
+            if (d && (!earliestDate || d < earliestDate)) { earliestDate = d; earliestKey = g.dateKey; }
         });
         return earliestKey;
     }
-
     function fillTrackerCategoriaSelect(accion, preserveSelection) {
         const sel = document.getElementById('tracker-categoria');
         const prevValue = preserveSelection ? sel.value : null;
@@ -1863,23 +1953,17 @@
         if (accion) {
             opciones = categoriasPorAccion[accion] || [];
         } else {
-            opciones = [...new Set([
-                ...categoriasPorAccion["INYECCIÓN"],
-                ...categoriasPorAccion["DEVOLUCIÓN A ORIGEN"],
-                ...categoriasPorAccion["INY SAMEDAY"]
-            ])];
+            opciones = [...new Set([...categoriasPorAccion["INYECCIÓN"], ...categoriasPorAccion["DEVOLUCIÓN A ORIGEN"], ...categoriasPorAccion["INY SAMEDAY"]])];
         }
         let html = `<option value="">Todas</option>`;
         html += opciones.map(c => `<option value="${c}">${c}</option>`).join('');
         sel.innerHTML = html;
         if (prevValue && opciones.includes(prevValue)) sel.value = prevValue;
     }
-
     function onTrackerAccionChange() {
         fillTrackerCategoriaSelect(document.getElementById('tracker-accion').value, false);
         renderTracker();
     }
-
     function resetTrackerFilters() {
         const today = new Date();
         const from = new Date(today);
@@ -1894,7 +1978,6 @@
         document.getElementById('tracker-tipo').value = 'NO EMBARCADO TR2';
         renderTracker();
     }
-
     function getTrackerFiltered() {
         const guiaQuery = document.getElementById('tracker-guia').value.trim().toLowerCase();
         const fromVal = document.getElementById('tracker-date-from').value;
@@ -1903,7 +1986,6 @@
         const categoria = document.getElementById('tracker-categoria').value;
         const prov = document.getElementById('tracker-proveedor').value;
         const tipo = document.getElementById('tracker-tipo').value;
-
         const fromDate = fromVal ? new Date(fromVal + 'T00:00:00') : null;
         const toDate = toVal ? new Date(toVal + 'T23:59:59') : null;
 
@@ -1922,13 +2004,11 @@
             return true;
         });
     }
-
     function renderTrackerTable(list) {
         const tbody = document.getElementById('tracker-table-body');
         if (!tbody) return;
         document.getElementById('tracker-total-count').textContent = `${list.length} guía(s)`;
         document.getElementById('tracker-empty-msg').style.display = list.length ? 'none' : 'block';
-
         const sorted = list.slice().sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
         tbody.innerHTML = sorted.map(g => {
             const timesScanned = getGuiaRepetitionCount(g.guia);
@@ -1947,17 +2027,13 @@
             `;
         }).join('');
     }
-
     function renderTrackerChart(list) {
         const canvas = document.getElementById('tracker-chart');
         if (!canvas) return;
-
         const fromVal = document.getElementById('tracker-date-from').value;
         const toVal = document.getElementById('tracker-date-to').value;
-
         const counts = {};
         list.forEach(g => { if (g.dateKey) counts[g.dateKey] = (counts[g.dateKey] || 0) + 1; });
-
         let labels = [];
         if (fromVal && toVal) {
             let cur = new Date(fromVal + 'T00:00:00');
@@ -1971,35 +2047,24 @@
         } else {
             labels = Object.keys(counts).sort((a, b) => dateKeyToDate(a) - dateKeyToDate(b));
         }
-
         const data = labels.map(l => counts[l] || 0);
         const totalCount = data.reduce((a, b) => a + b, 0);
         const totalEl = document.getElementById('tracker-chart-total-num');
         if (totalEl) totalEl.textContent = totalCount;
-
         const ctx = canvas.getContext('2d');
         const gradient = ctx.createLinearGradient(0, 0, 0, 260);
         gradient.addColorStop(0, 'rgba(34, 211, 238, 0.45)');
         gradient.addColorStop(1, 'rgba(34, 211, 238, 0.02)');
-
         if (trackerChartInstance) trackerChartInstance.destroy();
         trackerChartInstance = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: labels.map(l => l.split('/').slice(0, 2).join('/')),
                 datasets: [{
-                    label: 'Paquetes',
-                    data,
-                    fill: true,
-                    backgroundColor: gradient,
-                    borderColor: '#22d3ee',
-                    borderWidth: 2.5,
-                    tension: 0.35,
-                    pointRadius: 3.5,
-                    pointHoverRadius: 6,
-                    pointBackgroundColor: '#0b0b0c',
-                    pointBorderColor: '#22d3ee',
-                    pointBorderWidth: 2,
+                    label: 'Paquetes', data, fill: true, backgroundColor: gradient,
+                    borderColor: '#22d3ee', borderWidth: 2.5, tension: 0.35,
+                    pointRadius: 3.5, pointHoverRadius: 6,
+                    pointBackgroundColor: '#0b0b0c', pointBorderColor: '#22d3ee', pointBorderWidth: 2,
                 }]
             },
             plugins: (typeof ChartDataLabels !== 'undefined') ? [ChartDataLabels] : [],
@@ -2009,46 +2074,31 @@
                 interaction: { intersect: false, mode: 'index' },
                 plugins: {
                     legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#1d1d21', titleColor: '#fff', bodyColor: '#22d3ee',
-                        borderColor: '#2d2d34', borderWidth: 1, padding: 10, displayColors: false,
-                    },
+                    tooltip: { backgroundColor: '#1d1d21', titleColor: '#fff', bodyColor: '#22d3ee', borderColor: '#2d2d34', borderWidth: 1, padding: 10, displayColors: false },
                     datalabels: {
-                        align: 'top', anchor: 'end', offset: 4,
-                        color: '#e5faff',
+                        align: 'top', anchor: 'end', offset: 4, color: '#e5faff',
                         font: { size: 10, weight: '700', family: 'Lexend' },
                         formatter: (value) => value > 0 ? value : '',
-                        backgroundColor: 'rgba(14,116,144,0.55)',
-                        borderRadius: 4,
+                        backgroundColor: 'rgba(14,116,144,0.55)', borderRadius: 4,
                         padding: { top: 2, bottom: 2, left: 5, right: 5 },
                     }
                 },
                 scales: {
                     x: { grid: { display: false }, ticks: { color: '#999', font: { size: 9 } } },
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(255,255,255,0.05)' },
-                        ticks: { color: '#999', font: { size: 9 }, precision: 0 },
-                        suggestedMax: Math.max(...data, 0) + Math.ceil((Math.max(...data, 0) || 1) * 0.25)
-                    }
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#999', font: { size: 9 }, precision: 0 }, suggestedMax: Math.max(...data, 0) + Math.ceil((Math.max(...data, 0) || 1) * 0.25) }
                 }
             }
         });
     }
-
     function renderTracker() {
         if (!document.getElementById('tracker-tab')) return;
         const list = getTrackerFiltered();
         renderTrackerTable(list);
         renderTrackerChart(list);
     }
-
     function copyTrackerToSheets() {
         const rows = document.querySelectorAll('#tracker-table-body tr');
-        if (!rows.length) {
-            alert('No hay guías para copiar con este filtro.');
-            return;
-        }
+        if (!rows.length) { alert('No hay guías para copiar con este filtro.'); return; }
         let text = "GUÍA\tFECHA\tACCIÓN\tCATEGORÍA\tPROVEEDOR\tTIPO\tVECES ESCANEADA\tPRIMERA FECHA RECIBIDA\n";
         rows.forEach(r => {
             const cells = r.querySelectorAll('td');
@@ -2057,7 +2107,6 @@
         navigator.clipboard.writeText(text).then(() => {
             alert(`¡Se copiaron ${rows.length} guía(s) en formato tabla, listas para pegar en Google Sheets!`);
         }).catch(err => {
-            console.error("Error al copiar al portapapeles: ", err);
             const tempInput = document.createElement("textarea");
             tempInput.value = text;
             document.body.appendChild(tempInput);
@@ -2068,38 +2117,25 @@
         });
     }
 
-    // ============ ORDENACIÓN DE TABLA ============
     function sortTable(n) {
         const tableBody = document.getElementById("pending-list-body");
         const rows = Array.from(tableBody.querySelectorAll(".master-row"));
         if (rows.length === 0) return;
-
-        if (currentSortCol === n) {
-            sortAsc = !sortAsc;
-        } else {
-            sortAsc = true;
-            currentSortCol = n;
-        }
-
+        if (currentSortCol === n) sortAsc = !sortAsc;
+        else { sortAsc = true; currentSortCol = n; }
         const sortedRows = rows.sort((a, b) => {
             const valA = a.cells[n].innerText.trim().toLowerCase();
             const valB = b.cells[n].innerText.trim().toLowerCase();
-            const numA = parseFloat(valA);
-            const numB = parseFloat(valB);
-
-            if (!isNaN(numA) && !isNaN(numB)) {
-                return sortAsc ? numA - numB : numB - numA;
-            }
+            const numA = parseFloat(valA), numB = parseFloat(valB);
+            if (!isNaN(numA) && !isNaN(numB)) return sortAsc ? numA - numB : numB - numA;
             return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
         });
-
         const fragment = document.createDocumentFragment();
         sortedRows.forEach(row => fragment.appendChild(row));
         tableBody.innerHTML = "";
         tableBody.appendChild(fragment);
         updateSortIcons(n);
     }
-
     function updateSortIcons(n) {
         const headers = document.querySelectorAll("th.sortable i");
         headers.forEach((icon, index) => {
@@ -2113,13 +2149,11 @@
             }
         });
     }
-
     function copyDriverSummary() {
         let text = "CHOFER\tCANT\n";
         document.querySelectorAll('#driver-summary-list > div').forEach(r => { text += `${r.children[0].innerText}\t${r.children[1].innerText}\n`; });
         navigator.clipboard.writeText(text).then(() => alert("Copiado."));
     }
-
     function copyTableToSheets() {
         let text = "CAT\tVIAJE\tCHOFER\tGUIA\tESTADO\n";
         document.querySelectorAll('.master-row').forEach(r => { 
@@ -2127,59 +2161,42 @@
         });
         navigator.clipboard.writeText(text).then(() => alert("Copiado."));
     }
-
     function populateEstadoFilter() {
         const filterSelect = document.getElementById('estadoFilter');
         const estados = [...new Set(rawDataFilter.map(item => item.estado))].filter(e => e !== '');
-        
         filterSelect.innerHTML = '<option value="TODOS">-- TODOS LOS ESTADOS --</option>';
-        
         estados.forEach(estado => {
             const option = document.createElement('option');
             option.value = estado;
             option.innerText = estado;
             filterSelect.appendChild(option);
         });
-
         filterSelect.disabled = false;
         document.getElementById('copyBtn').disabled = false;
     }
-
     function filterAndRenderTable() {
         const selectedEstado = document.getElementById('estadoFilter').value;
         const tableBody = document.getElementById('tableBody');
         tableBody.innerHTML = '';
-
         if (rawDataFilter.length === 0) return;
-
         let filtered = [...rawDataFilter];
-        if (selectedEstado && selectedEstado !== 'TODOS') {
-            filtered = rawDataFilter.filter(item => item.estado === selectedEstado);
-        }
-
+        if (selectedEstado && selectedEstado !== 'TODOS') filtered = rawDataFilter.filter(item => item.estado === selectedEstado);
         filtered.sort((a, b) => {
             const isA_TR2 = a.estado.toLowerCase() === 'no embarcado tr2';
             const isB_TR2 = b.estado.toLowerCase() === 'no embarcado tr2';
-
             if (isA_TR2 && !isB_TR2) return -1;
             if (!isA_TR2 && isB_TR2) return 1;
-
-            const numA = parseFloat(a.idViaje) || 0;
-            const numB = parseFloat(b.idViaje) || 0;
+            const numA = parseFloat(a.idViaje) || 0, numB = parseFloat(b.idViaje) || 0;
             return numA - numB;
         });
-
         if (filtered.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="6" class="empty-msg">Ningún dato coincide con el filtro</td></tr>';
             return;
         }
-
         filtered.forEach(item => {
             const tr = document.createElement('tr');
-            
             const isTR2 = item.estado.toLowerCase() === 'no embarcado tr2';
             const colorStyle = isTR2 ? 'style="font-weight:bold; color:#f97316;"' : 'style="color:var(--text-dim);"';
-
             let catCellHtml;
             if (isTR2) {
                 const cat = getUltimaCategoriaTR2(item.referencia);
@@ -2189,13 +2206,11 @@
             } else {
                 catCellHtml = `<td style="color:var(--text-dim);">—</td>`;
             }
-
             const trackingUrl = `https://redpack.unigis.com/tracking/Shipment/Index?id=${item.idViaje}`;
-
             tr.innerHTML = `
                 <td ${colorStyle}>${item.estado}</td>
                 <td style="font-weight:bold;">${item.idViaje}</td>
-                <td style="color:#fff;">${item.referencia}</td>
+                <td style="color:var(--text-main);">${item.referencia}</td>
                 ${catCellHtml}
                 <td style="color:var(--text-dim);">${item.fecha || ''}</td>
                 <td data-copy-value="${trackingUrl}"><a href="${trackingUrl}" target="_blank" rel="noopener" class="cell-btn edit" style="text-decoration:none; display:inline-block; padding:3px 8px;" title="${trackingUrl}">Ver <i class="fas fa-arrow-up-right-from-square" style="font-size:0.65rem;"></i></a></td>
@@ -2203,17 +2218,14 @@
             tableBody.appendChild(tr);
         });
     }
-
-    // ============ COLUMNA VIRTUAL: ÚLTIMA CATEGORÍA (SOLO NO EMBARCADO TR2) ============
     function calcularDiasPermitidos() {
         const calc = (diasAtras) => {
             const d = new Date();
             d.setDate(d.getDate() - diasAtras);
             return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
         };
-        return Array.from({ length: umbralDiasCuadratura }, (_, i) => calc(i)); // Hoy, Ayer, ... según umbral
+        return Array.from({ length: umbralDiasCuadratura }, (_, i) => calc(i));
     }
-
     function getUltimaCategoriaTR2(referenciaRaw) {
         const guiaNum = String(referenciaRaw || '').split('|')[0].trim();
         if (!guiaNum) return 'Faltante';
@@ -2223,12 +2235,10 @@
         matches.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
         return matches[0].categoria || 'Faltante';
     }
-
     function copyToClipboard() {
         const table = document.getElementById('dataTable');
         let tsvString = '';
         const rows = table.querySelectorAll('tr');
-        
         rows.forEach(row => {
             const cols = row.querySelectorAll('th, td');
             const rowData = [];
@@ -2238,20 +2248,16 @@
             });
             tsvString += rowData.join('\t') + '\n';
         });
-
         navigator.clipboard.writeText(tsvString).then(() => {
             const copyBtn = document.getElementById('copyBtn');
             const originalText = copyBtn.innerText;
             copyBtn.innerText = '¡COPIADO!';
             copyBtn.style.backgroundColor = '#10b981'; 
-            
             setTimeout(() => {
                 copyBtn.innerText = originalText;
                 copyBtn.style.backgroundColor = 'var(--primary)';
             }, 2000);
-        }).catch(err => {
-            alert('No se pudo copiar automáticamente: ', err);
-        });
+        }).catch(err => alert('No se pudo copiar automáticamente: ', err));
     }
 </script>
 </body>

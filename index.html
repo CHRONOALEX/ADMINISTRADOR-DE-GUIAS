@@ -1826,6 +1826,15 @@
     function renderUI() {
         const query = document.getElementById('smart-search').value.toLowerCase();
         const provSel = document.getElementById('filter-proveedor').value;
+
+        // --- Set de guías que YA están entregadas (o en ruta) para excluirlas de pendientes ---
+        const guiasEntregadas = new Set();
+        rawProcessedStats.forEach(item => {
+            if (item.estado === 'Entregado' || item.estado === 'En Ruta de Entrega') {
+                guiasEntregadas.add(item.guia);
+            }
+        });
+
         let stats = {
             noEmb: { t: 0, a: 0, s: 0 }, noRec: { t: 0, a: 0, s: 0 },
             noEnt: { t: 0, a: 0, s: 0 }, ruta: { t: 0, a: 0, s: 0 },
@@ -1855,7 +1864,8 @@
                 else if (item.categoriaViaje === "Amazon Same Day") stats.choferes.s.add(item.conductor);
             }
             const estadosRetorno = ['Fin de Carga', 'No Embarcado TR2', 'No Entregado', 'No Recibido CEDIS'];
-            if (estadosRetorno.includes(item.estado) && !dataGuiasEscaneadas.has(item.guia) && item.estado !== 'No Recibido CEDIS') {
+            // --- CONDICIÓN MODIFICADA: se excluyen guías que ya están entregadas en otra jornada ---
+            if (estadosRetorno.includes(item.estado) && !dataGuiasEscaneadas.has(item.guia) && !guiasEntregadas.has(item.guia) && item.estado !== 'No Recibido CEDIS') {
                 if (item.estado === 'No Embarcado TR2') stats.pendNoEmb++;
                 if (item.estado === 'No Entregado') stats.pendNoEnt++;
                 const match = item.guia.toLowerCase().includes(query) || item.conductor.toLowerCase().includes(query) || String(item.viaje).includes(query);

@@ -510,28 +510,14 @@
     .c-grid-3 { display: grid; grid-template-columns: 1fr 3fr; gap: 16px; }
     @media(max-width: 900px) { .c-grid-3 { grid-template-columns: 1fr; } }
 
-    .driver-rank-strip { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; }
-    .driver-rank-strip::-webkit-scrollbar { height: 6px; }
-    .driver-chip {
-        flex: 0 0 auto; min-width: 148px; max-width: 148px; background: rgba(0,0,0,0.2);
-        border: 1px solid var(--carbon-border); border-radius: 10px; padding: 10px 12px; position: relative;
+    .driver-name { cursor: default; border-bottom: 1px dotted var(--text-dim); }
+    .driver-tip-box {
+        position: fixed; transform: translate(-50%, -100%); margin-top: -8px;
+        background: var(--carbon-card); border: 1px solid var(--carbon-border); border-radius: 6px;
+        padding: 5px 10px; font-size: 0.7rem; font-weight: 700; color: var(--text-main);
+        white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+        z-index: 4000; pointer-events: none; display: none;
     }
-    body.theme-light .driver-chip { background: rgba(0,0,0,0.03); }
-    .driver-chip .dc-rank {
-        position: absolute; top: 8px; right: 10px; font-size: 0.62rem; font-weight: 800;
-        color: var(--text-dim); letter-spacing: 0.5px;
-    }
-    .driver-chip.dc-top { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 8%, transparent); }
-    .driver-chip.dc-top .dc-rank { color: var(--bad); }
-    .driver-chip .dc-name {
-        font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-main);
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; margin-bottom: 6px;
-    }
-    .driver-chip .dc-count { font-size: 1.35rem; font-weight: 800; color: var(--bad); line-height: 1; margin-bottom: 8px; }
-    .driver-chip .dc-bar-track { height: 5px; border-radius: 3px; background: rgba(255,255,255,0.06); overflow: hidden; }
-    body.theme-light .driver-chip .dc-bar-track { background: rgba(0,0,0,0.08); }
-    .driver-chip .dc-bar-fill { height: 100%; border-radius: 3px; background: var(--bad); }
-    @media(max-width: 640px) { .driver-chip { min-width: 130px; max-width: 130px; } }
     
     .loading-spinner { animation: spin 1s linear infinite; }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -548,8 +534,8 @@
     .c-label { font-size: 0.7rem; color: var(--text-dim); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
     .c-num-box { text-align: center; background: rgba(0,0,0,0.2); border: 1px solid var(--carbon-border); border-radius: 8px; padding: 10px 8px; transition: box-shadow 0.2s ease, transform 0.15s ease; }
     .c-num-box:hover { transform: translateY(-1px); }
-    .c-num-box.c-tinted { border-width: 2px; border-style: solid; background: color-mix(in srgb, var(--box-color) 8%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--box-color) 25%, transparent), 0 4px 10px -6px var(--box-color); }
-    .c-num-box.c-tinted:hover { box-shadow: 0 0 0 1px color-mix(in srgb, var(--box-color) 45%, transparent), 0 6px 14px -6px var(--box-color); }
+    .c-num-box.c-tinted { border-width: 2px; border-style: solid; border-color: var(--box-color); box-shadow: 0 4px 20px rgba(0,0,0,0.35); }
+    .c-num-box.c-tinted:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.45); }
     body.theme-light .c-num-box { background: rgba(0,0,0,0.04); }
     .c-sub-val { font-size: 0.72rem; color: var(--text-dim); display: flex; justify-content: space-between; margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.05); }
     body.theme-light .c-sub-val { border-top-color: rgba(0,0,0,0.08); }
@@ -730,7 +716,7 @@
                                 <th>CATEGORÍA</th>
                                 <th>PROVEEDOR</th>
                                 <th>TIPO</th>
-                                <th>HORA ESCANEO</th>
+                                <th style="text-align: center;">HORA ESCANEO</th>
                                 <th>OPERADOR</th>
                                 <th style="width: 80px; text-align: center;">ACCIONES</th>
                             </tr>
@@ -821,16 +807,6 @@
                     <div class="c-label" style="font-size: 0.65rem;">Choferes Ruta</div>
                     <div class="stat-num" id="count-drivers-route" style="color:#9333ea; font-size:1.5rem; margin:4px 0;">0</div>
                     <div class="c-sub-val"><span>Amz: <strong id="sub-chofer-amz" style="color:var(--text-main);">0</strong></span><span>Same: <strong id="sub-chofer-same" style="color:var(--text-main);">0</strong></span></div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="c-flex-between" style="border-bottom: 1px solid var(--carbon-border); padding-bottom:8px; margin-bottom:10px;">
-                    <span class="c-label"><i class="fas fa-ranking-star" style="margin-right:6px; color:var(--accent);"></i>Choferes con Más Guías Pendientes por Devolver</span>
-                    <button onclick="copyDriverSummary()" class="cell-btn edit" style="font-size:0.75rem; font-weight:700;">COPIAR</button>
-                </div>
-                <div id="driver-summary-list" class="driver-rank-strip">
-                    <span class="empty-msg" style="padding:6px 2px;">Sin datos aún.</span>
                 </div>
             </div>
 
@@ -1455,7 +1431,7 @@
                     <td>${g.categoria || ''}</td>
                     <td>${g.prov || ''}</td>
                     <td>${g.tipo || ''}</td>
-                    <td style="font-size:0.72rem; color:var(--text-dim);">${formatHoraMonterrey(g.timestamp)}</td>
+                    <td style="font-size:0.72rem; color:var(--text-dim); text-align:center;">${formatHoraMonterrey(g.timestamp)}</td>
                     <td style="font-size:0.68rem; color:var(--text-dim);">${g.operador || ''}</td>
                     <td style="text-align: center;">
                         <button class="cell-btn edit" onclick="openEditModal('${g.id}')">✎</button>
@@ -1871,9 +1847,9 @@
             guiasUnicas: new Set(),
             totalGuias: 0, pendNoEmb: 0, pendNoEnt: 0
         };
-        let tableHtml = "";
         let pendientesCount = 0;
-        const driverNoEntregados = {};
+        const matchedItems = [];
+        const driverPendingCount = {};
 
         rawProcessedStats.forEach(item => {
             if (item.proveedor !== provSel) return;
@@ -1900,19 +1876,25 @@
                 const match = item.guia.toLowerCase().includes(query) || item.conductor.toLowerCase().includes(query) || String(item.viaje).includes(query);
                 if (match) {
                     pendientesCount++;
-                    const badgeClass = item.estado === 'No Entregado' ? 'c-badge no-ent' : 'c-badge no-emb';
-                    tableHtml += `
-                        <tr class="master-row">
-                            <td style="color:var(--text-dim); font-style: italic;">${item.categoria}</td>
-                            <td style="font-weight:700;">${item.viaje}</td>
-                            <td style="color:var(--text-dim);">${item.conductor}</td>
-                            <td style="font-weight:700; color:var(--bad);">${item.guia}</td>
-                            <td><span class="${badgeClass}">${item.estado}</span></td>
-                        </tr>`;
-                    if(item.estado === 'No Entregado') driverNoEntregados[item.conductor] = (driverNoEntregados[item.conductor] || 0) + 1;
+                    matchedItems.push(item);
+                    driverPendingCount[item.conductor] = (driverPendingCount[item.conductor] || 0) + 1;
                 }
             }
         });
+
+        const tableHtml = matchedItems.map(item => {
+            const badgeClass = item.estado === 'No Entregado' ? 'c-badge no-ent' : 'c-badge no-emb';
+            const count = driverPendingCount[item.conductor] || 0;
+            const tip = `${count} guía${count === 1 ? '' : 's'} pendiente${count === 1 ? '' : 's'} por devolver`;
+            return `
+                <tr class="master-row">
+                    <td style="color:var(--text-dim); font-style: italic;">${item.categoria}</td>
+                    <td style="font-weight:700;">${item.viaje}</td>
+                    <td style="color:var(--text-dim);"><span class="driver-name" onmouseenter="showDriverTip(event, '${tip.replace(/'/g, "\\'")}')" onmouseleave="hideDriverTip()">${item.conductor}</span></td>
+                    <td style="font-weight:700; color:var(--bad);">${item.guia}</td>
+                    <td><span class="${badgeClass}">${item.estado}</span></td>
+                </tr>`;
+        }).join('');
 
         stats.totalGuias = stats.guiasUnicas.size;
         document.getElementById('display-total-guias').innerText = stats.totalGuias;
@@ -1935,30 +1917,27 @@
         document.getElementById('sub-chofer-amz').innerText = stats.choferes.a.size;
         document.getElementById('sub-chofer-same').innerText = stats.choferes.s.size;
         document.getElementById('pending-list-body').innerHTML = tableHtml || `<tr><td colspan="5" class="empty-msg">Sin resultados o todas escaneadas dentro de los últimos ${umbralDiasCuadratura} días.</td></tr>`;
-
-        const sorted = Object.entries(driverNoEntregados).sort((a,b) => b[1]-a[1]);
-        renderDriverRanking(sorted);
     }
 
     function smartFilter() { renderUI(); }
 
-    function renderDriverRanking(sorted) {
-        const container = document.getElementById('driver-summary-list');
-        if (!sorted.length) {
-            container.innerHTML = '<span class="empty-msg" style="padding:6px 2px;">Sin resultados.</span>';
-            return;
+    function showDriverTip(evt, text) {
+        let tip = document.getElementById('driver-tip-box');
+        if (!tip) {
+            tip = document.createElement('div');
+            tip.id = 'driver-tip-box';
+            tip.className = 'driver-tip-box';
+            document.body.appendChild(tip);
         }
-        const max = sorted[0][1] || 1;
-        container.innerHTML = sorted.map(([n, c], i) => {
-            const pct = Math.max(6, Math.round((c / max) * 100));
-            return `
-            <div class="driver-chip ${i === 0 ? 'dc-top' : ''}" title="${n}">
-                <span class="dc-rank">#${i + 1}</span>
-                <div class="dc-name">${n}</div>
-                <div class="dc-count">${c}</div>
-                <div class="dc-bar-track"><div class="dc-bar-fill" style="width:${pct}%;"></div></div>
-            </div>`;
-        }).join('');
+        tip.textContent = text;
+        tip.style.display = 'block';
+        const rect = evt.target.getBoundingClientRect();
+        tip.style.left = (rect.left + rect.width / 2) + 'px';
+        tip.style.top = rect.top + 'px';
+    }
+    function hideDriverTip() {
+        const tip = document.getElementById('driver-tip-box');
+        if (tip) tip.style.display = 'none';
     }
 
     function dateKeyToDate(dateKey) {
@@ -2180,11 +2159,6 @@
                 icon.parentElement.classList.remove("text-white");
             }
         });
-    }
-    function copyDriverSummary() {
-        let text = "CHOFER\tCANT\n";
-        document.querySelectorAll('#driver-summary-list > div').forEach(r => { text += `${r.children[0].innerText}\t${r.children[1].innerText}\n`; });
-        navigator.clipboard.writeText(text).then(() => alert("Copiado."));
     }
     function copyTableToSheets() {
         let text = "CAT\tVIAJE\tCHOFER\tGUIA\tESTADO\n";

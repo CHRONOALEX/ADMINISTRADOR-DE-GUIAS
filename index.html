@@ -509,6 +509,29 @@
     .c-flex-center { display: flex; align-items: center; gap: 8px; }
     .c-grid-3 { display: grid; grid-template-columns: 1fr 3fr; gap: 16px; }
     @media(max-width: 900px) { .c-grid-3 { grid-template-columns: 1fr; } }
+
+    .driver-rank-strip { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; }
+    .driver-rank-strip::-webkit-scrollbar { height: 6px; }
+    .driver-chip {
+        flex: 0 0 auto; min-width: 148px; max-width: 148px; background: rgba(0,0,0,0.2);
+        border: 1px solid var(--carbon-border); border-radius: 10px; padding: 10px 12px; position: relative;
+    }
+    body.theme-light .driver-chip { background: rgba(0,0,0,0.03); }
+    .driver-chip .dc-rank {
+        position: absolute; top: 8px; right: 10px; font-size: 0.62rem; font-weight: 800;
+        color: var(--text-dim); letter-spacing: 0.5px;
+    }
+    .driver-chip.dc-top { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 8%, transparent); }
+    .driver-chip.dc-top .dc-rank { color: var(--bad); }
+    .driver-chip .dc-name {
+        font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-main);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; margin-bottom: 6px;
+    }
+    .driver-chip .dc-count { font-size: 1.35rem; font-weight: 800; color: var(--bad); line-height: 1; margin-bottom: 8px; }
+    .driver-chip .dc-bar-track { height: 5px; border-radius: 3px; background: rgba(255,255,255,0.06); overflow: hidden; }
+    body.theme-light .driver-chip .dc-bar-track { background: rgba(0,0,0,0.08); }
+    .driver-chip .dc-bar-fill { height: 100%; border-radius: 3px; background: var(--bad); }
+    @media(max-width: 640px) { .driver-chip { min-width: 130px; max-width: 130px; } }
     
     .loading-spinner { animation: spin 1s linear infinite; }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -523,7 +546,10 @@
     .c-badge.ruta { background: rgba(22, 163, 74, 0.15); color: #16a34a; border: 1px solid rgba(22, 163, 74, 0.3); }
 
     .c-label { font-size: 0.7rem; color: var(--text-dim); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-    .c-num-box { text-align: center; background: rgba(0,0,0,0.2); border: 1px solid var(--carbon-border); border-radius: 8px; padding: 10px 8px; }
+    .c-num-box { text-align: center; background: rgba(0,0,0,0.2); border: 1px solid var(--carbon-border); border-radius: 8px; padding: 10px 8px; transition: box-shadow 0.2s ease, transform 0.15s ease; }
+    .c-num-box:hover { transform: translateY(-1px); }
+    .c-num-box.c-tinted { border-width: 2px; border-style: solid; background: color-mix(in srgb, var(--box-color) 8%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--box-color) 25%, transparent), 0 4px 10px -6px var(--box-color); }
+    .c-num-box.c-tinted:hover { box-shadow: 0 0 0 1px color-mix(in srgb, var(--box-color) 45%, transparent), 0 6px 14px -6px var(--box-color); }
     body.theme-light .c-num-box { background: rgba(0,0,0,0.04); }
     .c-sub-val { font-size: 0.72rem; color: var(--text-dim); display: flex; justify-content: space-between; margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.05); }
     body.theme-light .c-sub-val { border-top-color: rgba(0,0,0,0.08); }
@@ -766,69 +792,68 @@
             </div>
 
             <div id="stats-panel" class="card" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
-                <div class="c-num-box" style="border-left: 4px solid var(--primary);">
+                <div class="c-num-box c-tinted" style="--box-color: var(--primary);">
                     <div class="c-label" style="font-size: 0.65rem;">Faltan Escanear</div>
                     <div class="stat-num" id="total-pending-count" style="color:var(--bad); font-size:1.5rem; margin:4px 0;">0</div>
                     <div class="c-sub-val"><span>No Emb: <strong id="sub-pending-no-emb" style="color:var(--text-main);">0</strong></span><span>No Ent: <strong id="sub-pending-no-ent" style="color:var(--text-main);">0</strong></span></div>
                 </div>
-                <div class="c-num-box" style="border-left: 4px solid #f97316;">
+                <div class="c-num-box c-tinted" style="--box-color: #f97316;">
                     <div class="c-label" style="font-size: 0.65rem;">No Emb. TR2</div>
                     <div class="stat-num" id="count-no-emb" style="color:#f97316; font-size:1.5rem; margin:4px 0;">0</div>
                     <div class="c-sub-val"><span>Amz: <strong id="sub-no-emb-amz" style="color:var(--text-main);">0</strong></span><span>Same: <strong id="sub-no-emb-same" style="color:var(--text-main);">0</strong></span></div>
                 </div>
-                <div class="c-num-box" style="border-left: 4px solid #eab308;">
+                <div class="c-num-box c-tinted" style="--box-color: #eab308;">
                     <div class="c-label" style="font-size: 0.65rem;">No Recibido</div>
                     <div class="stat-num" id="count-no-rec" style="color:#eab308; font-size:1.5rem; margin:4px 0;">0</div>
                     <div class="c-sub-val"><span>Amz: <strong id="sub-no-rec-amz" style="color:var(--text-main);">0</strong></span><span>Same: <strong id="sub-no-rec-same" style="color:var(--text-main);">0</strong></span></div>
                 </div>
-                <div class="c-num-box" style="border-left: 4px solid #2563eb;">
+                <div class="c-num-box c-tinted" style="--box-color: #2563eb;">
                     <div class="c-label" style="font-size: 0.65rem;">No Entregado</div>
                     <div class="stat-num" id="count-no-ent" style="color:#2563eb; font-size:1.5rem; margin:4px 0;">0</div>
                     <div class="c-sub-val"><span>Amz: <strong id="sub-no-ent-amz" style="color:var(--text-main);">0</strong></span><span>Same: <strong id="sub-no-ent-same" style="color:var(--text-main);">0</strong></span></div>
                 </div>
-                <div class="c-num-box" style="border-left: 4px solid #16a34a;">
+                <div class="c-num-box c-tinted" style="--box-color: #16a34a;">
                     <div class="c-label" style="font-size: 0.65rem;">Total en Ruta</div>
                     <div class="stat-num" id="count-in-route" style="color:#16a34a; font-size:1.5rem; margin:4px 0;">0</div>
                     <div class="c-sub-val"><span>Amz: <strong id="sub-ruta-amz" style="color:var(--text-main);">0</strong></span><span>Same: <strong id="sub-ruta-same" style="color:var(--text-main);">0</strong></span></div>
                 </div>
-                <div class="c-num-box" style="border-left: 4px solid #9333ea;">
+                <div class="c-num-box c-tinted" style="--box-color: #9333ea;">
                     <div class="c-label" style="font-size: 0.65rem;">Choferes Ruta</div>
                     <div class="stat-num" id="count-drivers-route" style="color:#9333ea; font-size:1.5rem; margin:4px 0;">0</div>
                     <div class="c-sub-val"><span>Amz: <strong id="sub-chofer-amz" style="color:var(--text-main);">0</strong></span><span>Same: <strong id="sub-chofer-same" style="color:var(--text-main);">0</strong></span></div>
                 </div>
             </div>
 
-            <div class="c-grid-3">
-                <div class="card" style="display:flex; flex-direction:column; justify-content: space-between;">
-                    <div class="c-flex-between" style="border-bottom: 1px solid var(--carbon-border); padding-bottom:8px; margin-bottom:8px;">
-                        <span class="c-label">Rendimiento Choferes</span>
-                        <button onclick="copyDriverSummary()" class="cell-btn edit" style="font-size:0.75rem; font-weight:700;">COPIAR</button>
-                    </div>
-                    <div style="height: 120px; margin-bottom: 10px;"><canvas id="chart-pendientes"></canvas></div>
-                    <div id="driver-summary-list" style="max-height: 180px; overflow-y:auto;"></div>
+            <div class="card">
+                <div class="c-flex-between" style="border-bottom: 1px solid var(--carbon-border); padding-bottom:8px; margin-bottom:10px;">
+                    <span class="c-label"><i class="fas fa-ranking-star" style="margin-right:6px; color:var(--accent);"></i>Choferes con Más Guías Pendientes por Devolver</span>
+                    <button onclick="copyDriverSummary()" class="cell-btn edit" style="font-size:0.75rem; font-weight:700;">COPIAR</button>
                 </div>
+                <div id="driver-summary-list" class="driver-rank-strip">
+                    <span class="empty-msg" style="padding:6px 2px;">Sin datos aún.</span>
+                </div>
+            </div>
 
-                <div class="card">
-                    <div class="c-flex-between" style="border-bottom: 1px solid var(--carbon-border); padding-bottom:8px; margin-bottom:8px;">
-                        <span class="c-label">Listado de Pendientes (No Escaneadas en <span id="umbral-dias-label-2">2</span> Días)</span>
-                        <button onclick="copyTableToSheets()" class="btn-primary" style="padding:6px 12px; font-size:0.7rem;">COPIAR SHEETS</button>
-                    </div>
-                    <div class="table-wrap" style="max-height: 320px; overflow-y: auto;">
-                        <table id="table-pending">
-                            <thead>
-                                <tr>
-                                    <th class="sortable" onclick="sortTable(0)">Cat <i class="fas fa-sort ml-1 opacity-30"></i></th>
-                                    <th class="sortable" onclick="sortTable(1)">Viaje <i class="fas fa-sort ml-1 opacity-30"></i></th>
-                                    <th class="sortable" onclick="sortTable(2)">Conductor <i class="fas fa-sort ml-1 opacity-30"></i></th>
-                                    <th class="sortable" onclick="sortTable(3)">Guía <i class="fas fa-sort ml-1 opacity-30"></i></th>
-                                    <th class="sortable" onclick="sortTable(4)">Estado <i class="fas fa-sort ml-1 opacity-30"></i></th>
-                                </tr>
-                            </thead>
-                            <tbody id="pending-list-body">
-                                <tr><td colspan="5" class="empty-msg">Sube un archivo de viajes y presiona Procesar.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+            <div class="card">
+                <div class="c-flex-between" style="border-bottom: 1px solid var(--carbon-border); padding-bottom:8px; margin-bottom:8px;">
+                    <span class="c-label">Listado de Pendientes (No Escaneadas en <span id="umbral-dias-label-2">2</span> Días)</span>
+                    <button onclick="copyTableToSheets()" class="btn-primary" style="padding:6px 12px; font-size:0.7rem;">COPIAR SHEETS</button>
+                </div>
+                <div class="table-wrap" style="max-height: 420px; overflow-y: auto;">
+                    <table id="table-pending">
+                        <thead>
+                            <tr>
+                                <th class="sortable" onclick="sortTable(0)">Cat <i class="fas fa-sort ml-1 opacity-30"></i></th>
+                                <th class="sortable" onclick="sortTable(1)">Viaje <i class="fas fa-sort ml-1 opacity-30"></i></th>
+                                <th class="sortable" onclick="sortTable(2)">Conductor <i class="fas fa-sort ml-1 opacity-30"></i></th>
+                                <th class="sortable" onclick="sortTable(3)">Guía <i class="fas fa-sort ml-1 opacity-30"></i></th>
+                                <th class="sortable" onclick="sortTable(4)">Estado <i class="fas fa-sort ml-1 opacity-30"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody id="pending-list-body">
+                            <tr><td colspan="5" class="empty-msg">Sube un archivo de viajes y presiona Procesar.</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -1013,8 +1038,14 @@
     </div>
 
 <script>
+    // Ofuscación simple para que la key no quede a simple vista en el HTML.
+    // OJO: esto NO es un secreto de servidor; una apiKey de Firebase es un
+    // identificador público por diseño. La protección real se hace con
+    // Firebase Security Rules y restringiendo la key por dominio (HTTP referrer)
+    // en Google Cloud Console > Credenciales.
+    function _dk(s) { return atob(s.split('').reverse().join('')); }
     const firebaseConfig = {
-        apiKey: "AIzaSyCg9mMvEg4tKa8Qpi3CVx_oTN0GSgO_iJ0",
+        apiKey: _dk("woUaf90ZTdEMOR1bfhnVDNTawFFOhtEd0cWR21Ub5c2Q5NVY6lUQ"),
         authDomain: "rpkmty.firebaseapp.com",
         projectId: "rpkmty",
         storageBucket: "rpkmty.firebasestorage.app",
@@ -1096,7 +1127,6 @@
             if (limitInfo) limitInfo.style.display = 'none';
         }
 
-        if (tabId === 'cuadratura-tab' && chartInstance) chartInstance.resize();
         if (tabId === 'tracker-tab' && trackerChartInstance) trackerChartInstance.resize();
     }
 
@@ -1716,7 +1746,6 @@
     let dataViajes = [], dataParadas = [], dataGuiasEscaneadas = new Set(), rawProcessedStats = [];
     let umbralDiasCuadratura = 2;
     let rawDataFilter = []; 
-    let chartInstance = null;
     let trackerChartInstance = null;
     let currentSortCol = -1;
     let sortAsc = true;
@@ -1908,35 +1937,28 @@
         document.getElementById('pending-list-body').innerHTML = tableHtml || `<tr><td colspan="5" class="empty-msg">Sin resultados o todas escaneadas dentro de los últimos ${umbralDiasCuadratura} días.</td></tr>`;
 
         const sorted = Object.entries(driverNoEntregados).sort((a,b) => b[1]-a[1]);
-        renderChart(sorted.slice(0, 5));
-        document.getElementById('driver-summary-list').innerHTML = sorted.map(([n, c]) => `
-            <div style="display:flex; justify-content:space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.03);">
-                <span style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-transform:uppercase; font-size:0.72rem; color:var(--text-dim);">${n}</span>
-                <span style="background: rgba(239, 68, 68, 0.1); padding: 2px 6px; border-radius:4px; font-weight:800; color:var(--bad); font-size:0.75rem;">${c}</span>
-            </div>
-        `).join('');
+        renderDriverRanking(sorted);
     }
 
     function smartFilter() { renderUI(); }
 
-    function renderChart(data) {
-        const ctx = document.getElementById('chart-pendientes').getContext('2d');
-        if (chartInstance) chartInstance.destroy();
-        chartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: data.map(i => i[0].split(' ')[0]),
-                datasets: [{ data: data.map(i => i[1]), backgroundColor: '#9b2222', borderRadius: 2 }]
-            },
-            options: {
-                indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { beginAtZero: true, grid: { display: false }, ticks: { color: '#666', font: { size: 8 } } },
-                    y: { grid: { display: false }, ticks: { color: '#999', font: { size: 8 } } }
-                }
-            }
-        });
+    function renderDriverRanking(sorted) {
+        const container = document.getElementById('driver-summary-list');
+        if (!sorted.length) {
+            container.innerHTML = '<span class="empty-msg" style="padding:6px 2px;">Sin resultados.</span>';
+            return;
+        }
+        const max = sorted[0][1] || 1;
+        container.innerHTML = sorted.map(([n, c], i) => {
+            const pct = Math.max(6, Math.round((c / max) * 100));
+            return `
+            <div class="driver-chip ${i === 0 ? 'dc-top' : ''}" title="${n}">
+                <span class="dc-rank">#${i + 1}</span>
+                <div class="dc-name">${n}</div>
+                <div class="dc-count">${c}</div>
+                <div class="dc-bar-track"><div class="dc-bar-fill" style="width:${pct}%;"></div></div>
+            </div>`;
+        }).join('');
     }
 
     function dateKeyToDate(dateKey) {

@@ -1831,7 +1831,7 @@
         popup.classList.add('open');
     }
     function changeMiniCalendarMonth(delta) {
-        miniCalendarViewDate.setMonth(miniCalendarViewDate.getMonth() + delta);
+        miniCalendarViewDate = new Date(miniCalendarViewDate.getFullYear(), miniCalendarViewDate.getMonth() + delta, 1);
         renderMiniCalendar();
     }
     function renderMiniCalendar() {
@@ -1897,6 +1897,7 @@
         document.getElementById('bulk-date-label').textContent = 'Elegir fecha';
         document.getElementById('mini-calendar-popup').classList.remove('open');
     }
+    document.getElementById('mini-calendar-popup').addEventListener('click', (e) => e.stopPropagation());
     document.addEventListener('click', (e) => {
         const popup = document.getElementById('mini-calendar-popup');
         const trigger = document.getElementById('bulk-date-trigger');

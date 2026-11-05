@@ -3153,7 +3153,7 @@
                         borderColor: orange, borderWidth: 2, tension: 0.35, order: 2,
                         pointRadius: 3.5, pointHoverRadius: 6,
                         pointBackgroundColor: dot, pointBorderColor: orange, pointBorderWidth: 2,
-                        datalabels: { align: 'top', anchor: 'end', offset: 4, color: '#7c2d12', backgroundColor: 'rgba(254,215,170,0.95)' }
+                        datalabels: { align: 'top', anchor: 'center', offset: 14, clamp: true, color: '#7c2d12', backgroundColor: 'rgba(254,215,170,0.95)' }
                     },
                     {
                         label: 'Incidencias (1 por guía)', data, fill: true, backgroundColor: gradient,
@@ -3161,7 +3161,7 @@
                         pointRadius: 4.5, pointHoverRadius: 7,
                         pointBackgroundColor: dot, pointBorderColor: lineDot, pointBorderWidth: 2,
                         datalabels: {
-                            align: 'bottom', anchor: 'start', offset: 4,
+                            align: 'center', anchor: 'center', offset: 0, clamp: true,
                             color: isTraxion ? '#1f2226' : '#f5eaff',
                             backgroundColor: isTraxion ? 'rgba(210,223,0,0.95)' : 'rgba(126,34,206,0.7)'
                         }

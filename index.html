@@ -37,6 +37,8 @@
         --border-header-tracker: #0e7490;
         --bg-header-kpi: linear-gradient(135deg, #4a2c0e 0%, #b45309 100%);
         --border-header-kpi: #92400e;
+        --bg-header-sameday: linear-gradient(135deg, #3b0764 0%, #7e22ce 100%);
+        --border-header-sameday: #6b21a8;
         --body-bg: var(--carbon-dark);
         --card-bg: var(--carbon-light);
         --input-bg: #000;
@@ -770,6 +772,141 @@
         .kpi-grid{grid-template-columns:1fr;}
         .kpi-kpis{grid-template-columns:1fr;}
     }
+
+    /* ===== HISTÓRICO SAMEDAY ===== */
+    #top-nav.sameday-mode .nav-tab-btn.active {
+        background: #ffffff; color: #6b21a8; border-color: #ffffff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+    }
+    #top-nav.sameday-mode .nav-tab-btn.active i { color: #6b21a8 !important; }
+
+    #sameday-filter-bar input, #sameday-filter-bar select {
+        background: var(--input-bg); color: var(--text-main); border: 1px solid var(--carbon-border);
+        border-radius: 8px; padding: 8px 12px; font-family: 'Lexend', sans-serif; font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+    #sameday-filter-bar input:focus, #sameday-filter-bar select:focus { border-color: #a855f7; box-shadow: 0 0 0 3px rgba(168,85,247,0.15); }
+    #sameday-filter-bar select { cursor: pointer; }
+    body.theme-light #sameday-filter-bar input,
+    body.theme-light #sameday-filter-bar select {
+        background: var(--input-bg) !important; color: var(--text-main) !important; border-color: var(--carbon-border) !important;
+    }
+    .sd-stats { display: flex; justify-content: center; gap: 36px; flex-wrap: wrap; padding: 8px 0 2px; text-align: center; }
+    .sd-stat-num { font-size: 2.4rem; font-weight: 800; line-height: 1; color: #c084fc; text-shadow: 0 0 18px rgba(192,132,252,0.35); }
+    .sd-stat-num.alt { color: var(--accent); text-shadow: none; }
+    .sd-stat-label { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; margin-top: 4px; }
+    tr.sd-main { cursor: pointer; }
+    .sd-caret { display: inline-block; width: 14px; color: var(--accent); transition: transform 0.15s; }
+    tr.sd-main.open .sd-caret { transform: rotate(90deg); }
+    tr.sd-detail > td { padding: 0 10px 12px 34px; background: rgba(168,85,247,0.05); white-space: normal; }
+    .sd-detail-table { width: 100%; min-width: 0; border-collapse: collapse; margin-top: 6px; }
+    .sd-detail-table th { padding: 6px 8px; font-size: 0.65rem; }
+    .sd-detail-table td { padding: 6px 8px; font-size: 0.75rem; border-bottom: 1px solid var(--border-subtle); }
+    .sd-tag { padding: 2px 7px; border-radius: 6px; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.4px; }
+    .sd-tag.sd { background: rgba(168,85,247,0.2); color: #c084fc; border: 1px solid rgba(168,85,247,0.4); }
+    .sd-tag.inc { background: rgba(239,68,68,0.15); color: var(--bad); border: 1px solid rgba(239,68,68,0.35); }
+
+    /* ===== TEMA TRAXION (header lime #d2df00 + fondo blanco + gris claro) ===== */
+    body.theme-traxion {
+        --primary: #d2df00;
+        --primary-hover: #b9c500;
+        --accent: #6f7800;            /* verde oliva del mismo tono, solo para texto/iconos (legible sobre blanco) */
+        --accent-hover: #565d00;
+        --carbon-dark: #ffffff;
+        --carbon-light: #ffffff;
+        --carbon-card: #eceef0;
+        --carbon-border: #d3d7db;
+        --text-main: #25282b;
+        --text-dim: #5f656b;
+        --white: #25282b;
+        --body-bg: #ffffff;
+        --card-bg: #f1f2f4;
+        --input-bg: #ffffff;
+        --border-subtle: #e1e4e7;
+        --scroll-track: #f1f2f4;
+        --table-row-hover: rgba(210, 223, 0, 0.16);
+        --glow: rgba(210, 223, 0, 0.35);
+        --bg-header-admin: #d2df00;
+        --bg-header-cuadratura: #d2df00;
+        --bg-header-tracker: #d2df00;
+        --bg-header-kpi: #d2df00;
+        --bg-header-sameday: #d2df00;
+        --border-header-admin: #b9c500;
+        --border-header-cuadratura: #b9c500;
+        --border-header-tracker: #b9c500;
+        --border-header-kpi: #b9c500;
+        --border-header-sameday: #b9c500;
+        background: #ffffff;
+        background-image: none;
+        color: var(--text-main);
+    }
+    /* Reglas del tema claro reutilizadas para fondos blancos / textos oscuros */
+    body.theme-traxion .card { background: var(--card-bg); border-color: var(--carbon-border); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    body.theme-traxion #filter-bar input, body.theme-traxion #filter-bar select,
+    body.theme-traxion #tracker-filter-bar input, body.theme-traxion #tracker-filter-bar select,
+    body.theme-traxion #sameday-filter-bar input, body.theme-traxion #sameday-filter-bar select,
+    body.theme-traxion .form-row input, body.theme-traxion .form-row select,
+    body.theme-traxion #edit-modal select, body.theme-traxion #edit-modal input,
+    body.theme-traxion #bulk-bar select, body.theme-traxion #bulk-bar input[type="date"] {
+        background: var(--input-bg) !important; color: var(--text-main) !important; border-color: var(--carbon-border) !important;
+    }
+    body.theme-traxion .date-range-popup, body.theme-traxion .mini-calendar-popup { background: #ffffff; border-color: #d3d7db; }
+    body.theme-traxion .date-range-popup input[type="date"] { background: #ffffff; color: #25282b; }
+    body.theme-traxion .mc-day { color: #25282b; background: rgba(0,0,0,0.04); }
+    body.theme-traxion .mc-day:hover { background: #e1e4e7; }
+    body.theme-traxion .mc-header button { color: #25282b; border-color: #d3d7db; }
+    body.theme-traxion .mc-header button:hover { background: #e1e4e7; }
+    body.theme-traxion .mc-title { color: #25282b; }
+    body.theme-traxion .stat-box { background: rgba(0,0,0,0.04); }
+    body.theme-traxion .stat-box .stat-num { text-shadow: none; }
+    body.theme-traxion .c-num-box { background: rgba(0,0,0,0.04); }
+    body.theme-traxion .c-sub-val { border-top-color: rgba(0,0,0,0.08); }
+    body.theme-traxion .cell-btn:hover { background: rgba(0,0,0,0.06); }
+    body.theme-traxion td { border-bottom-color: var(--border-subtle); }
+    body.theme-traxion tr:hover td { background: var(--table-row-hover); }
+    body.theme-traxion th { border-bottom-color: var(--carbon-border); }
+    body.theme-traxion .empty-msg { color: #5f656b; }
+    body.theme-traxion #edit-modal { background: #ffffff; }
+    body.theme-traxion .guia-text { color: var(--text-main); }
+    body.theme-traxion #login-screen { background: #ffffff; }
+    body.theme-traxion #btn-google-login { background: #4b4f54; color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    body.theme-traxion #total-count { background: rgba(0,0,0,0.05) !important; }
+    /* Header lime con texto gris, como traxion.com */
+    body.theme-traxion .header-dynamic-title { color: #4b4f54 !important; border-right-color: rgba(0,0,0,0.2); }
+    body.theme-traxion .header-dynamic-title i { color: #4b4f54 !important; }
+    body.theme-traxion .nav-tab-btn { background: rgba(0,0,0,0.08); border-color: rgba(0,0,0,0.2); color: #4b4f54; }
+    body.theme-traxion .nav-tab-btn i { color: #4b4f54 !important; }
+    body.theme-traxion .nav-tab-btn:hover { background: rgba(0,0,0,0.16); color: #2b2e32; }
+    body.theme-traxion #top-nav .nav-tab-btn.active { background: #4b4f54; color: #d2df00; border-color: #4b4f54; box-shadow: 0 4px 12px rgba(0,0,0,0.35); }
+    body.theme-traxion #top-nav .nav-tab-btn.active i { color: #d2df00 !important; }
+    body.theme-traxion .nav-search-group .search-icon { color: rgba(0,0,0,0.55); }
+    body.theme-traxion .nav-search-group input[type="text"] { background: rgba(0,0,0,0.1); color: #25282b; border-color: rgba(0,0,0,0.25); }
+    body.theme-traxion .nav-search-group input[type="text"]::placeholder { color: rgba(0,0,0,0.5); }
+    body.theme-traxion .nav-search-group input[type="text"]:focus { background: rgba(255,255,255,0.35); border-color: #4b4f54; box-shadow: 0 0 0 3px rgba(75,79,84,0.2); }
+    body.theme-traxion .nav-search-group select { background: rgba(0,0,0,0.1); color: #25282b; border-color: rgba(0,0,0,0.25); }
+    body.theme-traxion .search-action-btn { background: #4b4f54; border-color: #4b4f54; color: #ffffff; }
+    body.theme-traxion .search-action-btn:hover { background: #2b2e32; }
+    body.theme-traxion .search-limit-info { background: rgba(0,0,0,0.1); border-color: rgba(0,0,0,0.2); color: #25282b; }
+    body.theme-traxion .top-nav-user { background: rgba(0,0,0,0.08); border-color: rgba(0,0,0,0.18); }
+    body.theme-traxion .top-nav-user #btn-logout { background: rgba(0,0,0,0.1); border-color: rgba(0,0,0,0.2); color: #25282b; }
+    body.theme-traxion .top-nav-user #btn-logout:hover { background: var(--bad); border-color: var(--bad); color: #fff; }
+    body.theme-traxion #btn-theme-toggle { background: #4b4f54; border-color: #4b4f54; color: #d2df00; }
+    body.theme-traxion #btn-theme-toggle:hover { background: #25282b; color: #d2df00; }
+    /* Botones primarios lime con texto oscuro */
+    body.theme-traxion .btn-primary:not(.btn-secondary):not(.btn-danger):not(.btn-good):not(.btn-inject):not(.btn-inject-dev):not(.btn-inject-sameday):not(.btn-copy-search-results) {
+        color: #1f2226; box-shadow: 0 2px 6px rgba(210,223,0,0.25);
+    }
+    body.theme-traxion .kpi-copyBtn,
+    body.theme-traxion .kpi-chip .trackBtn,
+    body.theme-traxion .mc-day.mc-selected,
+    body.theme-traxion .mc-day.mc-selected .mc-day-badge { color: #1f2226; }
+    body.theme-traxion .guia-badge-count { background: rgba(210,223,0,0.12); border-color: rgba(210,223,0,0.3); }
+    body.theme-traxion #bulk-bar { background: #f6f9c4; border-color: var(--primary); }
+    body.theme-traxion #bulk-bar .bulk-count { color: #565d00; }
+        body.theme-traxion #sameday-filter-bar input:focus, body.theme-traxion #sameday-filter-bar select:focus { border-color: #b9c500 !important; box-shadow: 0 0 0 3px rgba(210,223,0,0.3); }
+    body.theme-traxion .sd-stat-num { color: var(--accent); text-shadow: none; }
+    body.theme-traxion .sd-stat-num.alt { color: #25282b; text-shadow: none; }
+    body.theme-traxion tr.sd-detail > td { background: rgba(210,223,0,0.12); }
 </style>
 </head>
 <body>
@@ -806,6 +943,10 @@
                         <i class="fas fa-magnifying-glass"></i>
                         <span>Tracker</span>
                     </button>
+                    <button class="nav-tab-btn" onclick="switchTab('sameday-tab', this)" title="Histórico Sameday">
+                        <i class="fas fa-clock-rotate-left"></i>
+                        <span>Histórico<br>Sameday</span>
+                    </button>
                     <button class="nav-tab-btn" onclick="switchTab('kpi-tab', this)" title="KPI's por Chofer">
                         <i class="fas fa-truck-fast"></i>
                         <span>KPI</span>
@@ -834,6 +975,10 @@
                 <div id="search-wrap-tracker" class="nav-search-group">
                     <span class="search-icon"><i class="fas fa-magnifying-glass"></i></span>
                     <input type="text" id="tracker-guia" placeholder="Buscar guía dentro del periodo filtrado..." oninput="renderTracker()">
+                </div>
+                <div id="search-wrap-sameday" class="nav-search-group">
+                    <span class="search-icon"><i class="fas fa-magnifying-glass"></i></span>
+                    <input type="text" id="sd-guia" placeholder="Buscar guía dentro del histórico Sameday..." oninput="renderSameday()">
                 </div>
                 <div id="search-wrap-kpi" class="nav-search-group">
                     <!-- KPI tab uses its own file input, no search bar here -->
@@ -1223,6 +1368,92 @@
 
         </div>
 
+        <!-- ================= HISTÓRICO SAMEDAY TAB ================= -->
+        <div id="sameday-tab" class="tab-content">
+
+            <div id="sameday-filter-bar" class="card" style="display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
+                <div class="filter-group">
+                    <label style="font-size:0.75rem; color:var(--text-dim); font-weight:600;"><span title="Incidencias: fecha de la 1ª reincidencia · Total INY SAMEDAY: fecha del 1er INY SAMEDAY">Periodo:</span></label>
+                    <div class="date-control">
+                        <input type="date" id="sd-date-from" onchange="renderSameday()" style="border:none !important; background:transparent !important; padding:6px 6px !important;">
+                        <span style="color:var(--text-dim); padding:0 2px;">→</span>
+                        <input type="date" id="sd-date-to" onchange="renderSameday()" style="border:none !important; background:transparent !important; padding:6px 6px !important;">
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label style="font-size:0.75rem; color:var(--text-dim); font-weight:600;">Proveedor:</label>
+                    <select id="sd-proveedor" onchange="renderSameday()">
+                        <option value="">Todos</option>
+                        <option value="ROMBO">ROMBO</option>
+                        <option value="QP">QP</option>
+                        <option value="EMISSARY">EMISSARY</option>
+                        <option value="OTRO">OTRO</option>
+                    </select>
+                </div>
+                <button class="btn-primary btn-secondary" onclick="resetSamedayFilters()" style="margin-left:auto;">
+                    <i class="fas fa-rotate-left" style="margin-right:6px;"></i>RESTABLECER FILTROS
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="c-flex-between" style="border-bottom: 1px solid var(--carbon-border); padding-bottom:8px; margin-bottom:2px;">
+                    <span class="c-label"><i class="fas fa-chart-area" style="margin-right:6px; color:var(--accent);"></i>Incidencias vs total INY SAMEDAY por día</span>
+                </div>
+                <div class="sd-stats">
+                    <div>
+                        <div class="sd-stat-num" id="sd-total-sameday" style="color:#f97316; text-shadow:none;">0</div>
+                        <div class="sd-stat-label">Total INY SAMEDAY (guías)</div>
+                    </div>
+                    <div>
+                        <div class="sd-stat-num" id="sd-total-incidencias">0</div>
+                        <div class="sd-stat-label">Incidencias en el periodo (1 por guía)</div>
+                    </div>
+                    <div>
+                        <div class="sd-stat-num" id="sd-pct" style="color:var(--bad); text-shadow:none;">0%</div>
+                        <div class="sd-stat-label">% de guías con incidencia</div>
+                    </div>
+                    <div>
+                        <div class="sd-stat-num alt" id="sd-total-posteriores">0</div>
+                        <div class="sd-stat-label">Registros posteriores a INY SAMEDAY</div>
+                    </div>
+                </div>
+                <div style="height:260px; margin-top:10px;"><canvas id="sd-chart"></canvas></div>
+            </div>
+
+            <div class="card">
+                <div class="c-flex-between" style="border-bottom: 1px solid var(--carbon-border); padding-bottom:8px; margin-bottom:12px;">
+                    <span class="c-label">Guías INY SAMEDAY que se volvieron a registrar</span>
+                    <div class="c-flex-center">
+                        <span id="sd-count-label" style="font-size:0.75rem; color:var(--text-dim); font-weight:600;"></span>
+                        <button class="btn-primary btn-secondary" onclick="sdToggleAll()" style="padding:6px 12px; font-size:0.72rem;">
+                            <i class="fas fa-up-down" style="margin-right:6px;"></i>EXPANDIR / CONTRAER
+                        </button>
+                        <button class="btn-primary" onclick="copySamedayToSheets()" style="padding:6px 12px; font-size:0.72rem;">
+                            <i class="fas fa-copy" style="margin-right:6px;"></i>COPIAR PARA SHEETS
+                        </button>
+                    </div>
+                </div>
+                <div class="table-wrap" style="max-height:520px; overflow-y:auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:30px;"></th>
+                                <th>GUÍA</th>
+                                <th>PRIMER INY SAMEDAY</th>
+                                <th>PRIMERA REINCIDENCIA</th>
+                                <th style="text-align:center;">REGISTROS POSTERIORES</th>
+                                <th>PROVEEDOR</th>
+                                <th style="text-align:center;">MOVIMIENTOS TOTALES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sd-table-body"></tbody>
+                    </table>
+                </div>
+                <div id="sd-empty-msg" class="empty-msg" style="display:none;">No hay guías con reincidencia después de INY SAMEDAY para este filtro.</div>
+            </div>
+
+        </div>
+
         <!-- ================= KPI TAB ================= -->
         <div id="kpi-tab" class="tab-content">
             <div class="card" style="display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
@@ -1350,25 +1581,36 @@
     let unsubscribe = null;
     let editingId = null;
 
-    function toggleTheme() {
+    // Temas disponibles: dark (default) → light → traxion
+    const THEMES = ['dark', 'light', 'traxion'];
+    const THEME_ICONS = { dark: 'fas fa-sun', light: 'fas fa-moon', traxion: 'fas fa-palette' };
+    function getCurrentTheme() {
+        if (document.body.classList.contains('theme-light')) return 'light';
+        if (document.body.classList.contains('theme-traxion')) return 'traxion';
+        return 'dark';
+    }
+    function applyTheme(theme) {
         const body = document.body;
+        body.classList.remove('theme-light', 'theme-traxion');
+        if (theme === 'light') body.classList.add('theme-light');
+        else if (theme === 'traxion') body.classList.add('theme-traxion');
         const icon = document.getElementById('theme-icon');
-        const isLight = body.classList.toggle('theme-light');
-        if (isLight) {
-            icon.className = 'fas fa-moon';
-            localStorage.setItem('theme', 'light');
-        } else {
-            icon.className = 'fas fa-sun';
-            localStorage.setItem('theme', 'dark');
-        }
+        if (icon) icon.className = THEME_ICONS[theme] || THEME_ICONS.dark;
+        try { localStorage.setItem('theme', theme); } catch (e) {}
+        try {
+            const act = id => { const el = document.getElementById(id); return el && el.classList.contains('active'); };
+            if (act('sameday-tab')) renderSameday();
+            if (act('tracker-tab')) renderTracker();
+        } catch (e) {}
+    }
+    function toggleTheme() {
+        const idx = THEMES.indexOf(getCurrentTheme());
+        applyTheme(THEMES[(idx + 1) % THEMES.length]);
     }
     function loadTheme() {
-        const saved = localStorage.getItem('theme');
-        if (saved === 'light') {
-            document.body.classList.add('theme-light');
-            const icon = document.getElementById('theme-icon');
-            if (icon) icon.className = 'fas fa-moon';
-        }
+        let saved = null;
+        try { saved = localStorage.getItem('theme'); } catch (e) {}
+        applyTheme(THEMES.includes(saved) ? saved : 'dark');
     }
 
     function switchTab(tabId, btn) {
@@ -1379,7 +1621,7 @@
         btn.classList.add('active');
 
         document.querySelectorAll('.nav-search-group').forEach(g => g.classList.remove('active'));
-        const searchIds = { 'admin-tab': 'search-wrap-admin', 'cuadratura-tab': 'search-wrap-cuadratura', 'tracker-tab': 'search-wrap-tracker', 'kpi-tab': 'search-wrap-kpi' };
+        const searchIds = { 'admin-tab': 'search-wrap-admin', 'cuadratura-tab': 'search-wrap-cuadratura', 'tracker-tab': 'search-wrap-tracker', 'sameday-tab': 'search-wrap-sameday', 'kpi-tab': 'search-wrap-kpi' };
         const targetSearch = document.getElementById(searchIds[tabId]);
         if (targetSearch) targetSearch.classList.add('active');
         
@@ -1399,6 +1641,12 @@
             topNav.className = 'tracker-mode';
             headerTitleText.innerHTML = '<i class="fas fa-magnifying-glass"></i> Tracker';
             if (limitInfo) limitInfo.style.display = 'none';
+        } else if (tabId === 'sameday-tab') {
+            topNav.style.background = 'var(--bg-header-sameday)';
+            topNav.style.borderColor = 'var(--border-header-sameday)';
+            topNav.className = 'sameday-mode';
+            headerTitleText.innerHTML = '<i class="fas fa-clock-rotate-left"></i> Histórico Sameday';
+            if (limitInfo) limitInfo.style.display = 'none';
         } else if (tabId === 'kpi-tab') {
             topNav.style.background = 'var(--bg-header-kpi)';
             topNav.style.borderColor = 'var(--border-header-kpi)';
@@ -1414,6 +1662,7 @@
         }
 
         if (tabId === 'tracker-tab' && trackerChartInstance) trackerChartInstance.resize();
+        if (tabId === 'sameday-tab') { renderSameday(); if (sdChartInstance) sdChartInstance.resize(); }
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -1423,6 +1672,7 @@
         document.getElementById('filter-date-to').value = hoyStr;
         updateFechaLabel();
         resetTrackerFilters();
+        resetSamedayFilters();
         document.getElementById('limit-days-text').textContent = LIMITE_DIAS_BUSQUEDA;
     });
 
@@ -1474,6 +1724,7 @@
             selectedIds.forEach(id => { if (!allGuias.some(g => g.id === id)) selectedIds.delete(id); });
             render();
             updateStats();
+            renderSameday();
             renderTracker();
         });
     }
@@ -2519,7 +2770,7 @@
                 },
                 scales: {
                     x: { grid: { display: false }, ticks: { color: '#999', font: { size: 9 } } },
-                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#999', font: { size: 9 }, precision: 0 }, suggestedMax: Math.max(...data, 0) + Math.ceil((Math.max(...data, 0) || 1) * 0.25) }
+                    y: { beginAtZero: true, grid: { color: isLightBg() ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.05)' }, ticks: { color: '#999', font: { size: 9 }, precision: 0 }, suggestedMax: Math.max(...data, 0) + Math.ceil((Math.max(...data, 0) || 1) * 0.25) }
                 }
             }
         });
@@ -2692,6 +2943,277 @@
     // ============================================================
     //  KPI CHOfer LOGIC
     // ============================================================
+    // ============================================================
+    //  HISTÓRICO SAMEDAY
+    //  Una guía aparece solo si tuvo "INY SAMEDAY" y después se volvió a
+    //  registrar en un día posterior. Cuenta MÁXIMO 1 incidencia por guía
+    //  (fecha = primer registro posterior al primer INY SAMEDAY).
+    // ============================================================
+    let sdChartInstance = null;
+    let sdVisibleGuias = [];
+    const sdExpanded = new Set();
+
+    function sdEsc(v) { return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+    function sdKey(ts) { return dateToKey(new Date(ts)); }
+
+    function computeSamedayHistory() {
+        const groups = {};
+        allGuias.forEach(g => {
+            const k = String(g.guia || '').trim();
+            if (!k) return;
+            (groups[k] = groups[k] || []).push(g);
+        });
+        const out = [];
+        Object.keys(groups).forEach(k => {
+            const recs = groups[k].map(g => {
+                const d = dateKeyToDate(g.dateKey);
+                return { g, day: d ? d.getTime() : null };
+            }).filter(r => r.day !== null);
+            const sd = recs.filter(r => r.g.accion === 'INY SAMEDAY');
+            if (!sd.length) return;
+            const firstSd = sd.reduce((a, b) => (b.day < a.day ? b : a));
+            const after = recs.filter(r => r.day > firstSd.day);
+            if (!after.length) return;
+            const incidenceDay = Math.min.apply(null, after.map(r => r.day));
+            const sorted = recs.slice().sort((a, b) => (a.day - b.day) || ((a.g.timestamp || 0) - (b.g.timestamp || 0)));
+            out.push({
+                guia: k,
+                records: sorted.map(r => r.g),
+                firstSdDay: firstSd.day,
+                incidenceDay,
+                afterCount: after.length,
+                prov: firstSd.g.prov || ''
+            });
+        });
+        return out;
+    }
+
+    // Total de guías con INY SAMEDAY (con o sin reincidencia). Fecha = primer INY SAMEDAY de la guía.
+    function computeSamedayTotals() {
+        const first = {};
+        allGuias.forEach(g => {
+            if (g.accion !== 'INY SAMEDAY') return;
+            const k = String(g.guia || '').trim();
+            const d = dateKeyToDate(g.dateKey);
+            if (!k || !d) return;
+            const t = d.getTime();
+            if (!first[k] || t < first[k].day) first[k] = { guia: k, day: t, prov: g.prov || '' };
+        });
+        return Object.keys(first).map(k => first[k]);
+    }
+    function getSamedayTotalsFiltered() {
+        const q = (document.getElementById('sd-guia').value || '').trim().toLowerCase();
+        const fromVal = document.getElementById('sd-date-from').value;
+        const toVal = document.getElementById('sd-date-to').value;
+        const prov = document.getElementById('sd-proveedor').value;
+        const from = fromVal ? new Date(fromVal + 'T00:00:00').getTime() : -Infinity;
+        const to = toVal ? new Date(toVal + 'T00:00:00').getTime() : Infinity;
+        return computeSamedayTotals()
+            .filter(t => t.day >= from && t.day <= to)
+            .filter(t => !prov || t.prov === prov)
+            .filter(t => !q || t.guia.toLowerCase().includes(q));
+    }
+    function isLightBg() { return document.body.classList.contains('theme-light') || document.body.classList.contains('theme-traxion'); }
+
+    function getSamedayFiltered() {
+        const q = (document.getElementById('sd-guia').value || '').trim().toLowerCase();
+        const fromVal = document.getElementById('sd-date-from').value;
+        const toVal = document.getElementById('sd-date-to').value;
+        const prov = document.getElementById('sd-proveedor').value;
+        const from = fromVal ? new Date(fromVal + 'T00:00:00').getTime() : -Infinity;
+        const to = toVal ? new Date(toVal + 'T00:00:00').getTime() : Infinity;
+        return computeSamedayHistory()
+            .filter(h => h.incidenceDay >= from && h.incidenceDay <= to)
+            .filter(h => !prov || h.prov === prov)
+            .filter(h => !q || h.guia.toLowerCase().includes(q))
+            .sort((a, b) => (b.incidenceDay - a.incidenceDay) || a.guia.localeCompare(b.guia));
+    }
+
+    function resetSamedayFilters() {
+        const today = new Date();
+        const from = new Date(today);
+        from.setDate(from.getDate() - 29);
+        document.getElementById('sd-date-from').value = from.toLocaleDateString('sv-SE');
+        document.getElementById('sd-date-to').value = today.toLocaleDateString('sv-SE');
+        document.getElementById('sd-guia').value = '';
+        document.getElementById('sd-proveedor').value = '';
+        renderSameday();
+    }
+
+    function sdDetailHtml(h) {
+        const firstIncIdx = h.records.findIndex(g => {
+            const d = dateKeyToDate(g.dateKey);
+            return d && d.getTime() === h.incidenceDay;
+        });
+        let sdMarked = false;
+        const rows = h.records.map((g, i) => {
+            const d = dateKeyToDate(g.dateKey);
+            let tag = '';
+            if (!sdMarked && g.accion === 'INY SAMEDAY' && d && d.getTime() === h.firstSdDay) { tag = '<span class="sd-tag sd">1ER SAMEDAY</span>'; sdMarked = true; }
+            else if (i === firstIncIdx) tag = '<span class="sd-tag inc">INCIDENCIA</span>';
+            return `<tr>
+                <td>${tag}</td>
+                <td>${sdEsc(g.dateKey)}</td>
+                <td>${sdEsc(g.accion)}</td>
+                <td>${sdEsc(g.categoria)}</td>
+                <td>${sdEsc(g.prov)}</td>
+                <td>${sdEsc(g.tipo)}</td>
+                <td style="text-align:center;">${formatHoraMonterrey(g.timestamp)}</td>
+                <td style="color:var(--text-dim);">${sdEsc(g.operador)}</td>
+            </tr>`;
+        }).join('');
+        return `<table class="sd-detail-table"><thead><tr>
+            <th></th><th>FECHA</th><th>ACCIÓN</th><th>CATEGORÍA</th><th>PROVEEDOR</th><th>TIPO</th><th style="text-align:center;">HORA</th><th>OPERADOR</th>
+        </tr></thead><tbody>${rows}</tbody></table>`;
+    }
+
+    function renderSameday() {
+        if (!document.getElementById('sameday-tab')) return;
+        const list = getSamedayFiltered();
+        sdVisibleGuias = list;
+
+        document.getElementById('sd-count-label').textContent = `${list.length} guía(s)`;
+        document.getElementById('sd-empty-msg').style.display = list.length ? 'none' : 'block';
+        document.getElementById('sd-total-incidencias').textContent = list.length;
+        document.getElementById('sd-total-posteriores').textContent = list.reduce((s, h) => s + h.afterCount, 0);
+        const totals = getSamedayTotalsFiltered();
+        document.getElementById('sd-total-sameday').textContent = totals.length;
+        document.getElementById('sd-pct').textContent = totals.length
+            ? (Math.round((list.length / totals.length) * 1000) / 10).toLocaleString('es-MX') + '%' : '0%';
+
+        document.getElementById('sd-table-body').innerHTML = list.map(h => {
+            const open = sdExpanded.has(h.guia);
+            const main = `<tr class="sd-main ${open ? 'open' : ''}" data-guia="${sdEsc(h.guia)}">
+                <td><span class="sd-caret">▸</span></td>
+                <td><span class="guia-text">${sdEsc(h.guia)}</span></td>
+                <td>${sdKey(h.firstSdDay)}</td>
+                <td>${sdKey(h.incidenceDay)}</td>
+                <td style="text-align:center; font-weight:700; color:var(--accent);">${h.afterCount}</td>
+                <td>${sdEsc(h.prov)}</td>
+                <td style="text-align:center; font-weight:700;">${h.records.length}</td>
+            </tr>`;
+            const detail = open ? `<tr class="sd-detail"><td colspan="7">${sdDetailHtml(h)}</td></tr>` : '';
+            return main + detail;
+        }).join('');
+
+        renderSamedayChart(list, totals);
+    }
+
+    function renderSamedayChart(list, totals) {
+        const canvas = document.getElementById('sd-chart');
+        if (!canvas || typeof Chart === 'undefined') return;
+        const fromVal = document.getElementById('sd-date-from').value;
+        const toVal = document.getElementById('sd-date-to').value;
+        const counts = {}, sdCounts = {};
+        list.forEach(h => { const k = sdKey(h.incidenceDay); counts[k] = (counts[k] || 0) + 1; });
+        (totals || []).forEach(t => { const k = sdKey(t.day); sdCounts[k] = (sdCounts[k] || 0) + 1; });
+        let labels = [];
+        if (fromVal && toVal) {
+            let cur = new Date(fromVal + 'T00:00:00');
+            const end = new Date(toVal + 'T00:00:00');
+            let guard = 0;
+            while (cur <= end && guard < 370) {
+                labels.push(dateToKey(cur));
+                cur.setDate(cur.getDate() + 1);
+                guard++;
+            }
+        } else {
+            labels = Object.keys(Object.assign({}, counts, sdCounts)).sort((a, b) => dateKeyToDate(a) - dateKeyToDate(b));
+        }
+        const data = labels.map(l => counts[l] || 0);
+        const dataSd = labels.map(l => sdCounts[l] || 0);
+        const isTraxion = document.body.classList.contains('theme-traxion');
+        const lightBg = isLightBg();
+        const line = isTraxion ? '#c5d100' : '#a855f7';
+        const lineDot = isTraxion ? '#8f9900' : line;
+        const orange = '#f97316';
+        const ctx = canvas.getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+        gradient.addColorStop(0, isTraxion ? 'rgba(210,223,0,0.45)' : 'rgba(168,85,247,0.40)');
+        gradient.addColorStop(1, isTraxion ? 'rgba(210,223,0,0.03)' : 'rgba(168,85,247,0.02)');
+        const gradientOr = ctx.createLinearGradient(0, 0, 0, 260);
+        gradientOr.addColorStop(0, 'rgba(249,115,22,0.30)');
+        gradientOr.addColorStop(1, 'rgba(249,115,22,0.02)');
+        if (sdChartInstance) sdChartInstance.destroy();
+        const maxV = Math.max.apply(null, data.concat(dataSd, [0]));
+        const dot = lightBg ? '#ffffff' : '#0b0b0c';
+        sdChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels.map(l => l.split('/').slice(0, 2).join('/')),
+                datasets: [
+                    {
+                        label: 'Total INY SAMEDAY', data: dataSd, fill: true, backgroundColor: gradientOr,
+                        borderColor: orange, borderWidth: 2.5, tension: 0.35,
+                        pointRadius: 3.5, pointHoverRadius: 6,
+                        pointBackgroundColor: dot, pointBorderColor: orange, pointBorderWidth: 2,
+                        datalabels: { align: 'top', anchor: 'end', offset: 4, color: '#ffffff', backgroundColor: 'rgba(234,88,12,0.9)' }
+                    },
+                    {
+                        label: 'Incidencias (1 por guía)', data, fill: true, backgroundColor: gradient,
+                        borderColor: line, borderWidth: 2.5, tension: 0.35,
+                        pointRadius: 3.5, pointHoverRadius: 6,
+                        pointBackgroundColor: dot, pointBorderColor: lineDot, pointBorderWidth: 2,
+                        datalabels: {
+                            align: 'bottom', anchor: 'start', offset: 4,
+                            color: isTraxion ? '#1f2226' : '#f5eaff',
+                            backgroundColor: isTraxion ? 'rgba(210,223,0,0.95)' : 'rgba(126,34,206,0.7)'
+                        }
+                    }
+                ]
+            },
+            plugins: (typeof ChartDataLabels !== 'undefined') ? [ChartDataLabels] : [],
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                layout: { padding: { top: 26, left: 4, right: 4, bottom: 6 } },
+                interaction: { intersect: false, mode: 'index' },
+                plugins: {
+                    legend: { display: true, position: 'top', align: 'end', labels: { color: lightBg ? '#4b5057' : '#bbb', boxWidth: 12, boxHeight: 12, font: { size: 11, family: 'Lexend' } } },
+                    tooltip: { backgroundColor: '#1d1d21', titleColor: '#fff', bodyColor: '#fff', borderColor: '#2d2d34', borderWidth: 1, padding: 10, displayColors: true },
+                    datalabels: {
+                        font: { size: 10, weight: '700', family: 'Lexend' },
+                        formatter: (v) => v > 0 ? v : '',
+                        borderRadius: 4,
+                        padding: { top: 2, bottom: 2, left: 5, right: 5 }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: lightBg ? '#6b7280' : '#999', font: { size: 9 } } },
+                    y: { beginAtZero: true, grid: { color: lightBg ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.05)' }, ticks: { color: lightBg ? '#6b7280' : '#999', font: { size: 9 }, precision: 0 }, suggestedMax: maxV + Math.ceil((maxV || 1) * 0.25) }
+                }
+            }
+        });
+    }
+
+    document.getElementById('sd-table-body').addEventListener('click', (e) => {
+        const tr = e.target.closest('tr.sd-main');
+        if (!tr) return;
+        const g = tr.dataset.guia;
+        if (sdExpanded.has(g)) sdExpanded.delete(g); else sdExpanded.add(g);
+        renderSameday();
+    });
+    function sdToggleAll() {
+        const allOpen = sdVisibleGuias.length > 0 && sdVisibleGuias.every(h => sdExpanded.has(h.guia));
+        sdVisibleGuias.forEach(h => { if (allOpen) sdExpanded.delete(h.guia); else sdExpanded.add(h.guia); });
+        renderSameday();
+    }
+    function copySamedayToSheets() {
+        if (!sdVisibleGuias.length) { alert('No hay guías para copiar con este filtro.'); return; }
+        let text = "GUÍA\tFECHA\tACCIÓN\tCATEGORÍA\tPROVEEDOR\tTIPO\tHORA\tOPERADOR\tPRIMERA REINCIDENCIA\tREGISTROS POSTERIORES\n";
+        sdVisibleGuias.forEach(h => {
+            h.records.forEach(g => {
+                text += [h.guia, g.dateKey || '', g.accion || '', g.categoria || '', g.prov || '', g.tipo || '',
+                    formatHoraMonterrey(g.timestamp), g.operador || '', sdKey(h.incidenceDay), h.afterCount].join('\t') + '\n';
+            });
+        });
+        const done = () => alert(`¡Se copió el histórico de ${sdVisibleGuias.length} guía(s) listo para pegar en Google Sheets!`);
+        navigator.clipboard.writeText(text).then(done).catch(() => {
+            const t = document.createElement('textarea');
+            t.value = text; document.body.appendChild(t); t.select();
+            document.execCommand('copy'); document.body.removeChild(t); done();
+        });
+    }
+
     var kpiRows = [];
     var KPI_ENT = "entregado", KPI_NOE = "no entregado", KPI_TR2 = "no embarcado tr2";
     function kpiNorm(s) { return String(s == null ? "" : s).trim().toLowerCase().replace(/\s+/g, " "); }
